@@ -1,25 +1,43 @@
 #!/bin/bash
 
-#--------------------------------------
-# ENVIRONMENT VARIABLES
-#--------------------------------------
-
-WF_COMMAND="export set WEB_DIR=/share/Web/"
-BRC=~/.bashrc
-
-if grep -Fxq "$WF_COMMAND" $BRC
-then
-    echo "WEB_DIR environment variable already added."
+# disable a generic .profile:
+if [ -f ~/.profile ]; then
+  echo moving generic profile
+  mv ~/.profile ~/bak.profile
 else
-    echo -e "\n$WF_COMMAND" >> $BRC
+  echo no generic profile.
 fi
 
-source $BRC
+echo -e "\n ======================================"
+echo " == env variables"
+echo " ======================================"
+# all variables begin with $PREFIX
 
+PREFIX="MEM"
+BRC=~/.bashrc
 
-#-------------------------------------
-# SYM LINKS
-#- ------------------------------------
+function appendEnv {
+  ENV_KEY="$PREFIX_$1"
+  ENV_VAL="$2"
+  NEW_LINE="export $ENV_KEY=$ENV_VAL"
+  if grep -sq "^${NEW_LINE/ /\s}$" $BRC
+  then
+      echo "$ENV_KEY is already set."
+  else
+      echo "Adding \"$NEW_LINE\" to $BRC"
+      echo -e "$NEW_LINE" >> $BRC
+  fi
+}
+
+appendEnv "WEB_DIR" "/share/Web/"
+MBIN="/share/MD0_DATA/Public/bin/mbin/memoria"
+appendEnv "MBIN" "$MBIN"
+appendEnv "PATH" "\$MBIN:\$PATH"
+
+echo -e "\n ======================================"
+echo " == sym links"
+echo " ======================================"
+
 function linkdir {
   if [ ! -d "$1" ]; then
     echo "Create link to $2"
@@ -31,3 +49,4 @@ function linkdir {
 
 linkdir ~/media /share/Public/media
 linkdir ~/bin /share/Public/bin
+linkdir ~/mbin "$MBIN"
