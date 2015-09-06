@@ -1,12 +1,6 @@
 #!/bin/bash
 
-# disable a generic .profile:
-if [ -f ~/.profile ]; then
-  echo moving generic profile
-  mv ~/.profile ~/bak.profile
-else
-  echo no generic profile.
-fi
+PUBLIC="/share/MD0_DATA/Public/bin"
 
 echo -e "\n ======================================"
 echo " == env variables"
@@ -14,10 +8,10 @@ echo " ======================================"
 # all variables begin with $PREFIX
 
 PREFIX="MEM"
-BRC=~/.bashrc
+BRC=~/.profile
 
 function appendEnv {
-  ENV_KEY="$PREFIX_$1"
+  ENV_KEY="${PREFIX}_$1"
   ENV_VAL="$2"
   NEW_LINE="export $ENV_KEY=$ENV_VAL"
   if grep -sq "^${NEW_LINE/ /\s}$" $BRC
@@ -29,8 +23,9 @@ function appendEnv {
   fi
 }
 
-appendEnv "WEB_DIR" "/share/Web/"
-MBIN="/share/MD0_DATA/Public/bin/mbin/memoria"
+appendEnv "WEB_DIR" "/share/Web"
+appendEnv "TMPDIR" "$PUBLIC/tmp"
+MBIN="$PUBLIC/mbin/memoria"
 appendEnv "MBIN" "$MBIN"
 appendEnv "PATH" "\$MBIN:\$PATH"
 
