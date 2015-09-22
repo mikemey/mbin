@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PUBLIC="/share/MD0_DATA/Public/bin"
+PUBLIC="~/bin"
 
 echo -e "\n ======================================"
 echo " == env variables"
