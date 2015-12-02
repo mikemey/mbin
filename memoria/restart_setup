@@ -6,7 +6,7 @@ echo -e "\n ======================================"
 echo " == env variables"
 echo " ======================================"
 
-BRC=~/.profile
+BRC=~/.bash_profile
 
 function appendEnv {
   ENV_KEY="$1"
@@ -25,6 +25,7 @@ appendEnv "WEB_DIR" "/share/Web"
 appendEnv "TMPDIR" "$PUBLIC/tmp"
 MBIN="$PUBLIC/mbin/memoria"
 appendEnv "MBIN" "$MBIN"
+appendEnv "PATH" "/Apps/bin:\$PATH"
 appendEnv "PATH" "\$MBIN:\$PATH"
 
 echo -e "\n ======================================"
@@ -43,3 +44,6 @@ function linkdir {
 linkdir ~/media /share/Public/media
 linkdir ~/bin /share/Public/bin
 linkdir ~/mbin "$MBIN"
+
+echo insert into bashrc:
+echo "export PS1=\"\[\033[1;34m\]\u@\h\[\033[00m\] \[\033[0;32m\]\w\[\033[00m\] \\\$ \""
