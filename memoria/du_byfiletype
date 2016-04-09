@@ -1,0 +1,22 @@
+total=0
+count=0
+
+regex="(.*)[jJ][pP][gG]"
+while IFS= read -d $'\n' -r source ; do
+  if [[ "$source" =~ $regex ]]; then
+    space=$(ls -l "$source" | awk '{print $5}')
+    let total+=space
+    let count+=1
+    echo -ne "counted: $count \t\t Total: $total"\\r
+  else
+    echo -e  "skipped: $source"
+    if [[ "$1" == -l* ]]; then
+      echo -e "skipped: $source" >> $2
+    fi
+  fi
+done < <(find . -name '*')
+
+echo -ne \\n\\n
+echo sum: $total
+total=$(echo $total | awk '{ split( "KB MB GB" , v ); s=0; while( $1>1024 ){ $1/=1024; s++ } print int($1) " " v[s] }')
+echo sum: $total
