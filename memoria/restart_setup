@@ -45,5 +45,4 @@ linkdir ~/media /share/Public/media
 linkdir ~/bin /share/Public/bin
 linkdir ~/mbin "$MBIN"
 
-echo insert into bashrc:
-echo "export PS1=\"\[\033[1;34m\]\u@\h\[\033[00m\] \[\033[0;32m\]\w\[\033[00m\] \\\$ \""
+echo "export PS1=\"\\[\\033[1;34m\\]\\u@\\h\\[\\033[00m\\] \\[\\033[0;32m\\]\\w\\[\\033[00m\\] \\$ \"" >> $BRC
