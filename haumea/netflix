@@ -1,0 +1,4 @@
+
+U=https://netflix.com/browse
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --app=$U
+
