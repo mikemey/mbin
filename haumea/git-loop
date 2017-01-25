@@ -2,7 +2,7 @@ for dir in *
   do if [ -d $dir ] && [ -d "$dir/.git" ]
     then 
       cd $dir
-      printf "`$@` $FG_GREEN--> $dir$FG_DEFAULT\n"
+      printf "`$@` $FG_GREEN<-- $dir$FG_DEFAULT\n"
       cd ..
   fi
 done
