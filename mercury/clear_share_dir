@@ -1,0 +1,6 @@
+# find share/ -type f -print0 | xargs -0 rm -f
+
+while IFS='' read -r -d '' filename; do
+  echo "deleting: $filename"
+  rm -f "$filename"
+done < <(find share/ -type f -print0)
