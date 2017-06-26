@@ -1,0 +1,13 @@
+# find share/ -type f -print0 | xargs -0 rm -f
+
+
+DEL_FOLDER="/cygdrive/d/tmp/share"
+if [ $# -eq 0 ]; then
+  DEL_FOLDER="$DEL_FOLDER/_current"
+fi
+echo "Searching $DEL_FOLDER..."
+
+while IFS='' read -r -d '' filename; do
+  echo "deleting: $filename"
+  rm -f "$filename"
+done < <(find $DEL_FOLDER -type f -print0)
