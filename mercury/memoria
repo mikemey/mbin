@@ -1,0 +1,19 @@
+
+TARGET_URL="admin@192.168.0.68:~/media"
+case "$1" in
+  "-s" | "-series" )
+    TARGET_URL="$TARGET_URL/series"
+    SOURCES=${@:2}
+  ;;
+  "-m" | "-movies" )
+    TARGET_URL="$TARGET_URL/movies"
+    SOURCES=${@:2}
+  ;;
+  * )
+    TARGET_URL="$TARGET_URL/current"
+    SOURCES=$*
+  ;;
+esac
+
+echo "rsync to $TARGET_URL"
+rsync --progress --partial -r --perms --chmod=Du=rwx,Dgo=rx,Fa=rw $SOURCES $TARGET_URL

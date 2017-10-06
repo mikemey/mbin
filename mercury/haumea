@@ -1,0 +1,14 @@
+
+TARGET_URL="michael@192.168.0.10:~/Movies"
+case "$1" in
+  "-m" | "-movies" )
+    SOURCES=${@:2}
+  ;;
+  * )
+    TARGET_URL="$TARGET_URL/_current"
+    SOURCES=$*
+  ;;
+esac
+
+echo "rsync to $TARGET_URL"
+rsync --progress --partial -r --perms --chmod=Du=rwx,Dgo=rx,Fa=rw $SOURCES $TARGET_URL
