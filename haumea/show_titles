@@ -1,0 +1,7 @@
+for infile in *
+do
+  if [ -f "$infile" ]; then
+    echo $infile
+    ffprobe $infile 2>&1 | grep "^\s\{4\}title"
+  fi
+done

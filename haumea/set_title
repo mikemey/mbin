@@ -1,0 +1,18 @@
+abort_with() {
+  echo $1
+  echo -e "\nusage: $(basename -- $0) file title"
+  exit
+}
+
+if [ ! "$2" ]; then
+ abort_with "Error: 2 parameters required"
+fi
+
+if [ ! -f "$1" ]; then
+ abort_with "Error: Not a file: $1"
+fi
+
+TMP_FILE="$1.old"
+mv "$1" "$TMP_FILE"
+ffmpeg -i "$TMP_FILE" -stats -v 0 -c copy -metadata title="$2" "$1"
+rm "$TMP_FILE"
