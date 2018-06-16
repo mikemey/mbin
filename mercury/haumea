@@ -1,14 +1,15 @@
 
-TARGET_URL="michael@192.168.0.10:~/Movies"
+TARGET_URL="michael@haumea:~/Movies"
 case "$1" in
   "-m" | "-movies" )
-    SOURCES=${@:2}
+    shift
+    SOURCES="${@:2}"
   ;;
   * )
     TARGET_URL="$TARGET_URL/_current"
-    SOURCES=$*
+    SOURCES="$@"
   ;;
 esac
 
 echo "rsync to $TARGET_URL"
-rsync --progress --partial -r --perms --chmod=Du=rwx,Dgo=rx,Fa=rw $SOURCES $TARGET_URL
+rsync --progress --partial -r --perms --chmod=Du=rwx,Dgo=rx,Fa=rw --exclude="~u*" "$SOURCES" "$TARGET_URL"
