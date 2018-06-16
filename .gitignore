@@ -2,4 +2,7 @@ logs
 *.log
 .DS_Store
 .idea
+
 aeon*
+# ignore memoria sym link
+mercury/memoria
