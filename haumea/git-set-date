@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+DATE_FORMAT="%Y-%m-%d %H:%M:%S"
+abort_with() {
+  CMD_NAME=$(basename -- $0)
+  echo $1
+  echo -e "\n usage: $CMD_NAME commit date"
+  echo -e "\n   commit \t commit-hash"
+  echo -e "   date   \t Date string formatted as '$DATE_FORMAT' (local time)"
+  echo -e "\n example: $CMD_NAME e22200c47f67dcd2cfe32a0f3f2df5247f27087f \"2018-06-16 14:20:22\""
+  exit
+}
+
+if [ $# -ne 2 ]; then
+  abort_with "error: 2 arguments required!"
+fi
+
+COMMIT_FOUND=`git log | grep $1`
+if [ -z "$COMMIT_FOUND" ]; then
+  abort_with "commit not found in current branch: $1"
+fi
+
+NEW_COMMIT_DATE=`date -f "%Y-%m-%d %H:%M:%S" -j "$2" 2>/dev/null`
+if [ ! "$NEW_COMMIT_DATE" ]; then
+  abort_with "invalid date: '$2'"
+fi
+
+git filter-branch -f --env-filter \
+    'if [ $GIT_COMMIT = '$1' ]
+     then
+         export GIT_AUTHOR_DATE="'"$NEW_COMMIT_DATE"'"
+         export GIT_COMMITTER_DATE="'"$NEW_COMMIT_DATE"'"
+     fi'
