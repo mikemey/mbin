@@ -1,0 +1,50 @@
+function check_env () {
+  if [ ! ${!1} ]; then
+    echo "Environment variable '$1' not set!"
+    exit
+  fi
+}
+
+check_env MEMORIA
+check_env MEMORIA_CUR
+check_env MEMORIA_SER
+check_env MEMORIA_MOV
+
+case "$1" in
+  "-c" )
+    shift
+    SOURCES="$@"
+    TARGET="$MEMORIA:$MEMORIA_CUR"
+  ;;
+  "-s" )
+    shift
+    SOURCES="$@"
+    TARGET="$MEMORIA:$MEMORIA_SER"
+  ;;
+  "-m" )
+    shift
+    SOURCES="$@"
+    TARGET="$MEMORIA:$MEMORIA_MOV"
+  ;;
+  "-gs" )
+    shift
+    SOURCES="$MEMORIA:$MEMORIA_SER/$@"
+    TARGET="."
+  ;;
+  "-gm" )
+    shift
+    SOURCES="$MEMORIA:$MEMORIA_MOV/$@"
+    TARGET="."
+  ;;
+  * )
+    SSH=1
+  ;;
+esac
+
+if [ $SSH ]; then
+  echo "sshing into $MEMORIA"
+  ssh $MEMORIA
+else
+  echo "rsync from $SOURCES to $TARGET"
+  rsync --progress --partial -r --perms --chmod=Du=rwx,Dgo=rx,Fa=rw --exclude=".DS*" "$SOURCES" "$TARGET"
+fi
