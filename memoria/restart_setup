@@ -1,12 +1,13 @@
 #!/bin/bash
 
-PUBLIC="~/bin"
+USER_HOME="/root"
+PUBLIC="/share/MD0_DATA/Public"
 
 echo -e "\n ======================================"
 echo " == env variables"
 echo " ======================================"
 
-BRC=~/.bash_profile
+BRC=$USER_HOME/.bash_profile
 
 function appendEnv {
   ENV_KEY="$1"
@@ -22,8 +23,7 @@ function appendEnv {
 }
 
 appendEnv "WEB_DIR" "/share/Web"
-appendEnv "TMPDIR" "$PUBLIC/tmp"
-MBIN="$PUBLIC/mbin/memoria"
+MBIN="$PUBLIC/bin/mbin/memoria"
 appendEnv "MBIN" "$MBIN"
 appendEnv "PATH" "/Apps/bin:\$PATH"
 appendEnv "PATH" "\$MBIN:\$PATH"
@@ -41,11 +41,11 @@ function linkdir {
   fi
 }
 
-linkdir ~/media /share/Public/media
-linkdir ~/bin /share/Public/bin
-linkdir ~/mbin /share/Public/bin/mbin
+linkdir $USER_HOME/media $PUBLIC/media
+linkdir $USER_HOME/bin $PUBLIC/bin
+# linkdir $USER_HOME/mbin $PUBLIC/bin/mbin
+linkdir $USER_HOME/data $PUBLIC/data
 
 echo "export PS1=\"\\[\\033[1;34m\\]\\u@\\h\\[\\033[00m\\] \\[\\033[0;32m\\]\\w\\[\\033[00m\\] \\$ \"" >> $BRC
-echo "alias shutdown=halt" >> $BRC
+echo "alias shutdown=\"halt\"" >> $BRC
 
-source $BRC
