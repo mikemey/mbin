@@ -1,0 +1,17 @@
+FIND_CHAR="ù"
+FIND_CHARS=(
+   "à" "è" "ì" "ò" "ù"
+   "á" "é" "í" "ó" "ú"
+)
+
+IFS=$'\n'
+srts=($(find . -name *.srt))
+slen=${#srts[@]}
+
+for (( i=0; i<${slen}; i++ )); do 
+  f=${srts[$i]}
+  echo "checking $((i+1))/$slen"
+  for chr in "${FIND_CHARS[@]}"; do
+    grep -Hn $chr "$f"
+  done
+done
