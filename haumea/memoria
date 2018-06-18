@@ -36,6 +36,10 @@ case "$1" in
     SOURCES="$MEMORIA:$MEMORIA_MOV/$@"
     TARGET="."
   ;;
+  "-h" | "--help" )
+    echo -e "\n usage: $(basename -- $0) [ -c | -s | -m | -gs | -gm ] file"
+    exit
+  ;;
   * )
     SSH=1
   ;;
