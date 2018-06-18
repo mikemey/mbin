@@ -46,5 +46,8 @@ if [ $SSH ]; then
   ssh $MEMORIA
 else
   echo "rsync from $SOURCES to $TARGET"
-  rsync --progress --partial -r --perms --chmod=Du=rwx,Dgo=rx,Fa=rw --exclude=".DS*" "$SOURCES" "$TARGET"
+  rsync --progress --partial -r \
+      --perms --chmod=Du=rwx,Dgo=rx,Fa=rw \
+      --exclude=".DS*" --exclude="~*" \
+      "$SOURCES" "$TARGET"
 fi
