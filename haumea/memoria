@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 function check_env () {
   if [ ! ${!1} ]; then
     echo "Environment variable '$1' not set!"
@@ -6,6 +8,13 @@ function check_env () {
 }
 
 check_env MEMORIA
+
+if [ $# -eq 0 ]; then
+  echo "sshing into $MEMORIA"
+  ssh $MEMORIA
+  exit
+fi
+
 check_env MEMORIA_CUR
 check_env MEMORIA_SER
 check_env MEMORIA_MOV
@@ -37,21 +46,24 @@ case "$1" in
     TARGET="."
   ;;
   "-h" | "--help" )
-    echo -e "\n usage: $(basename -- $0) [ -c | -s | -m | -gs | -gm ] file"
+    echo -e "\n usage: $(basename -- $0) [ DIRECTION ] [ -R ] file"
+    echo -e "\t DIRECTION options:"
+    echo -e "\t\t -c  \t send to current (default)"
+    echo -e "\t\t -s  \t send to series"
+    echo -e "\t\t -m  \t send to movies"
+    echo -e "\t\t -gs \t get series"
+    echo -e "\t\t -gm \t get movies"
+    echo -e "\t -R  \t use relative path names"
     exit
   ;;
   * )
-    SSH=1
+    SOURCES="$@"
+    TARGET="$MEMORIA:$MEMORIA_CUR"
   ;;
 esac
 
-if [ $SSH ]; then
-  echo "sshing into $MEMORIA"
-  ssh $MEMORIA
-else
-  echo "rsync from $SOURCES to $TARGET"
-  rsync --progress --partial -r \
-      --perms --chmod=Du=rwx,Dgo=rx,Fa=rw \
-      --exclude=".DS*" --exclude="~*" \
-      "$SOURCES" "$TARGET"
-fi
+echo "rsync from $SOURCES to $TARGET"
+rsync --progress --partial -r \
+  --perms --chmod=Du=rwx,Dgo=rx,Fa=rw \
+  --exclude=".DS*" --exclude="~*" \
+  "$SOURCES" "$TARGET"
