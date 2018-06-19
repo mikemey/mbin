@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 
+function print_usage () {
+  echo -e "\n usage: $(basename -- $0) [ DIRECTION ] [ OPTIONS ] file"
+  echo "DIRECTION"
+  echo -e "\t -c  \t send to current (default)"
+  echo -e "\t -s  \t send to series"
+  echo -e "\t -m  \t send to movies"
+  echo -e "\t -gs \t get series"
+  echo -e "\t -gm \t get movies"
+  echo "OPTIONS"
+  echo -e "\t -R  \t use relative path names"
+  echo -e "\t -h  \t show this help"
+}
+
 function check_env () {
   if [ ! ${!1} ]; then
     echo "Environment variable '$1' not set!"
@@ -19,51 +32,67 @@ check_env MEMORIA_CUR
 check_env MEMORIA_SER
 check_env MEMORIA_MOV
 
-case "$1" in
+PATH_ARGS=( "$@" )
+USE_RELATIVE_PATHS=
+
+function remove_first_path_arg () {
+  PATH_ARGS=( "${PATH_ARGS[@]:1}" )
+}
+
+function check_for_relative_paths () {
+  if [ "${PATH_ARGS[0]}" == "-R" ]; then
+    USE_RELATIVE_PATHS=1
+    remove_first_path_arg
+  fi
+}
+
+case "${PATH_ARGS[0]}" in
   "-c" )
-    shift
-    SOURCES="$@"
+    remove_first_path_arg
+    check_for_relative_paths
+    SOURCES="${PATH_ARGS[@]}"
     TARGET="$MEMORIA:$MEMORIA_CUR"
   ;;
   "-s" )
-    shift
-    SOURCES="$@"
+    remove_first_path_arg
+    check_for_relative_paths
+    SOURCES="${PATH_ARGS[@]}"
     TARGET="$MEMORIA:$MEMORIA_SER"
   ;;
   "-m" )
-    shift
-    SOURCES="$@"
+    remove_first_path_arg
+    check_for_relative_paths
+    SOURCES="${PATH_ARGS[@]}"
     TARGET="$MEMORIA:$MEMORIA_MOV"
   ;;
   "-gs" )
-    shift
-    SOURCES="$MEMORIA:$MEMORIA_SER/$@"
+    remove_first_path_arg
+    check_for_relative_paths
+    SOURCES="$MEMORIA:$MEMORIA_SER/${PATH_ARGS[@]}"
     TARGET="."
   ;;
   "-gm" )
-    shift
-    SOURCES="$MEMORIA:$MEMORIA_MOV/$@"
+    remove_first_path_arg
+    check_for_relative_paths
+    SOURCES="$MEMORIA:$MEMORIA_MOV/${PATH_ARGS[@]}"
     TARGET="."
   ;;
-  "-h" | "--help" )
-    echo -e "\n usage: $(basename -- $0) [ DIRECTION ] [ -R ] file"
-    echo -e "\t DIRECTION options:"
-    echo -e "\t\t -c  \t send to current (default)"
-    echo -e "\t\t -s  \t send to series"
-    echo -e "\t\t -m  \t send to movies"
-    echo -e "\t\t -gs \t get series"
-    echo -e "\t\t -gm \t get movies"
-    echo -e "\t -R  \t use relative path names"
+  -[!R] )
+    if [ "${PATH_ARGS[0]}" != "-h" ]; then
+      echo "illegal option ${PATH_ARGS[0]}"
+    fi
+    print_usage
     exit
   ;;
-  * )
-    SOURCES="$@"
+  * ) # default option is -c
+    check_for_relative_paths
+    SOURCES="${PATH_ARGS[@]}"
     TARGET="$MEMORIA:$MEMORIA_CUR"
   ;;
 esac
 
-echo "rsync from $SOURCES to $TARGET"
-rsync --progress --partial -r \
+echo "rsync $SOURCES to $TARGET ${USE_RELATIVE_PATHS:+(using relative path names)}"
+rsync --progress --partial -r ${USE_RELATIVE_PATHS:+-R} \
   --perms --chmod=Du=rwx,Dgo=rx,Fa=rw \
   --exclude=".DS*" --exclude="~*" \
   "$SOURCES" "$TARGET"
