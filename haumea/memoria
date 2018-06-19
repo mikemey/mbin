@@ -68,13 +68,13 @@ case "${PATH_ARGS[0]}" in
   "-gs" )
     remove_first_path_arg
     check_for_relative_paths
-    SOURCES=( "$MEMORIA:$MEMORIA_SER/${PATH_ARGS[@]}" )
+    SOURCES=( "$MEMORIA:$MEMORIA_SER/${PATH_ARGS[0]}" )
     TARGET="."
   ;;
   "-gm" )
     remove_first_path_arg
     check_for_relative_paths
-    SOURCES=( "$MEMORIA:$MEMORIA_MOV/${PATH_ARGS[@]}" )
+    SOURCES=( "$MEMORIA:$MEMORIA_MOV/${PATH_ARGS[0]}" )
     TARGET="."
   ;;
   -[!R] )
