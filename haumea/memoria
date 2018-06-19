@@ -24,7 +24,7 @@ check_env MEMORIA
 
 if [ $# -eq 0 ]; then
   echo "sshing into $MEMORIA"
-  ssh $MEMORIA
+  ssh "$MEMORIA"
   exit
 fi
 
