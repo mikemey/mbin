@@ -50,31 +50,31 @@ case "${PATH_ARGS[0]}" in
   "-c" )
     remove_first_path_arg
     check_for_relative_paths
-    SOURCES="${PATH_ARGS[@]}"
+    SOURCES=( "${PATH_ARGS[@]}" )
     TARGET="$MEMORIA:$MEMORIA_CUR"
   ;;
   "-s" )
     remove_first_path_arg
     check_for_relative_paths
-    SOURCES="${PATH_ARGS[@]}"
+    SOURCES=( "${PATH_ARGS[@]}" )
     TARGET="$MEMORIA:$MEMORIA_SER"
   ;;
   "-m" )
     remove_first_path_arg
     check_for_relative_paths
-    SOURCES="${PATH_ARGS[@]}"
+    SOURCES=( "${PATH_ARGS[@]}" )
     TARGET="$MEMORIA:$MEMORIA_MOV"
   ;;
   "-gs" )
     remove_first_path_arg
     check_for_relative_paths
-    SOURCES="$MEMORIA:$MEMORIA_SER/${PATH_ARGS[@]}"
+    SOURCES=( "$MEMORIA:$MEMORIA_SER/${PATH_ARGS[@]}" )
     TARGET="."
   ;;
   "-gm" )
     remove_first_path_arg
     check_for_relative_paths
-    SOURCES="$MEMORIA:$MEMORIA_MOV/${PATH_ARGS[@]}"
+    SOURCES=( "$MEMORIA:$MEMORIA_MOV/${PATH_ARGS[@]}" )
     TARGET="."
   ;;
   -[!R] )
@@ -86,13 +86,13 @@ case "${PATH_ARGS[0]}" in
   ;;
   * ) # default option is -c
     check_for_relative_paths
-    SOURCES="${PATH_ARGS[@]}"
+    SOURCES=( "${PATH_ARGS[@]}" )
     TARGET="$MEMORIA:$MEMORIA_CUR"
   ;;
 esac
 
-echo "rsync $SOURCES to $TARGET ${USE_RELATIVE_PATHS:+(using relative path names)}"
+echo "rsync ${SOURCES[@]%/} to $TARGET ${USE_RELATIVE_PATHS:+(using relative path names)}"
 rsync --progress --partial -r ${USE_RELATIVE_PATHS:+-R} \
   --perms --chmod=Du=rwx,Dgo=rx,Fa=rw \
   --exclude=".DS*" --exclude="~*" \
-  "$SOURCES" "$TARGET"
+  "${SOURCES[@]%/}" "$TARGET"
