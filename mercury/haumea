@@ -3,7 +3,7 @@ TARGET_URL="michael@haumea:~/Movies"
 case "$1" in
   "-m" | "-movies" )
     shift
-    SOURCES="${@:2}"
+    SOURCES="${@:1}"
   ;;
   * )
     TARGET_URL="$TARGET_URL/_current"
