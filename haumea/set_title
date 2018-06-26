@@ -24,13 +24,15 @@ replace_title() {
 }
 
 if [ "$1" == "-auto" ]; then
-  echo "replacing all *.$2"
+  echo "setting titles in all *.$2 files..."
+  epDiv="S[0-9][0-9]E[0-9][0-9]"
   for infile in *.${2}; do
     if [ -f "$infile" ]; then
-      title="${infile//.$2/}"
-      title="${title//*S[0-9][0-9]E[0-9][0-9][\.]/}"
-      title="${title//./ }"
-      echo "$infile > $title"
+      title=$(echo "$infile" | sed "s/.*$epDiv.\(.*\)\.$2/\1/")
+      serName=$(echo "$infile" | sed "s/\(.*\)\.$epDiv.*/\1/")
+      epNum=$(echo "$infile" | sed "s/.*\($epDiv\).*/\1/")
+      title="${serName//./ } ${epNum} ${title//./ }"
+      echo "$infile <$title>"
       replace_title "$infile" "$title"
     fi
   done
