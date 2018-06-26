@@ -1,18 +1,40 @@
+#!/usr/bin/env bash
+
 abort_with() {
   echo $1
-  echo -e "\nusage: $(basename -- $0) file title"
+  cmdName="$(basename -- $0)"
+  echo -e "\nusage: $cmdName file title"
+  echo -e "       $cmdName -auto extension     automatically sets default title in *.extension files"
   exit
 }
 
-if [ ! "$2" ]; then
- abort_with "Error: 2 parameters required"
-fi
+replace_title() {
+  if [ ! "$2" ]; then
+   abort_with "Error: 2 parameters required"
+  fi
 
-if [ ! -f "$1" ]; then
- abort_with "Error: Not a file: $1"
-fi
+  if [ ! -f "$1" ]; then
+   abort_with "Error: Not a file: $1"
+  fi
 
-TMP_FILE="$1.old"
-mv "$1" "$TMP_FILE"
-ffmpeg -i "$TMP_FILE" -stats -v 0 -c copy -metadata title="$2" "$1"
-rm "$TMP_FILE"
+  TMP_FILE="$1.old"
+  mv "$1" "$TMP_FILE"
+  ffmpeg -i "$TMP_FILE" -stats -v 0 -c copy -metadata title="$2" "$1"
+  rm "$TMP_FILE"
+}
+
+if [ "$1" == "-auto" ]; then
+  echo "replacing all *.$2"
+  for infile in *.${2}; do
+    if [ -f "$infile" ]; then
+      title="${infile//.$2/}"
+      title="${title//*S[0-9][0-9]E[0-9][0-9][\.]/}"
+      title="${title//./ }"
+      echo "$infile > $title"
+      replace_title "$infile" "$title"
+    fi
+  done
+
+else
+  replace_title "$1" "$2"
+fi
