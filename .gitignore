@@ -4,5 +4,6 @@ logs
 .idea
 
 aeon*
-# ignore memoria sym link
+# ignore sym links
 mercury/memoria
+memoria/set_title
