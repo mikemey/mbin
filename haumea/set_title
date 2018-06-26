@@ -32,7 +32,7 @@ if [ "$1" == "-auto" ]; then
       serName=$(echo "$infile" | sed "s/\(.*\)\.$epDiv.*/\1/")
       epNum=$(echo "$infile" | sed "s/.*\($epDiv\).*/\1/")
       title="${serName//./ } ${epNum} ${title//./ }"
-      echo "$infile <$title>"
+      echo -e "$infile <\033[92m${title}\033[39m>"
       replace_title "$infile" "$title"
     fi
   done
