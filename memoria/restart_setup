@@ -2,12 +2,16 @@
 
 USER_HOME="/root"
 PUBLIC="/share/MD0_DATA/Public"
+BRC=$USER_HOME/.bash_profile
+
+function appendLine {
+  echo "Adding \"$1\" to $BRC"
+  echo "$1" >> $BRC
+}
 
 echo -e "\n ======================================"
 echo " == env variables"
 echo " ======================================"
-
-BRC=$USER_HOME/.bash_profile
 
 function appendEnv {
   ENV_KEY="$1"
@@ -15,10 +19,9 @@ function appendEnv {
   NEW_LINE="export $ENV_KEY=$ENV_VAL"
   if grep -sq "^${NEW_LINE/ /\s}$" $BRC
   then
-      echo "$ENV_KEY is already set."
+    echo "$ENV_KEY is already set."
   else
-      echo "Adding \"$NEW_LINE\" to $BRC"
-      echo -e "$NEW_LINE" >> $BRC
+    appendLine "$NEW_LINE"
   fi
 }
 
@@ -46,6 +49,9 @@ linkdir $USER_HOME/bin $PUBLIC/bin
 # linkdir $USER_HOME/mbin $PUBLIC/bin/mbin
 linkdir $USER_HOME/data $PUBLIC/data
 
-echo "export PS1=\"\\[\\033[1;34m\\]\\u@\\h\\[\\033[00m\\] \\[\\033[0;32m\\]\\w\\[\\033[00m\\] \\$ \"" >> $BRC
-echo "alias shutdown=\"halt\"" >> $BRC
+echo -e "\n ======================================"
+echo " == line appendices"
+echo " ======================================"
 
+appendLine "export PS1=\"\\[\\033[1;34m\\]\\u@\\h\\[\\033[00m\\] \\[\\033[0;32m\\]\\w\\[\\033[00m\\] \\$ \""
+appendLine "alias shutdown=\"halt\""
