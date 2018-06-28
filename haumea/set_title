@@ -4,7 +4,7 @@ abort_with() {
   echo $1
   cmdName="$(basename -- $0)"
   echo -e "\nusage: $cmdName file title"
-  echo -e "       $cmdName -auto extension     automatically sets default title in *.extension files"
+  echo -e "       $cmdName -auto [ -d ] extension     automatically sets default title in *.extension files (-d for dry-run)"
   exit
 }
 
@@ -25,7 +25,11 @@ replace_title() {
 
 if [ "$1" == "-auto" ]; then
   echo "setting titles in all *.$2 files..."
-  epDiv="S[0-9][0-9]E[0-9][0-9]"
+  if [ "$2" == "-d" ]; then
+    DRYRUN=1
+    shift
+  fi
+  epDiv="S[0-9][0-9]E[^.]*"
   for infile in *.${2}; do
     if [ -f "$infile" ]; then
       title=$(echo "$infile" | sed "s/.*$epDiv.\(.*\)\.$2/\1/")
@@ -33,7 +37,9 @@ if [ "$1" == "-auto" ]; then
       epNum=$(echo "$infile" | sed "s/.*\($epDiv\).*/\1/")
       title="${serName//./ } ${epNum} ${title//./ }"
       echo -e "$infile <\033[92m${title}\033[39m>"
-      replace_title "$infile" "$title"
+      if [ -z $DRYRUN ]; then
+         replace_title "$infile" "$title"
+      fi
     fi
   done
 
