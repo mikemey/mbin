@@ -8,6 +8,10 @@ abort_with() {
   exit
 }
 
+COL_GREEN="\033[92m"
+COL_RED="\033[91m"
+COL_DEFAULT="\033[39m"
+
 replace_title() {
   if [ ! "$2" ]; then
    abort_with "Error: 2 parameters required"
@@ -23,12 +27,18 @@ replace_title() {
   rm "$TMP_FILE"
 }
 
+dry_run_message() {
+  echo -e "================= ${COL_RED} DRY-RUN ${COL_DEFAULT} ================="
+}
+
 if [ "$1" == "-auto" ]; then
-  echo "setting titles in all *.$2 files..."
   if [ "$2" == "-d" ]; then
+    dry_run_message
     DRYRUN=1
     shift
   fi
+
+  echo "setting titles in all *.$2 files..."
   epDiv="S[0-9][0-9]E[^.]*"
   for infile in *.${2}; do
     if [ -f "$infile" ]; then
@@ -36,13 +46,16 @@ if [ "$1" == "-auto" ]; then
       serName=$(echo "$infile" | sed "s/\(.*\)\.$epDiv.*/\1/")
       epNum=$(echo "$infile" | sed "s/.*\($epDiv\).*/\1/")
       title="${serName//./ } ${epNum} ${title//./ }"
-      echo -e "$infile <\033[92m${title}\033[39m>"
+      echo -e "$infile <${COL_GREEN}${title}${COL_DEFAULT}>"
       if [ -z $DRYRUN ]; then
          replace_title "$infile" "$title"
       fi
     fi
   done
 
+  if [ $DRYRUN ]; then
+    dry_run_message
+  fi
 else
   replace_title "$1" "$2"
 fi
