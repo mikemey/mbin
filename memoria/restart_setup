@@ -35,7 +35,7 @@ echo -e "\n ======================================"
 echo " == sym links"
 echo " ======================================"
 
-function savelink {
+function safelink {
   if [ ! -d "$1" ]; then
     echo "Create link to $2"
     ln -s $2 $1
@@ -44,10 +44,10 @@ function savelink {
   fi
 }
 
-savelink $USER_HOME/media $PUBLIC/media
-savelink $USER_HOME/bin $PUBLIC/bin
-savelink $USER_HOME/data $PUBLIC/data
-savelink $MBIN/set_title $MBIN/../haumea/set_title
+safelink $USER_HOME/media $PUBLIC/media
+safelink $USER_HOME/bin $PUBLIC/bin
+safelink $USER_HOME/data $PUBLIC/data
+safelink $MBIN/set_title $MBIN/../haumea/set_title
 
 echo -e "\n ======================================"
 echo " == line appendices"
