@@ -1,7 +1,10 @@
-for infile in *
-do
-  if [ -f "$infile" ]; then
-    echo $infile
-    ffprobe $infile 2>&1 | grep "^\s\{4\}title"
-  fi
+if [ -z "$1" ]; then
+ DIR="."
+else
+ DIR="${1%\/}"
+fi
+
+find -s $DIR -type f -d 1 \( -iname "*.mkv" -or -iname "*.avi" -or -iname "*.mp4" \) -print0 | while IFS= read -r -d $'\0' file; do
+    echo "$file"
+    ffprobe "$file" 2>&1 | grep "^\s\{4\}title"
 done
