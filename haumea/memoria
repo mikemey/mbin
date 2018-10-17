@@ -85,7 +85,7 @@ case "${PATH_ARGS[0]}" in
     print_usage
     exit
   ;;
-  * ) # default option is -c
+  * ) # default option uses same path as -c
     check_for_relative_paths
     SOURCES=( "${PATH_ARGS[@]}" )
     TARGET="$MEMORIA:$MEMORIA_CUR"
