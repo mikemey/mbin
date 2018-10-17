@@ -4,7 +4,8 @@ logs
 .idea
 
 aeon*
-# ignore sym links
+# ignore machine specifics
 mercury/memoria
 memoria/set_title
 memoria/haumea
+memoria/paths
