@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 function print_usage () {
-  echo -e "\n usage: $(basename -- $0) [DIRECTION] [OPTIONS] file"
+  echo -e "\n usage: $(basename $0) [DIRECTION] [OPTIONS] file"
   echo -e "\nssh to $HAUMEA when no arguments given."
   echo "DIRECTION"
   echo -e "\t -c  \t send to current (default)"

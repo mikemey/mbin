@@ -2,7 +2,7 @@
 
 abort_with() {
   echo $1
-  cmdName="$(basename -- $0)"
+  cmdName="$(basename $0)"
   echo -e "\nusage: $cmdName file title"
   echo -e "       $cmdName -auto [ -d ] extension     automatically sets default title in *.extension files (-d for dry-run)"
   exit
