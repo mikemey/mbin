@@ -1,7 +1,10 @@
-for infile in *
-do
-  if [ -f "$infile" ]; then
-    echo $infile
-    ffmpeg -i $infile 2>&1 | grep "^\s\{4\}title"
-  fi
+if [ -z "$1" ]; then
+  DIR="."
+else
+  DIR="${1%\/}"
+fi
+
+find "$DIR" -type f | while read infile; do
+  echo "$infile"
+  ffmpeg -i "$infile" 2>&1 | grep "^\s\{4\}title"
 done
