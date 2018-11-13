@@ -61,6 +61,6 @@ echo -e "\n ======================================"
 echo " == line appendices"
 echo " ======================================"
 
-appendLine "export PS1=\"\\[\\033[1;34m\\]\\u@\\h\\[\\033[00m\\] \\[\\033[0;32m\\]\\w\\[\\033[00m\\] \\$ \""
+appendLine "export PS1=\"\\n\\[\\033[1;34m\\]\\u@\\h\\[\\033[00m\\] \\[\\033[0;32m\\]\\w\\[\\033[00m\\]\\n\\$ \""
 appendLine "alias shutdown=\"halt\""
 appendLine "bind 'set mark-symlinked-directories on'"
