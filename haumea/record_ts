@@ -1,0 +1,23 @@
+output="output.ts"
+filelist="mylist.txt"
+urlpattern="https:/A.mp4/m_XXX.ts"
+pieces=11
+
+if [ -f $filelist ]; then
+  echo "File list exists: $filelist"
+  exit
+fi
+
+for counter in $(seq 0 $pieces); do
+  url="${urlpattern/XXX/$counter}"
+  file="$counter.ts"
+  wget -O "$file" "$url"
+  if [ $? -ne 0 ]; then
+     echo "ERROR"
+     exit
+  fi
+  echo "file '$file'" >> $filelist
+  sleep 5
+done
+
+ffmpeg -f concat -safe 0 -i "$filelist" -c copy "$output"
