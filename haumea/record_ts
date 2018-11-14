@@ -1,23 +1,55 @@
+function error_message () {
+  echo "ERROR: $1"
+  echo -e "\n usage: $(basename -- $0) url_pattern max_piece_num"
+  echo -e "\nParameters:"
+  echo -e "\t url_pattern \t URL pattern to use for iteration"
+  echo -e "\t max_piece_num \t upper limit of pieces (inclusive)"
+  exit
+}
+
+function check_file () {
+  if [ -f "$1" ]; then
+    error_message "$2 already exists: $1"
+  fi
+}
+
+function check_param () {
+  if [ ! "$1" ]; then
+    error_message "$2"
+  fi
+}
+
 output="output.ts"
 filelist="mylist.txt"
-urlpattern="https:/A.mp4/m_XXX.ts"
-pieces=11
+replace="XXX"
+urlpattern="$1"
+pieces="$2"
 
-if [ -f $filelist ]; then
-  echo "File list exists: $filelist"
-  exit
+check_file "$filelist" "File list"
+check_file "$output" "Output file"
+
+check_param "$urlpattern" "URL pattern not provided!"
+if [[ ${urlpattern} != *$replace* ]]; then
+  error_message "URL pattern does not contain the replacement pattern \"$replace\""
 fi
 
+check_param "$pieces" "upper limit of pieces not provided!"
+if ! [[ "$pieces" =~ ^[0-9]+$ ]]; then
+  error_message "upper limit parameter not a number!"
+fi
+
+
 for counter in $(seq 0 $pieces); do
-  url="${urlpattern/XXX/$counter}"
+  url="${urlpattern/$replace/$counter}"
   file="$counter.ts"
-  wget -O "$file" "$url"
+  wget -q --show-progress -O "$file" "$url"
   if [ $? -ne 0 ]; then
      echo "ERROR"
      exit
   fi
   echo "file '$file'" >> $filelist
-  sleep 5
+  sleep 3
 done
 
 ffmpeg -f concat -safe 0 -i "$filelist" -c copy "$output"
+
