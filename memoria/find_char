@@ -1,4 +1,5 @@
-FIND_CHAR="ù"
+#!/usr/bin/env bash
+
 FIND_CHARS=(
    "à" "è" "ì" "ò" "ù"
    "á" "é" "í" "ó" "ú"
