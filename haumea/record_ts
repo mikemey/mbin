@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 function error_message () {
   echo "ERROR: $1"
   echo -e "\n usage: $(basename -- $0) url_pattern max_piece_num"
