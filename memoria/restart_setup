@@ -43,7 +43,7 @@ echo " == sym links"
 echo " ======================================"
 
 function safelink {
-  if [ ! -d "$1" ]; then
+  if [ ! -e "$1" ]; then
     echo "Create link to $2"
     ln -s $2 $1
   else
