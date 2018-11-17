@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+function print_usage_exit () {
+  echo -e "\n usage: $(basename $0) sl[n]..."
+  echo -e "\nSpaces in parameters are ignored."
+  echo -e "\t s  \t short beep"
+  echo -e "\t l  \t long beep"
+  echo -e "\t n  \t pauses for n seconds"
+  exit
+}
+
+short_beep () {
+  /sbin/pic_raw 80
+}
+
+long_beep () {
+  /sbin/pic_raw 81
+}
+
+cmdlist="$*"
+cmdlist="${cmdlist// /}"
+
+if [[ ${cmdlist} =~ ([^ls0-9]) ]]; then
+  echo "ERROR: unrecognised command: ${BASH_REMATCH[1]}"
+  print_usage_exit
+fi
+
+while [ $cmdlist ]; do
+  [[ $cmdlist =~ ([ls]|[0-9]*)(.*) ]]
+  action="${BASH_REMATCH[1]}"
+  cmdlist="${BASH_REMATCH[2]}"
+  
+  case $action in
+    "l" )
+      long_beep
+    ;;
+    "s" )
+      short_beep
+    ;;
+    [0-9]* )
+      sleep $action
+    ;;
+    * )
+      echo "general error"
+      print_usage_exit
+    ;;
+  esac
+done
+
