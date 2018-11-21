@@ -27,10 +27,11 @@ function appendEnv {
 
 appendEnv "WEB_DIR" "/share/Web"
 MBIN="$PUBLIC/bin/mbin/memoria"
+MBINCOMMON="$PUBLIC/bin/mbin/common"
 PATHS="$MBIN/paths"
 appendEnv "MBIN" "$MBIN"
 appendEnv "PATH" "/Apps/bin:\$PATH"
-appendEnv "PATH" "\$MBIN:\$PATH"
+appendEnv "PATH" "\$MBIN:$MBINCOMMON:\$PATH"
 
 while IFS= read -r var
 do
