@@ -35,7 +35,6 @@ appendEnv "PATH" "\$MBIN:$MBINCOMMON:\$PATH"
 
 while IFS= read -r var
 do
-  echo $var
   appendEnv $var
 done < "$PATHS"
 
