@@ -1,16 +1,36 @@
 #!/bin/bash
 
-if [ -z "$1" ]; then
+function print_usage () {
+  echo -e "\n usage: $(basename $0) [-s] p_name"
+  echo -e "\nPrints number of open connections of p_name (used for grepping)"
+  echo -e "\t -s  \t single check (runs indefinitely otherwise)"
+}
+
+function pname_missing () {
   echo "Missing program parameter!"
+  print_usage
   exit
+}
+
+[ -z "$1" ] && pname_missing
+
+if [ "$1" == "-s" ]; then
+  [ -z "$2" ] && pname_missing
+  single_use="true"
+  pname="$2"
+else
+  pname="$1"
 fi
 
 # check if sleep supports <1secs:
 sleep .1 2> /dev/null
-[[ $? -eq 0 ]] && delay=".3" || delay="1"
+[ $? -eq 0 ] && delay=".5" || delay="1"
 
 while [ true ]; do 
-  res=`lsof -i tcp -n | grep "$1" | wc -l`
-  echo -e "conn #: $res \033[1A"
+  res=`lsof -i tcp -n | grep "$pname" | wc -l`
+  echo "connections matching '$pname':$res"
+
+  [ ! -z "$single_use" ] && exit
   sleep $delay
+  echo -e "\033[2A"
 done
