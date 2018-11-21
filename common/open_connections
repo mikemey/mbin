@@ -8,5 +8,5 @@ fi
 while [ true ]; do 
   res=`lsof -i tcp -n | grep "$1" | wc -l`
   echo -e "conn #: $res \033[1A"
-  sleep .3
+  sleep 1
 done
