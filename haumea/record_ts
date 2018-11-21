@@ -21,11 +21,20 @@ function check_param () {
   fi
 }
 
-output="output.ts"
+function check_exit_code () {
+  if [ $? -ne 0 ]; then
+     echo "ERROR"
+     exit
+  fi
+}
+
+output="output.mp4"
 filelist="mylist.txt"
 replace="XXX"
 urlpattern="$1"
 pieces="$2"
+
+hcli_preset="son"
 
 check_file "$filelist" "File list"
 check_file "$output" "Output file"
@@ -41,17 +50,18 @@ if ! [[ "$pieces" =~ ^[0-9]+$ ]]; then
 fi
 
 
-for counter in $(seq 0 $pieces); do
-  url="${urlpattern/$replace/$counter}"
-  file="$counter.ts"
-  wget -q --show-progress -O "$file" "$url"
-  if [ $? -ne 0 ]; then
-     echo "ERROR"
-     exit
-  fi
-  echo "file '$file'" >> $filelist
-  sleep 3
-done
+for count in $(seq 0 $pieces); do
+  url="${urlpattern/$replace/$count}"
+  tmpfile="$count.ts"
+  outfile="$count.mp4"
+  wget -q --show-progress -O "$tmpfile" "$url"
+  check_exit_code
 
-ffmpeg -f concat -safe 0 -i "$filelist" -c copy "$output"
+  HandBrakeCLI --preset-import-gui --preset="$hcli_preset" -i "$tmpfile" -o "$outfile" 2> /dev/null
+  check_exit_code
+  echo "file '$outfile'" >> $filelist
+ done
+
+echo
+ffmpeg -v panic -stats -f concat -safe 0 -i "$filelist" -c copy "$output"
 
