@@ -1,0 +1,19 @@
+#!/bin/bash
+
+CONN_THRESHOLD=12
+PNAME="node"
+
+result=`ssh $MSMSERVER /bin/bash --login << EOF
+  open_connections -s $PNAME 
+EOF`
+
+if [ $? -ne 0 ]; then
+  beep s1s1s1l1s1s1s1
+  exit
+fi
+
+cnt="${result##*:}"
+if [ "$cnt" -ge "$CONN_THRESHOLD" ]; then
+  beep l1l1s1s1s1l1l
+fi
+
