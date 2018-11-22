@@ -27,8 +27,8 @@ sleep .1 2> /dev/null
 [ $? -eq 0 ] && delay=".5" || delay="1"
 
 while [ true ]; do 
-  res=`lsof -i tcp -n | grep "$pname" | wc -l`
-  echo "connections matching '$pname':$res"
+  res=`lsof -i tcp -n | grep "$pname" | grep -v "\->127.0.0.1" | wc -l`
+  echo "connections matching '$pname': $res    "
 
   [ ! -z "$single_use" ] && exit
   sleep $delay
