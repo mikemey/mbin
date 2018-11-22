@@ -1,44 +1,38 @@
 #!/usr/bin/env bash
 
 function error_message () {
+  echo
   echo "ERROR: $1"
-  echo -e "\n usage: $(basename -- $0) url_pattern max_piece_num"
+  echo -e "\n usage: $(basename $0) url_pattern max_piece_num"
   echo -e "\nParameters:"
   echo -e "\t url_pattern \t URL pattern to use for iteration"
   echo -e "\t max_piece_num \t upper limit of pieces (inclusive)"
-  exit
+  exit 1
 }
 
 function check_file () {
-  if [ -f "$1" ]; then
-    error_message "$2 already exists: $1"
-  fi
+  [[ -f "$1" ]] && error_message "$2 already exists: $1"
 }
 
 function check_param () {
-  if [ ! "$1" ]; then
-    error_message "$2"
-  fi
+  [[ ! "$1" ]] && error_message "$2"
 }
 
 function check_exit_code () {
-  if [ $? -ne 0 ]; then
-     echo "ERROR"
-     exit
-  fi
+  [[ $? -ne 0 ]] && error_message "processing failed: $1"
 }
 
-output="output.mp4"
-filelist="mylist.txt"
+filelist="ts_list.txt"
+combined_ts="combined.ts"
+outfile="result.mp4"
+hcli_preset="son"
+check_file "$filelist" "File list"
+check_file "$combined_ts" "Concatenated TS file"
+check_file "$outfile" "Output file"
+
 replace="XXX"
 urlpattern="$1"
 pieces="$2"
-
-hcli_preset="son"
-
-check_file "$filelist" "File list"
-check_file "$output" "Output file"
-
 check_param "$urlpattern" "URL pattern not provided!"
 if [[ ${urlpattern} != *$replace* ]]; then
   error_message "URL pattern does not contain the replacement pattern \"$replace\""
@@ -49,19 +43,17 @@ if ! [[ "$pieces" =~ ^[0-9]+$ ]]; then
   error_message "upper limit parameter not a number!"
 fi
 
-
 for count in $(seq 0 $pieces); do
   url="${urlpattern/$replace/$count}"
   tmpfile="$count.ts"
-  outfile="$count.mp4"
   wget -q --show-progress -O "$tmpfile" "$url"
-  check_exit_code
+  check_exit_code "wget"
 
-  HandBrakeCLI --preset-import-gui --preset="$hcli_preset" -i "$tmpfile" -o "$outfile" 2> /dev/null
-  check_exit_code
-  echo "file '$outfile'" >> $filelist
+  echo "file '$tmpfile'" >> $filelist
+  sleep 2
  done
 
-echo
-ffmpeg -v panic -stats -f concat -safe 0 -i "$filelist" -c copy "$output"
+ffmpeg -v panic -stats -f concat -safe 0 -i "$filelist" -c copy "$combined_ts"
 
+HandBrakeCLI --preset-import-gui --preset="$hcli_preset" -i "$combined_ts" -o "$outfile" 2> /dev/null
+check_exit_code "handbrake"
