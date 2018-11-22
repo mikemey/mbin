@@ -3,10 +3,11 @@
 function error_message () {
   echo
   echo "ERROR: $1"
-  echo -e "\n usage: $(basename $0) url_pattern max_piece_num"
+  echo -e "\n usage: $(basename $0) url_pattern max_piece_num output_file"
   echo -e "\nParameters:"
   echo -e "\t url_pattern \t URL pattern to use for iteration"
   echo -e "\t max_piece_num \t upper limit of pieces (inclusive)"
+  echo -e "\t output_file \t output file name"
   exit 1
 }
 
@@ -15,7 +16,7 @@ function check_file () {
 }
 
 function check_param () {
-  [[ ! "$1" ]] && error_message "$2"
+  [[ ! "$1" ]] && error_message "$2 not provided!"
 }
 
 function check_exit_code () {
@@ -24,24 +25,26 @@ function check_exit_code () {
 
 filelist="ts_list.txt"
 combined_ts="combined.ts"
-outfile="result.mp4"
 hcli_preset="son"
 check_file "$filelist" "File list"
 check_file "$combined_ts" "Concatenated TS file"
-check_file "$outfile" "Output file"
 
 replace="XXX"
 urlpattern="$1"
 pieces="$2"
-check_param "$urlpattern" "URL pattern not provided!"
+outfile="$3"
+check_param "$urlpattern" "URL pattern"
 if [[ ${urlpattern} != *$replace* ]]; then
   error_message "URL pattern does not contain the replacement pattern \"$replace\""
 fi
 
-check_param "$pieces" "upper limit of pieces not provided!"
+check_param "$pieces" "upper limit of pieces"
 if ! [[ "$pieces" =~ ^[0-9]+$ ]]; then
   error_message "upper limit parameter not a number!"
 fi
+
+check_param "$outfile" "Output file"
+check_file "$outfile" "Output file"
 
 for count in $(seq 0 $pieces); do
   url="${urlpattern/$replace/$count}"
