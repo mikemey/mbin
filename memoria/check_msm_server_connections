@@ -3,20 +3,26 @@
 CONN_THRESHOLD=10
 PNAME="node"
 
-result=`ssh $MSMSERVER /bin/bash --login << EOF
+log () {
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')]: $1"
+}
+
+result=`ssh $MSMSERVER /bin/bash --login 2>&1 << EOF
   open_connections -s $PNAME 
 EOF`
 
 if [ $? -ne 0 ]; then
+  log "ssh connection failed: $result"
   beep s1s1s1l1s1s1s1
   exit 1
 fi
 
 cnt="${result##*:}"
 if [ "$cnt" -ge "$CONN_THRESHOLD" ]; then
+  log "threshold exceeded: $cnt >= $CONN_THRESHOLD"
   beep l1l1s1s1s1l1l
   exit 1
 fi
 
-echo "s'all good man"
+log "s'all good man"
 
