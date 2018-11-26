@@ -7,7 +7,7 @@ log () {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')]: $1"
 }
 
-result=`ssh $MSMSERVER /bin/bash --login 2>&1 << EOF
+result=`ssh $MSMSSH /bin/bash --login 2>&1 << EOF
   open_connections -s $PNAME 
 EOF`
 
