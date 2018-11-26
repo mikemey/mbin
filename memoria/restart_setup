@@ -38,7 +38,8 @@ appendEnv "PATH" "\$MBIN:$MBINCOMMON:/Apps/bin:\$PATH"
 PATHS="$MBIN/paths"
 while IFS= read -r var
 do
-  appendEnv "$var"
+  # PATHS contains key/value pairs, expanded here to 2 parameters (without quotation marks!)
+  appendEnv $var
 done < "$PATHS"
 
 echo -e "\n ======================================"
