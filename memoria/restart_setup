@@ -36,7 +36,7 @@ log " == .bash_profile appendices"
 BRC="$USER_HOME/.bash_profile"
 
 function appendLine {
-  log "Adding \"$1\" to $2"
+  log "Adding \"$1\" to $BRC"
   echo "$1" >> "$BRC"
 }
 
