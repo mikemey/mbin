@@ -10,7 +10,7 @@ function appendLine {
   echo "$1" >> "$2"
 }
 
-setup_comment="# restart setup appendices:"
+setup_comment="##### restart setup appendices:"
 appendLine "$setup_comment" "$PROFILE"
 appendLine "$setup_comment" "$BRC"
 
@@ -37,7 +37,7 @@ echo " ======================================"
 MBIN="$PUBLIC/bin/mbin/memoria"
 MBINCOMMON="$PUBLIC/bin/mbin/common"
 appendEnv "MBIN" "$MBIN"
-appendEnv "PATH" "\$MBIN:$MBINCOMMON:/Apps/bin:\$PATH"
+appendEnv "PATH" "\$MBIN:$MBINCOMMON:\$PATH"
 
 PATHS="$MBIN/paths"
 while IFS= read -r var
