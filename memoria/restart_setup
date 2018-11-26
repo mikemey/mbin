@@ -1,12 +1,8 @@
 #!/bin/bash
 
-log () {
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')]: $1"
-}
-
 function check_env () {
   if [[ ! ${!1} ]]; then
-    log "Environment variable '$1' not set!"
+    timelog "Environment variable '$1' not set!"
     exit
   fi
 }
@@ -18,13 +14,13 @@ check_env USER_HOME
 check_env MBIN
 check_env LOGDIR
 
-log "------ sym links"
+timelog "------ sym links"
 function safelink {
   if [[ ! -e "$1" ]]; then
-    log "Create link $1 to $2"
+    timelog "Create link $1 to $2"
     ln -s "$2" "$1"
   else
-    log "Link already exists: $1"
+    timelog "Link already exists: $1"
   fi
 }
 
@@ -35,11 +31,11 @@ safelink "$USER_HOME/logs" "$LOGDIR"
 safelink "$MBIN/set_title" "$MBIN/../haumea/set_title"
 safelink "$MBIN/haumea" "$MBIN/../mercury/haumea"
 
-log "------ .bash_profile appendices"
+timelog "------ .bash_profile appendices"
 BRC="$USER_HOME/.bash_profile"
 
 function appendLine {
-  log "Adding \"$1\" to $BRC"
+  timelog "Adding \"$1\" to $BRC"
   echo "$1" >> "$BRC"
 }
 
