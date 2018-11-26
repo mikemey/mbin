@@ -10,6 +10,10 @@ function appendLine {
   echo "$1" >> "$2"
 }
 
+setup_comment="# restart setup appendices:"
+appendLine "$setup_comment" "$PROFILE"
+appendLine "$setup_comment" "$BRC"
+
 echo -e "\n ======================================"
 echo " == env variables"
 echo " ======================================"
