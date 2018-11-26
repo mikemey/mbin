@@ -4,7 +4,7 @@ import requests
 import mail_sender as mails
 
 url = 'https://{}/api/version'.format(os.environ['MSMSERVER'])
-version_fname = '{}/tantalus_check.ts'.format(os.environ['LOGDIR'])
+version_fname = '{}/tantalus_isonline.ts'.format(os.environ['LOGDIR'])
 
 
 def check_server_time(current_version):
