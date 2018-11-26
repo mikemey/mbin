@@ -2,11 +2,12 @@
 
 USER_HOME="/root"
 PUBLIC="/share/MD0_DATA/Public"
-BRC=$USER_HOME/.bash_profile
+BRC="$USER_HOME/.bash_profile"
+PROFILE="/etc/profile"
 
 function appendLine {
-  echo "Adding \"$1\" to $BRC"
-  echo "$1" >> $BRC
+  echo "Adding \"$1\" to $2"
+  echo "$1" >> "$2"
 }
 
 echo -e "\n ======================================"
@@ -17,25 +18,27 @@ function appendEnv {
   ENV_KEY="$1"
   ENV_VAL="$2"
   NEW_LINE="export $ENV_KEY=$ENV_VAL"
-  if grep -sq "^${NEW_LINE/ /\s}$" $BRC
+  if grep -sq "^${NEW_LINE/ /\s}$" "$PROFILE"
   then
     echo "$ENV_KEY is already set."
   else
-    appendLine "$NEW_LINE"
+    appendLine "$NEW_LINE" "$PROFILE"
   fi
 }
 
-appendEnv "WEB_DIR" "/share/Web"
+echo -e "\n ======================================"
+echo " == environment variables"
+echo " ======================================"
+
 MBIN="$PUBLIC/bin/mbin/memoria"
 MBINCOMMON="$PUBLIC/bin/mbin/common"
-PATHS="$MBIN/paths"
 appendEnv "MBIN" "$MBIN"
-appendEnv "PATH" "/Apps/bin:\$PATH"
-appendEnv "PATH" "\$MBIN:$MBINCOMMON:\$PATH"
+appendEnv "PATH" "\$MBIN:$MBINCOMMON:/Apps/bin:\$PATH"
 
+PATHS="$MBIN/paths"
 while IFS= read -r var
 do
-  appendEnv $var
+  appendEnv "$var"
 done < "$PATHS"
 
 echo -e "\n ======================================"
@@ -43,24 +46,24 @@ echo " == sym links"
 echo " ======================================"
 
 function safelink {
-  if [ ! -e "$1" ]; then
+  if [[ ! -e "$1" ]]; then
     echo "Create link to $2"
-    ln -s $2 $1
+    ln -s "$2" "$1"
   else
     echo "Link already exists: $1"
   fi
 }
 
-safelink $USER_HOME/media $PUBLIC/media
-safelink $USER_HOME/bin $PUBLIC/bin
-safelink $USER_HOME/data $PUBLIC/data
-safelink $MBIN/set_title $MBIN/../haumea/set_title
-safelink $MBIN/haumea $MBIN/../mercury/haumea
+safelink "$USER_HOME/media" "$PUBLIC/media"
+safelink "$USER_HOME/bin" "$PUBLIC/bin"
+safelink "$USER_HOME/data" "$PUBLIC/data"
+safelink "$MBIN/set_title" "$MBIN/../haumea/set_title"
+safelink "$MBIN/haumea" "$MBIN/../mercury/haumea"
 
 echo -e "\n ======================================"
-echo " == line appendices"
+echo " == .bash_profile appendices"
 echo " ======================================"
 
-appendLine "export PS1=\"\\n\\[\\033[1;34m\\]\\u@\\h\\[\\033[00m\\] \\[\\033[0;32m\\]\\w\\[\\033[00m\\]\\n\\$ \""
-appendLine "alias shutdown=\"halt\""
-appendLine "bind 'set mark-symlinked-directories on'"
+appendLine "export PS1=\"\\n\\[\\033[1;34m\\]\\u@\\h\\[\\033[00m\\] \\[\\033[0;32m\\]\\w\\[\\033[00m\\]\\n\\$ \"" "$BRC"
+appendLine "alias shutdown=\"halt\"" "$BRC"
+appendLine "bind 'set mark-symlinked-directories on'" "$BRC"
