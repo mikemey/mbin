@@ -11,7 +11,6 @@ CUSTOM_PROFILE="/share/MD0_DATA/Public/bin/.custom_profile"
 source "$CUSTOM_PROFILE"
 check_env PUBLIC
 check_env USER_HOME
-check_env MBIN
 check_env LOGDIR
 
 timelog "------ sym links"
@@ -28,8 +27,6 @@ safelink "$USER_HOME/media" "$PUBLIC/media"
 safelink "$USER_HOME/bin" "$PUBLIC/bin"
 safelink "$USER_HOME/data" "$PUBLIC/data"
 safelink "$USER_HOME/logs" "$LOGDIR"
-safelink "$MBIN/set_title" "$MBIN/../haumea/set_title"
-safelink "$MBIN/haumea" "$MBIN/../mercury/haumea"
 
 timelog "------ .bash_profile appendices"
 BRC="$USER_HOME/.bash_profile"
