@@ -21,17 +21,21 @@ def update_server_time(current_version):
 
 def notify(msg):
     if isinstance(msg, Exception):
+        print('error: {}'.format(msg))
         mails.send('[tantalus] Server check error', 'An error occurred:\n{}'.format(msg))
     else:
+        print('restarted: {}'.format(msg))
         mails.send('[tantalus] Server restarted', 'Start time: {}'.format(msg))
 
 
 try:
+    print('checking...')
     resp = requests.get(url)
     resp.raise_for_status()
     serverTime = resp.text
     check_server_time(serverTime)
     update_server_time(serverTime)
+    print('done')
 except Exception as ex:
     print('error: {}'.format(ex))
     notify(ex)
