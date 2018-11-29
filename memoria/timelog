@@ -1,4 +1,16 @@
 #!/bin/bash
 
-[[ -z "$1" ]] && exit
-echo "[$(date '+%Y-%m-%d %H:%M:%S')]: $*"
+function formatLog () {
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')]: $*"
+}
+
+
+if [[ -z "$1" ]]; then
+  while IFS= read -r line
+  do
+    formatLog "$line"
+  done < "${1:-/dev/stdin}"
+else
+  formatLog "$*"
+fi
+
