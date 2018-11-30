@@ -1,4 +1,4 @@
-if [ -z "$1" ]; then
+if [[ -z "$1" ]]; then
   DIR="."
 else
   DIR="${1%\/}"
@@ -6,5 +6,10 @@ fi
 
 find "$DIR" -type f | while read infile; do
   echo "$infile"
-  ffmpeg -i "$infile" 2>&1 | grep "^\s\{4\}title"
+  title=`ffmpeg -i "$infile" 2>&1 | grep "^\s\{4\}title"`
+  if [[ -z "$title" ]]; then
+    echo "-- no title --"
+  else
+    echo "$title"
+  fi
 done
