@@ -20,4 +20,4 @@ if [[ "$cnt" -ge "$CONN_THRESHOLD" ]]; then
   exit 1
 fi
 
-timelog "s'all good man"
+timelog "s'all good man (${cnt} connections)"
