@@ -9,7 +9,7 @@
     <Diagramno></Diagramno>
     <Checked></Checked>
     <Company></Company>
-    <Version>1.0.0</Version>
+    <Version>1.0.2</Version>
     <Show>true</Show>
     <Comments></Comments>
     <Horizontal>1</Horizontal>
@@ -42,9 +42,11 @@
     </PageFormat>
     <Password>BC545671A4FD5A01F723DA0CAB85F43C5ACD27DB27211230</Password>
   </Properties>
-  <UDFBlock guidValue="1546710755136" identifier="UDF" comments="" version="1.0.0" blockNumber="0" inCounter="2" outCounter="2" validity="0">
+  <UDFBlock guidValue="154671454377670" identifier="Halfadd" comments="" version="1.0.2" blockNumber="0" inCounter="2" outCounter="2" validity="0">
     <GuidList>
       <Guid value="1546710755136" version="1.0.0"/>
+      <Guid value="154671448273314" version="1.0.1"/>
+      <Guid value="154671454377670" version="1.0.2"/>
     </GuidList>
     <Parameter/>
     <Blocks>
@@ -59,14 +61,14 @@
         <InConnector negate="false" opcode="255" blockNumber="-1" index="3"/>
       </Block>
       <InGroup>
-        <Block opcode="16777216" blockNumber="1"/>
-        <Block opcode="16777216" blockNumber="2"/>
+        <Block opcode="16777216" blockNumber="1" name="P"/>
+        <Block opcode="16777216" blockNumber="2" name="Q"/>
       </InGroup>
       <OutGroup>
-        <Block opcode="16777280" blockNumber="1">
+        <Block opcode="16777280" blockNumber="1" name="S">
           <InConnector negate="false" opcode="6" blockNumber="1" index="0"/>
         </Block>
-        <Block opcode="16777280" blockNumber="2">
+        <Block opcode="16777280" blockNumber="2" name="C">
           <InConnector negate="false" opcode="1" blockNumber="2" index="0"/>
         </Block>
       </OutGroup>
@@ -86,8 +88,8 @@
         <Figure type="1" opcode="16777280" blockNumber="2" position="686,163"/>
       </OutGroup>
     </Figure>
-    <Figure type="1" opcode="6" blockNumber="1" position="126,103"/>
     <Figure type="1" opcode="1" blockNumber="2" position="126,153"/>
+    <Figure type="1" opcode="6" blockNumber="1" position="126,103"/>
     <Figure type="2">
       <Connector index="0" opcode="16777216" blockNumber="1" direction="0" type="0"/>
       <Connector index="0" opcode="6" blockNumber="1" direction="1" type="0"/>

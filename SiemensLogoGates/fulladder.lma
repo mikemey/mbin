@@ -9,7 +9,7 @@
     <Diagramno></Diagramno>
     <Checked></Checked>
     <Company></Company>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Show>true</Show>
     <Comments></Comments>
     <Horizontal>1</Horizontal>
@@ -17,6 +17,31 @@
     <History>
       <DisplayedHistory>
         <Date>1546711269409</Date>
+        <User>michael</User>
+        <Version>V8.0.0</Version>
+        <Comments></Comments>
+        <Saved>true</Saved>
+        <Date>1546714647925</Date>
+        <User>michael</User>
+        <Version>V8.0.0</Version>
+        <Comments></Comments>
+        <Saved>true</Saved>
+        <Date>1546714648331</Date>
+        <User>michael</User>
+        <Version>V8.0.0</Version>
+        <Comments></Comments>
+        <Saved>true</Saved>
+        <Date>1546714649298</Date>
+        <User>michael</User>
+        <Version>V8.0.0</Version>
+        <Comments></Comments>
+        <Saved>true</Saved>
+        <Date>1546714653572</Date>
+        <User>michael</User>
+        <Version>V8.0.0</Version>
+        <Comments></Comments>
+        <Saved>true</Saved>
+        <Date>1546714654851</Date>
         <User>michael</User>
         <Version>V8.0.0</Version>
         <Comments></Comments>
@@ -40,51 +65,62 @@
       </Paper>
       <Orientation>0</Orientation>
     </PageFormat>
-    <Password>32535FF681208BE6343E90215F816EA9556AADC10B46EC62</Password>
+    <Password>AC93DFC0E7135232D90C510FE0CC49B353EF499D50E50CAC</Password>
   </Properties>
-  <UDFBlock guidValue="1546711299174" identifier="UDF" comments="" version="1.0.0" blockNumber="0" inCounter="3" outCounter="2" validity="0">
+  <UDFBlock guidValue="154671502256068" identifier="Fulladd" comments="" version="1.0.1" blockNumber="0" inCounter="3" outCounter="2" validity="0">
     <GuidList>
       <Guid value="1546711299174" version="1.0.0"/>
+      <Guid value="154671502256068" version="1.0.1"/>
     </GuidList>
     <Parameter/>
     <Blocks>
-      <UDFBlock guidValue="1546710755136" identifier="UDF" comments="" version="1.0.0" blockNumber="1" inCounter="2" outCounter="2" validity="0">
+      <Block opcode="2" blockNumber="5" name="">
+        <InConnector negate="false" parent="2" inCounter="2" outCounter="2" parentIndex="1" opcode="152" blockNumber="130" index="0"/>
+        <InConnector negate="false" parent="3" inCounter="2" outCounter="2" parentIndex="1" opcode="152" blockNumber="130" index="1"/>
+        <InConnector negate="false" opcode="255" blockNumber="-1" index="2"/>
+        <InConnector negate="false" opcode="255" blockNumber="-1" index="3"/>
+      </Block>
+      <UDFBlock guidValue="154671454377670" identifier="Halfadd" comments="" version="1.0.2" blockNumber="3" inCounter="2" outCounter="2" validity="0">
         <GuidList>
           <Guid value="1546710755136" version="1.0.0"/>
+          <Guid value="154671448273314" version="1.0.1"/>
+          <Guid value="154671454377670" version="1.0.2"/>
         </GuidList>
         <Parameter/>
         <Blocks>
-          <Block opcode="6" blockNumber="1" name="">
-            <InConnector negate="false" parent="1" inCounter="2" outCounter="2" parentIndex="0" opcode="152" blockNumber="1" index="0"/>
-            <InConnector negate="false" parent="1" inCounter="2" outCounter="2" parentIndex="1" opcode="152" blockNumber="2" index="1"/>
+          <Block opcode="6" blockNumber="6" name="">
+            <InConnector negate="false" parent="3" inCounter="2" outCounter="2" parentIndex="0" opcode="152" blockNumber="1" index="0"/>
+            <InConnector negate="false" parent="3" inCounter="2" outCounter="2" parentIndex="1" opcode="152" blockNumber="2" index="1"/>
           </Block>
-          <Block opcode="1" blockNumber="2" name="">
-            <InConnector negate="false" parent="1" inCounter="2" outCounter="2" parentIndex="0" opcode="152" blockNumber="1" index="0"/>
-            <InConnector negate="false" parent="1" inCounter="2" outCounter="2" parentIndex="1" opcode="152" blockNumber="2" index="1"/>
+          <Block opcode="1" blockNumber="7" name="">
+            <InConnector negate="false" parent="3" inCounter="2" outCounter="2" parentIndex="0" opcode="152" blockNumber="1" index="0"/>
+            <InConnector negate="false" parent="3" inCounter="2" outCounter="2" parentIndex="1" opcode="152" blockNumber="2" index="1"/>
             <InConnector negate="false" opcode="255" blockNumber="-1" index="2"/>
             <InConnector negate="false" opcode="255" blockNumber="-1" index="3"/>
           </Block>
           <InGroup>
-            <Block opcode="152" blockNumber="1" name="">
-              <InConnector negate="false" opcode="16777216" blockNumber="3" index="0"/>
+            <Block opcode="152" blockNumber="1" name="P">
+              <InConnector negate="false" opcode="16777216" blockNumber="2" index="0"/>
             </Block>
-            <Block opcode="152" blockNumber="2" name="">
-              <InConnector negate="false" opcode="16777216" blockNumber="1" index="0"/>
+            <Block opcode="152" blockNumber="2" name="Q">
+              <InConnector negate="false" opcode="16777216" blockNumber="3" index="0"/>
             </Block>
           </InGroup>
           <OutGroup>
-            <Block opcode="152" blockNumber="129" name="">
-              <InConnector negate="false" opcode="6" blockNumber="1" index="0"/>
+            <Block opcode="152" blockNumber="129" name="S">
+              <InConnector negate="false" opcode="6" blockNumber="6" index="0"/>
             </Block>
-            <Block opcode="152" blockNumber="130" name="">
-              <InConnector negate="false" opcode="1" blockNumber="2" index="0"/>
+            <Block opcode="152" blockNumber="130" name="C">
+              <InConnector negate="false" opcode="1" blockNumber="7" index="0"/>
             </Block>
           </OutGroup>
         </Blocks>
       </UDFBlock>
-      <UDFBlock guidValue="1546710755136" identifier="UDF" comments="" version="1.0.0" blockNumber="2" inCounter="2" outCounter="2" validity="0">
+      <UDFBlock guidValue="154671454377670" identifier="Halfadd" comments="" version="1.0.2" blockNumber="2" inCounter="2" outCounter="2" validity="0">
         <GuidList>
           <Guid value="1546710755136" version="1.0.0"/>
+          <Guid value="154671448273314" version="1.0.1"/>
+          <Guid value="154671454377670" version="1.0.2"/>
         </GuidList>
         <Parameter/>
         <Blocks>
@@ -99,39 +135,33 @@
             <InConnector negate="false" opcode="255" blockNumber="-1" index="3"/>
           </Block>
           <InGroup>
-            <Block opcode="152" blockNumber="1" name="">
-              <InConnector negate="false" parent="1" inCounter="2" outCounter="2" parentIndex="0" opcode="152" blockNumber="129" index="0"/>
+            <Block opcode="152" blockNumber="1" name="P">
+              <InConnector negate="false" opcode="16777216" blockNumber="1" index="0"/>
             </Block>
-            <Block opcode="152" blockNumber="2" name="">
-              <InConnector negate="false" opcode="16777216" blockNumber="2" index="0"/>
+            <Block opcode="152" blockNumber="2" name="Q">
+              <InConnector negate="false" parent="3" inCounter="2" outCounter="2" parentIndex="0" opcode="152" blockNumber="129" index="0"/>
             </Block>
           </InGroup>
           <OutGroup>
-            <Block opcode="152" blockNumber="129" name="">
+            <Block opcode="152" blockNumber="129" name="S">
               <InConnector negate="false" opcode="6" blockNumber="3" index="0"/>
             </Block>
-            <Block opcode="152" blockNumber="130" name="">
+            <Block opcode="152" blockNumber="130" name="C">
               <InConnector negate="false" opcode="1" blockNumber="4" index="0"/>
             </Block>
           </OutGroup>
         </Blocks>
       </UDFBlock>
-      <Block opcode="2" blockNumber="5" name="">
-        <InConnector negate="false" parent="2" inCounter="2" outCounter="2" parentIndex="1" opcode="152" blockNumber="130" index="0"/>
-        <InConnector negate="false" opcode="255" blockNumber="-1" index="1"/>
-        <InConnector negate="false" parent="1" inCounter="2" outCounter="2" parentIndex="1" opcode="152" blockNumber="130" index="2"/>
-        <InConnector negate="false" opcode="255" blockNumber="-1" index="3"/>
-      </Block>
       <InGroup>
-        <Block opcode="16777216" blockNumber="1"/>
-        <Block opcode="16777216" blockNumber="2"/>
-        <Block opcode="16777216" blockNumber="3"/>
+        <Block opcode="16777216" blockNumber="1" name="Carry in"/>
+        <Block opcode="16777216" blockNumber="2" name="P"/>
+        <Block opcode="16777216" blockNumber="3" name="Q"/>
       </InGroup>
       <OutGroup>
-        <Block opcode="16777280" blockNumber="1">
+        <Block opcode="16777280" blockNumber="1" name="Sum">
           <InConnector negate="false" parent="2" inCounter="2" outCounter="2" parentIndex="0" opcode="152" blockNumber="129" index="0"/>
         </Block>
-        <Block opcode="16777280" blockNumber="2">
+        <Block opcode="16777280" blockNumber="2" name="Carry">
           <InConnector negate="false" opcode="2" blockNumber="5" index="0"/>
         </Block>
       </OutGroup>
@@ -143,96 +173,96 @@
     </Figure>
     <Figure type="0" area="52,79,640.0,480.0">
       <InGroup>
-        <Figure type="1" opcode="16777216" blockNumber="1" position="46,109"/>
-        <Figure type="1" opcode="16777216" blockNumber="2" position="46,139"/>
-        <Figure type="1" opcode="16777216" blockNumber="3" position="46,169"/>
+        <Figure type="1" opcode="16777216" blockNumber="1" position="46,103"/>
+        <Figure type="1" opcode="16777216" blockNumber="2" position="46,163"/>
+        <Figure type="1" opcode="16777216" blockNumber="3" position="46,193"/>
       </InGroup>
       <OutGroup>
         <Figure type="1" opcode="16777280" blockNumber="1" position="686,109"/>
         <Figure type="1" opcode="16777280" blockNumber="2" position="686,139"/>
       </OutGroup>
     </Figure>
-    <Figure type="1" opcode="153" blockNumber="1" position="116,113"/>
-    <Figure type="1" opcode="153" blockNumber="2" position="246,143"/>
+    <Figure type="1" opcode="2" blockNumber="5" position="466,143"/>
     <Figure type="2">
-      <Connector index="0" opcode="153" blockNumber="1" direction="0" type="0"/>
-      <Connector index="0" opcode="153" blockNumber="2" direction="1" type="0"/>
+      <Connector index="0" opcode="2" blockNumber="5" direction="0" type="0"/>
+      <Connector index="0" opcode="16777280" blockNumber="2" direction="1" type="0"/>
       <Points>
-        <Point x="159" y="128"/>
-        <Point x="200" y="128"/>
-        <Point x="200" y="148"/>
-        <Point x="240" y="148"/>
+        <Point x="497" y="158"/>
+        <Point x="520" y="158"/>
+        <Point x="520" y="142"/>
+        <Point x="680" y="142"/>
       </Points>
     </Figure>
-    <Figure type="1" opcode="2" blockNumber="5" position="316,193"/>
+    <Figure type="1" opcode="153" blockNumber="3" position="176,153"/>
     <Figure type="2">
-      <Connector index="1" opcode="153" blockNumber="2" direction="0" type="0"/>
-      <Connector index="0" opcode="2" blockNumber="5" direction="1" type="0"/>
+      <Connector index="0" opcode="153" blockNumber="3" direction="0" type="0"/>
+      <Connector index="1" opcode="153" blockNumber="2" direction="1" type="0"/>
       <Points>
-        <Point x="289" y="168"/>
-        <Point x="300" y="168"/>
-        <Point x="300" y="198"/>
-        <Point x="310" y="198"/>
+        <Point x="219" y="168"/>
+        <Point x="290" y="168"/>
+        <Point x="290" y="108"/>
+        <Point x="330" y="108"/>
       </Points>
     </Figure>
     <Figure type="2">
-      <Connector index="1" opcode="153" blockNumber="1" direction="0" type="0"/>
-      <Connector index="2" opcode="2" blockNumber="5" direction="1" type="0"/>
+      <Connector index="1" opcode="153" blockNumber="3" direction="0" type="0"/>
+      <Connector index="1" opcode="2" blockNumber="5" direction="1" type="0"/>
       <Points>
-        <Point x="159" y="138"/>
-        <Point x="210" y="138"/>
-        <Point x="210" y="218"/>
-        <Point x="310" y="218"/>
+        <Point x="219" y="178"/>
+        <Point x="304" y="178"/>
+        <Point x="304" y="158"/>
+        <Point x="460" y="158"/>
       </Points>
     </Figure>
+    <Figure type="1" opcode="153" blockNumber="2" position="336,93"/>
     <Figure type="2">
       <Connector index="0" opcode="16777216" blockNumber="1" direction="0" type="0"/>
-      <Connector index="1" opcode="153" blockNumber="1" direction="1" type="0"/>
+      <Connector index="0" opcode="153" blockNumber="2" direction="1" type="0"/>
       <Points>
-        <Point x="64" y="112"/>
-        <Point x="90" y="112"/>
-        <Point x="90" y="128"/>
-        <Point x="110" y="128"/>
+        <Point x="64" y="106"/>
+        <Point x="110" y="106"/>
+        <Point x="110" y="98"/>
+        <Point x="330" y="98"/>
       </Points>
     </Figure>
     <Figure type="2">
       <Connector index="0" opcode="16777216" blockNumber="2" direction="0" type="0"/>
-      <Connector index="1" opcode="153" blockNumber="2" direction="1" type="0"/>
+      <Connector index="0" opcode="153" blockNumber="3" direction="1" type="0"/>
       <Points>
-        <Point x="64" y="142"/>
-        <Point x="110" y="142"/>
-        <Point x="110" y="158"/>
-        <Point x="240" y="158"/>
+        <Point x="64" y="166"/>
+        <Point x="67" y="166"/>
+        <Point x="67" y="158"/>
+        <Point x="170" y="158"/>
       </Points>
     </Figure>
     <Figure type="2">
       <Connector index="0" opcode="16777216" blockNumber="3" direction="0" type="0"/>
-      <Connector index="0" opcode="153" blockNumber="1" direction="1" type="0"/>
+      <Connector index="1" opcode="153" blockNumber="3" direction="1" type="0"/>
       <Points>
-        <Point x="64" y="172"/>
-        <Point x="90" y="172"/>
-        <Point x="90" y="118"/>
-        <Point x="110" y="118"/>
+        <Point x="64" y="196"/>
+        <Point x="130" y="196"/>
+        <Point x="130" y="168"/>
+        <Point x="170" y="168"/>
       </Points>
     </Figure>
     <Figure type="2">
       <Connector index="0" opcode="153" blockNumber="2" direction="0" type="0"/>
       <Connector index="0" opcode="16777280" blockNumber="1" direction="1" type="0"/>
       <Points>
-        <Point x="289" y="158"/>
-        <Point x="490" y="158"/>
-        <Point x="490" y="112"/>
+        <Point x="379" y="108"/>
+        <Point x="530" y="108"/>
+        <Point x="530" y="112"/>
         <Point x="680" y="112"/>
       </Points>
     </Figure>
     <Figure type="2">
-      <Connector index="0" opcode="2" blockNumber="5" direction="0" type="0"/>
-      <Connector index="0" opcode="16777280" blockNumber="2" direction="1" type="0"/>
+      <Connector index="1" opcode="153" blockNumber="2" direction="0" type="0"/>
+      <Connector index="0" opcode="2" blockNumber="5" direction="1" type="0"/>
       <Points>
-        <Point x="347" y="208"/>
-        <Point x="520" y="208"/>
-        <Point x="520" y="142"/>
-        <Point x="680" y="142"/>
+        <Point x="379" y="118"/>
+        <Point x="420" y="118"/>
+        <Point x="420" y="148"/>
+        <Point x="460" y="148"/>
       </Points>
     </Figure>
   </Figures>
