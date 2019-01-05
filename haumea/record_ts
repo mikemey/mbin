@@ -57,7 +57,7 @@ for count in $(seq 0 $pieces); do
   check_exit_code "wget"
 
   echo "file '$ts_dir/$tmpfile'" >> $filelist
-  sleep 2
+  sleep 0.5
 done
 
 ffmpeg -v panic -stats -f concat -safe 0 -i "$filelist" -c copy "$combined_ts"
