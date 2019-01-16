@@ -53,10 +53,10 @@ check_file_exists "$outfile" "Output file"
 for count in $(seq 0 $pieces); do
   url="${urlpattern/$replace/$count}"
   tmpfile="$count.ts"
-  printf "      ${FG_LIGHT_YELLOW}${BG_DARK_GRAY}total: $pieces${BG_DEFAULT}${FG_DEFAULT}"
   wget -q --show-progress -O "$out_dir/$ts_dir/$tmpfile" "$url"
   check_exit_code "wget"
 
+  printf "      ${FG_LIGHT_YELLOW}${BG_DARK_GRAY}total: $pieces${BG_DEFAULT}${FG_DEFAULT}"
   echo "file '$ts_dir/$tmpfile'" >> $filelist
   sleep 0.5
 done
