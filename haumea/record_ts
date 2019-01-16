@@ -61,6 +61,7 @@ for count in $(seq 0 $pieces); do
   sleep 0.5
 done
 
+printf "\n"
 ffmpeg -v panic -stats -f concat -safe 0 -i "$filelist" -c copy "$combined_ts"
 check_exit_code "ffmpeg"
 
