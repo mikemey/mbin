@@ -10,6 +10,7 @@ find "$DIR" -type f | while read infile; do
   if [[ -z "$title" ]]; then
     echo -e "${FG_LIGHT_RED}-- no title --${FG_DEFAULT}"
   else
-    echo "$title"
+    title="${title//*:/}"
+    echo -e "${FG_LIGHT_GREEN}$title${FG_DEFAULT}"
   fi
 done
