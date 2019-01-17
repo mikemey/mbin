@@ -8,7 +8,7 @@ find "$DIR" -type f | while read infile; do
   echo "$infile"
   title=`ffmpeg -i "$infile" 2>&1 | grep "^\s\{4\}title"`
   if [[ -z "$title" ]]; then
-    echo "-- no title --"
+    echo -e "${FG_LIGHT_RED}-- no title --${FG_DEFAULT}"
   else
     echo "$title"
   fi
