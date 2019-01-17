@@ -1,16 +1,21 @@
+#!/usr/bin/env bash
+
 if [[ -z "$1" ]]; then
   DIR="."
 else
   DIR="${1%\/}"
 fi
 
-find "$DIR" -type f | while read infile; do
-  echo "$infile"
-  title=`ffmpeg -i "$infile" 2>&1 | grep "^\s\{4\}title"`
-  if [[ -z "$title" ]]; then
-    echo -e "${FG_LIGHT_RED}-- no title --${FG_DEFAULT}"
-  else
-    title="${title//*:/}"
-    echo -e "${FG_LIGHT_GREEN}$title${FG_DEFAULT}"
+find "$DIR" -type f | sort | while read infile; do
+  extension=`echo "${infile##*.}" | awk '{print tolower($0)}'`
+  if [[ "$extension" == "mp4" || "$extension" == "mkv" || "$extension" == "avi" ]]; then
+    echo "$infile"
+    title=`ffmpeg -i "$infile" 2>&1 | grep "^\s\{4\}title"`
+    if [[ -z "$title" ]]; then
+      echo -e "${FG_LIGHT_RED}-- no title --${FG_DEFAULT}"
+    else
+      title="${title//*:/}"
+      echo -e "${FG_LIGHT_GREEN}$title${FG_DEFAULT}"
+    fi
   fi
 done
