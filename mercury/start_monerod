@@ -1,0 +1,1 @@
+monerod.exe --config-file="$MONERO_DIR\monerod.conf"
