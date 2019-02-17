@@ -1,13 +1,23 @@
 #!/usr/bin/env bash
 
+out_dir="delete_me"
+ts_dir="ts"
+
+filelist="$out_dir/ts_list.txt"
+combined_ts="$out_dir/combined.ts"
+enc_preset="son"
+out_file_ext="mp4"
+
 function error_message () {
   echo
   echo "ERROR: $1"
-  echo -e "\n usage: $(basename $0) url_pattern max_piece_num output_file"
+  echo -e "\n usage: $(basename $0) [ -d | - e ] url_pattern max_piece_num output_file"
   echo -e "\nParameters:"
+  echo -e "\t -d          \t only download, keeps temporary files in \"$out_dir\" directory"
+  echo -e "\t -e          \t only encode, reads from temporary files"
   echo -e "\t url_pattern \t URL pattern to use for iteration"
   echo -e "\t max_piece_num \t upper limit of pieces (inclusive)"
-  echo -e "\t output_file \t output file name"
+  echo -e "\t output_file \t output file name (without extension)"
   exit 1
 }
 
@@ -23,19 +33,23 @@ function check_exit_code () {
   [[ $? -ne 0 ]] && error_message "processing failed: $1"
 }
 
-out_dir="delete_me"
-ts_dir="ts"
-mkdir -p "$out_dir/$ts_dir"
+download=true
+encode=true
 
-filelist="$out_dir/ts_list.txt"
-combined_ts="$out_dir/combined.ts"
-check_file_exists "$filelist" "File list"
-check_file_exists "$combined_ts" "Combined TS file"
+case "$1" in
+  "-d" )
+    encode=false
+    shift
+  ;;
+  "-e" )
+    download=false
+    shift
+  ;;
+esac
 
-enc_preset="son"
 urlpattern="$1"
 pieces="$2"
-outfile="$3"
+outfile="$3.$out_file_ext"
 replace="XXX"
 check_param_exists "$urlpattern" "URL pattern"
 if [[ ${urlpattern} != *$replace* ]]; then
@@ -50,20 +64,32 @@ fi
 check_param_exists "$outfile" "Output file"
 check_file_exists "$outfile" "Output file"
 
-for count in $(seq 0 $pieces); do
-  url="${urlpattern/$replace/$count}"
-  tmpfile="$count.ts"
-  wget -q --show-progress -O "$out_dir/$ts_dir/$tmpfile" "$url"
-  check_exit_code "wget"
+if [[ "$download" = true ]]; then
+  mkdir -p "$out_dir/$ts_dir"
+  check_file_exists "$filelist" "File list"
+  check_file_exists "$combined_ts" "Combined TS file"
 
-  printf "      ${FG_LIGHT_YELLOW}${BG_DARK_GRAY}total: $pieces${BG_DEFAULT}${FG_DEFAULT}"
-  echo "file '$ts_dir/$tmpfile'" >> $filelist
-  sleep 0.5
-done
+  for count in $(seq 0 $pieces); do
+    url="${urlpattern/$replace/$count}"
+    tmpfile="$count.ts"
+    wget -q --show-progress -O "$out_dir/$ts_dir/$tmpfile" "$url"
+    check_exit_code "wget"
 
-printf "\n"
-ffmpeg -v panic -stats -f concat -safe 0 -i "$filelist" -c copy "$combined_ts"
-check_exit_code "ffmpeg"
+    printf "      ${FG_LIGHT_YELLOW}${BG_DARK_GRAY}total: $pieces${BG_DEFAULT}${FG_DEFAULT}"
+    echo "file '$ts_dir/$tmpfile'" >> $filelist
+    sleep 0.5
+  done
+  printf "\n"
+  ffmpeg -v panic -stats -f concat -safe 0 -i "$filelist" -c copy "$combined_ts"
+  check_exit_code "ffmpeg"
+else
+  printf "${FG_LIGHT_GREEN}- skipping downloading -${FG_DEFAULT}\n"
+fi
 
-HandBrakeCLI --preset-import-gui --preset="$enc_preset" -i "$combined_ts" -o "$outfile" 2> /dev/null
+if [[ "$encode" = true ]]; then
+  HandBrakeCLI --preset-import-gui --preset="$enc_preset" -i "$combined_ts" -o "$outfile" 2> /dev/null
+else
+  printf "${FG_LIGHT_GREEN}- skipping encoding -${FG_DEFAULT}\n"
+fi
+
 check_exit_code "handbrake"
