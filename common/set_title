@@ -34,7 +34,7 @@ dry_run_message() {
   echo -e "================= ${COL_RED} DRY-RUN ${COL_DEFAULT} ================="
 }
 
-if [[ "$1" == "&&uto" ]]; then
+if [[ "$1" == "-auto" ]]; then
   if [[ "$2" == "-d" ]]; then
     dry_run_message
     DRYRUN=1
