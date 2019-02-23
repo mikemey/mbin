@@ -47,7 +47,7 @@ do
       url="${BASH_REMATCH[1]}XXX${BASH_REMATCH[3]}"
       count="${BASH_REMATCH[2]}"
     else
-      error_message "Cannot extract URL template from link: $link"
+      error_message "Cannot extract URL template from link: [$link]"
     fi
     params="$show;$season;$episode;$title;$fname;$url;$count"
     missing_files+=( $params )
