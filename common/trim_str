@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+echo $1 | awk '{$1=$1};1'

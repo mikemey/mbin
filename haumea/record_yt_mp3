@@ -19,21 +19,16 @@ function check_exit_code () {
 
 check_file_exists "$1" "No CSV file provided!"
 
-function trim () {
-  echo $1 | awk '{$1=$1};1'
-}
-
 while IFS=\; read -r link artist title
 do
-    link=`trim "${link}"`
-    artist=`trim "${artist}"`
-    title=`trim "${title}"`
+    link=`trim_str "${link}"`
+    artist=`trim_str "${artist}"`
+    title=`trim_str "${title}"`
     fname="${artist} - ${title}"
     tmp_file="${fname}.tmp"
     out_file="${fname}.mp3"
 
     echo "processing [${fname}] ..."
-#    echo -e "[${artist}]\t\t[${title}]"
     exec_cmd="ffmpeg -v panic -stats -i {} -metadata artist=\"${artist}\" -metadata title=\"${title}\" \"${out_file}\" </dev/null && rm {}"
     youtube-dl -x -q -o "${tmp_file}" --exec "${exec_cmd}" "${link}"
     check_exit_code "youtube-dl ${link}"
