@@ -85,6 +85,8 @@ for miss in "${missing_files[@]}"; do
   url="${params[5]}"
   count="${params[6]}"
   record_ts "${url}" ${count} ${fname}
+  check_exit_code "record_ts"
   rm -rf delete_me
   set_title ${fname} "${season}${episode} ${title//./ }"
+  check_exit_code "set_title"
 done
