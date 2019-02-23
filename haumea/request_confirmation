@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+IFS=
+read -p "$1 [Y/n] " -s -n 1 answer
+echo
+if [[ $answer =~ ^[Yy]$ ]] || [[ $answer = "" ]]; then
+  exit 1
+fi
+exit 0

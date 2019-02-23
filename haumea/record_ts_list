@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+
+out_file_ext="mp4"
+
+function error_message () {
+  echo
+  echo "ERROR: $1"
+  echo -e "\n usage: $(basename $0) csv_file"
+  echo -e "\nParameters:"
+  echo -e "\t csv_file \t CSV file containing video tracks to record"
+  exit 1
+}
+
+function file_not_found () {
+  ! [[ -f "$1" ]] && echo 1
+}
+
+function check_exit_code () {
+  if [[ $? -ne 0 ]]; then
+    echo "processing failed: $1"
+    exit 1
+  fi
+}
+
+function safe_name () {
+  name=`trim_str "$1"`
+  echo "${name// /.}"
+}
+
+if [[ $(file_not_found "$1") ]]; then
+  error_message "No CSV file provided!"
+fi
+
+missing_files=()
+echo "finding missing files..."
+while IFS=\; read -r show season episode title link
+do
+  show=`safe_name "${show}"`
+  season=`trim_str "${season}"`
+  episode=`trim_str "${episode}"`
+  title=`safe_name "${title}"`
+  link=`trim_str "${link}"`
+  fname="${show}.${season}${episode}.${title}.${out_file_ext}"
+
+  if [[ $(file_not_found "$fname") ]]; then
+    if [[ "$link" =~ (.*_)([0-9]*)(\.ts.*) ]]; then
+      url="${BASH_REMATCH[1]}XXX${BASH_REMATCH[3]}"
+      count="${BASH_REMATCH[2]}"
+    else
+      error_message "Cannot extract URL template from link: $link"
+    fi
+    params="$show;$season;$episode;$title;$fname;$url;$count"
+    missing_files+=( $params )
+  fi
+done < "$1"
+echo
+
+missing_count="${#missing_files[@]}"
+if ! [[ $missing_count ]]; then
+  echo -e "all files available."
+  exit
+fi
+
+echo -e "Missing files: ${missing_count}"
+echo -e "Show \t Season \t Episode \t Title"
+for miss in "${missing_files[@]}"; do
+  miss=`echo "$miss" | cut -f 1-4 -d ';'`
+  miss="${miss//;/\t}"
+  miss="${miss//./ }"
+  echo -e "${miss}"
+done
+request_confirmation "continue?"
+if [[ $? == 0 ]]; then
+  echo "abort."
+  exit
+fi
+
+for miss in "${missing_files[@]}"; do
+  # params="$show;$season;$episode;$title;$fname;$url;$count"
+  IFS=';' read -r -a params <<< "$miss"
+  season="${params[1]}"
+  episode="${params[2]}"
+  title="${params[3]}"
+  fname="${params[4]}"
+  url="${params[5]}"
+  count="${params[6]}"
+  record_ts "${url}" ${count} ${fname}
+  rm -rf delete_me
+  set_title ${fname} "${season}${episode} ${title//./ }"
+done
