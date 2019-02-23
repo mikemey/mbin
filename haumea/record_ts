@@ -17,7 +17,7 @@ function error_message () {
   echo -e "\t -e          \t only encode, reads from temporary files"
   echo -e "\t url_pattern \t URL pattern to use for iteration"
   echo -e "\t max_piece_num \t upper limit of pieces (inclusive)"
-  echo -e "\t output_file \t output file name (without extension)"
+  echo -e "\t output_file \t output file name (extension \"$out_file_ext\" added if none provided)"
   exit 1
 }
 
@@ -49,7 +49,7 @@ esac
 
 urlpattern="$1"
 pieces="$2"
-outfile="$3.$out_file_ext"
+outfile="${3%%.mp4}.$out_file_ext"
 replace="XXX"
 check_param_exists "$urlpattern" "URL pattern"
 if [[ ${urlpattern} != *$replace* ]]; then
