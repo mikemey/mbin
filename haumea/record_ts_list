@@ -88,5 +88,4 @@ for miss in "${missing_files[@]}"; do
   check_exit_code "record_ts"
   rm -rf delete_me
   set_title ${fname} "${season}${episode} ${title//./ }"
-  check_exit_code "set_title"
 done
