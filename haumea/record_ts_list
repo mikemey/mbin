@@ -4,7 +4,7 @@ out_file_ext="mp4"
 
 function error_message () {
   echo
-  echo "ERROR: $1"
+  echo -e "ERROR: $1"
   echo -e "\n usage: $(basename $0) csv_file"
   echo -e "\nParameters:"
   echo -e "\t csv_file \t CSV file containing video tracks to record"
@@ -16,8 +16,10 @@ function file_not_found () {
 }
 
 function check_exit_code () {
-  if [[ $? -ne 0 ]]; then
+  exit_code=$?
+  if [[ $exit_code -ne 0 ]]; then
     echo "processing failed: $1"
+    echo "exit code: $exit_code"
     exit 1
   fi
 }
@@ -47,7 +49,7 @@ do
       url="${BASH_REMATCH[1]}XXX${BASH_REMATCH[3]}"
       count="${BASH_REMATCH[2]}"
     else
-      error_message "Cannot extract URL template from link: [$link]"
+      error_message "File: [$fname]\nCannot extract URL template from link: [$link]"
     fi
     params="$show;$season;$episode;$title;$fname;$url;$count"
     missing_files+=( $params )
@@ -88,4 +90,5 @@ for miss in "${missing_files[@]}"; do
   check_exit_code "record_ts"
   rm -rf delete_me
   set_title ${fname} "${season}${episode} ${title//./ }"
+  check_exit_code "set_title"
 done

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 abort_with() {
-  echo $1
+  echo -e "ERROR: $1"
   cmdName="$(basename $0)"
   echo -e "\nusage: $cmdName file title"
   echo -e "usage: $cmdName -auto [ -d ] [ -s ] ext"
@@ -17,11 +17,11 @@ COL_DEFAULT="\033[39m"
 
 replace_title() {
   if [[ ! "$2" ]]; then
-   abort_with "Error: 2 parameters required"
+   abort_with "2 parameters required"
   fi
 
   if [[ ! -f "$1" ]]; then
-   abort_with "Error: Not a file: $1"
+   abort_with "Not a file: $1"
   fi
 
   TMP_FILE="$1.old"
@@ -71,3 +71,5 @@ if [[ "$1" == "-auto" ]]; then
 else
   replace_title "$1" "$2"
 fi
+
+exit 0
