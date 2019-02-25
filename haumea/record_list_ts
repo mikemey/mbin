@@ -64,9 +64,9 @@ if [[ $missing_count == 0 ]]; then
 fi
 
 echo -e "Missing files: ${missing_count}"
-echo -e "Show \t Season \t Episode \t Title"
+echo -e "\t Show \t Season \t Episode \t Title \t # pieces"
 for miss in "${missing_files[@]}"; do
-  miss=`echo "$miss" | cut -f 1-4 -d ';'`
+  miss=`echo "$miss" | cut -f 1-4,7 -d ';'`
   miss="${miss//;/\t}"
   miss="${miss//./ }"
   echo -e "${miss}"
