@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+cmd="curl -s https://temp.test | grep Auferst | wc -l"
+function finish_action () {
+  printf "$BG_RED"
+  for ((i=1; i<=20; i++)); do
+    printf "\n"
+  done
+  printf "$BG_DEFAULT\n"
+}
+
+function is_check_complete () {
+  # $1 is the result of $cmd executed
+  if [[ $1 == "0" ]]; then
+    false
+  else
+    true
+  fi
+}
+
+while [[ 1 ]]; do
+  result=`eval "$cmd"`
+  result=`trim_str "$result"`
+
+  echo "result: <$result>"
+  if is_check_complete "$result"; then
+    finish_action
+    exit
+  fi
+  sleep 5
+done
