@@ -73,5 +73,5 @@ esac
 echo "rsync ${SOURCES[@]%/} to $TARGET ${USE_RELATIVE_PATHS:+(using relative path names)}"
 rsync --progress --partial -r ${USE_RELATIVE_PATHS:+-R} \
   --perms --chmod=Du=rwx,Dgo=rx,Fa=rw \
-  --exclude=".DS*" --exclude="~*" \
+  --exclude="~*" --exclude=".*" \
   "${SOURCES[@]%/}" "$TARGET"

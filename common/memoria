@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 function print_usage () {
-  echo -e "\n usage: $(basename -- $0) [DIRECTION] [OPTIONS] file"
+  echo -e "\n usage: $(basename $0) [DIRECTION] [OPTIONS] file"
   echo -e "\nssh to $MEMORIA when no arguments given."
   echo "DIRECTION"
   echo -e "\t -c  \t send to current (default)"
@@ -95,5 +95,5 @@ esac
 echo "rsync ${SOURCES[@]%/} to $TARGET ${USE_RELATIVE_PATHS:+(using relative path names)}"
 rsync --progress --partial -r ${USE_RELATIVE_PATHS:+-R} \
   --perms --chmod=Du=rwx,Dgo=rx,Fa=rw \
-  --exclude=".DS*" --exclude="~*" --exclude=".*" \
+  --exclude="~*" --exclude=".*" \
   "${SOURCES[@]%/}" "$TARGET"
