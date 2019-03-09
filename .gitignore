@@ -6,7 +6,3 @@ logs
 cache
 
 aeon*
-# ignore machine specifics
-mercury/memoria
-memoria/set_title
-memoria/haumea
