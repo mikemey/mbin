@@ -13,7 +13,7 @@ function print_usage () {
 }
 
 function check_env () {
-  if [ ! ${!1} ]; then
+  if [[ ! ${!1} ]]; then
     echo "Environment variable '$1' not set!"
     exit
   fi
@@ -31,7 +31,7 @@ function remove_first_path_arg () {
 }
 
 function check_for_relative_paths () {
-  if [ "${PATH_ARGS[0]}" == "-R" ]; then
+  if [[ "${PATH_ARGS[0]}" == "-R" ]]; then
     USE_RELATIVE_PATHS=1
     remove_first_path_arg
   fi
@@ -57,7 +57,7 @@ case "${PATH_ARGS[0]}" in
     TARGET="."
   ;;
   -[!R] )
-    if [ "${PATH_ARGS[0]}" != "-h" ]; then
+    if [[ "${PATH_ARGS[0]}" != "-h" ]]; then
       echo "illegal option ${PATH_ARGS[0]}"
     fi
     print_usage
