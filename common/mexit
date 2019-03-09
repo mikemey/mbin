@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ssh "$MEMORIA" /bin/bash << EOF
   halt
 EOF
