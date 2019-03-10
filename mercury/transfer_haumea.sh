@@ -22,7 +22,7 @@ function is_haumea_online () {
   fi
 }
 
-IFS='|' read mode dir file label <<< "$@"
+IFS='|' read -r mode dir file label <<< "$@"
 [[ "$label" != "" ]] && exit 0
 [[ ${HAUMEA} ]] || error_message "environment variable '\$HAUMEA' not set."
 
