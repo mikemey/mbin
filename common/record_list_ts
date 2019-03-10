@@ -35,8 +35,7 @@ fi
 
 missing_files=()
 echo "finding missing files..."
-while IFS=\; read -r show season episode title link
-do
+while IFS=\; read show season episode title link; do
   show=`safe_name "${show}"`
   season=`trim_str "${season}"`
   episode=`trim_str "${episode}"`
@@ -51,8 +50,7 @@ do
     else
       error_message "File: [$fname]\nCannot extract URL template from link: [$link]"
     fi
-    params="$show;$season;$episode;$title;$fname;$url;$count"
-    missing_files+=( $params )
+    missing_files+=( "$show;$season;$episode;$title;$fname;$url;$count" )
   fi
 done < "$1"
 echo
@@ -67,7 +65,7 @@ echo -e "Missing files: ${missing_count}"
 echo -e "\t Show \t Season \t Episode \t Title \t # pieces"
 for miss in "${missing_files[@]}"; do
   miss=`echo "$miss" | cut -f 1-4,7 -d ';'`
-  miss="${miss//;/\t}"
+  miss="${miss//;/\\t}"
   miss="${miss//./ }"
   echo -e "${miss}"
 done
@@ -78,14 +76,7 @@ if [[ $? == 0 ]]; then
 fi
 
 for miss in "${missing_files[@]}"; do
-  # params="$show;$season;$episode;$title;$fname;$url;$count"
-  IFS=';' read -r -a params <<< "$miss"
-  season="${params[1]}"
-  episode="${params[2]}"
-  title="${params[3]}"
-  fname="${params[4]}"
-  url="${params[5]}"
-  count="${params[6]}"
+  IFS=';' read show season episode title fname url count <<< "$miss"
   record_ts "${url}" ${count} ${fname}
   check_exit_code "record_ts"
   rm -rf delete_me

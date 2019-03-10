@@ -26,8 +26,7 @@ fi
 echo "finding missing files..."
 missing_files=()
 missing_files_ix=0
-while IFS=\; read -r link artist title
-do
+while IFS=\; read link artist title; do
     link=`trim_str "${link}"`
     artist=`trim_str "${artist}"`
     title=`trim_str "${title}"`
@@ -36,8 +35,7 @@ do
 
     if [[ $(file_not_found "$out_file") ]]; then
       exec_cmd="ffmpeg -v panic -stats -i {} -metadata artist=\"${artist}\" -metadata title=\"${title}\" \"${out_file}\" </dev/null && rm {}"
-      params="$fname;$exec_cmd;$link"
-      missing_files[missing_files_ix]="$params"
+      missing_files[missing_files_ix]="$fname;$exec_cmd;$link"
       let missing_files_ix=missing_files_ix+1
     fi
 done < "$1"
@@ -51,25 +49,19 @@ fi
 
 echo -e "Missing files: ${missing_count}"
 echo -e "  Artist  -  Title"
-for ((i = 0; i < ${#missing_files[@]}; i++))
-do
+for ((i = 0; i < ${#missing_files[@]}; i++)); do
   miss=`echo "${missing_files[$i]}" | cut -f 1 -d ';'`
   echo "${miss}"
 done
+
 request_confirmation "continue?"
 if [[ $? == 0 ]]; then
   echo "abort."
   exit
 fi
 
-for ((i = 0; i < ${#missing_files[@]}; i++))
-do
-  #  params="$fname;$exec_cmd;$link"
-  IFS=';' read -r -a params <<< "${missing_files[$i]}"
-  fname="${params[0]}"
-  exec_cmd="${params[1]}"
-  link="${params[2]}"
-
+for ((i = 0; i < ${#missing_files[@]}; i++)); do
+  IFS=';' read fname exec_cmd link <<< "${missing_files[$i]}"
   echo "processing [${fname}] ..."
   youtube-dl -x -q -o "${tmp_file}" --exec "${exec_cmd}" "${link}"
   check_exit_code "youtube-dl ${link}"
