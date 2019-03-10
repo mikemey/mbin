@@ -11,10 +11,12 @@ function print_usage_exit () {
 
 short_beep () {
   /sbin/pic_raw 80
+  sleep 1
 }
 
 long_beep () {
   /sbin/pic_raw 81
+  sleep 2
 }
 
 cmdlist="$*"
@@ -25,7 +27,7 @@ if [[ ${cmdlist} =~ ([^ls0-9]) ]]; then
   print_usage_exit
 fi
 
-while [ $cmdlist ]; do
+while [[ $cmdlist ]]; do
   [[ $cmdlist =~ ([ls]|[0-9]*)(.*) ]]
   action="${BASH_REMATCH[1]}"
   cmdlist="${BASH_REMATCH[2]}"
