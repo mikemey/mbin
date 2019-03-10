@@ -8,7 +8,7 @@ function error_message () {
   echo -e " kind \t type: 'single' or 'multi'"
   echo -e " dir \t directory (for both 'single' and 'multi' files)"
   echo -e " file \t file name (only for 'single' file)"
-  echo -e " label \t if a label is set, no files are transferred"
+  echo -e " label \t if set, no files are transferred"
   read
   exit 1
 }
