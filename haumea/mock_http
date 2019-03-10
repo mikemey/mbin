@@ -40,7 +40,7 @@ function process_request () {
   status_line= response_body=
   run_mapping "$mapping_func"
 
-  timelog "${REQUEST['original']} -- $status_line"
+  timelog "${REQUEST['original']% *} [${status_line#* }]"
   respond_with "$status_line" "$response_body"
 }
 
@@ -53,17 +53,17 @@ function read_request_headers () {
 
     if $FIRST_LINE; then
       REQUEST['original']="$ORIGINAL"
-      IFS=' ' read -a REQUEST_LINE <<< "$HEADER_LINE"
-      REQUEST['method']=${REQUEST_LINE[0]}
-      REQUEST['path']=${REQUEST_LINE[1]}
+      IFS=' ' read method path http_version <<< "$HEADER_LINE"
+      REQUEST['method']="$method"
+      REQUEST['path']="$path"
       FIRST_LINE=false
     elif [[ -z "$HEADER_LINE" ]]; then
       HEADER_DONE=true
     else
       HEADER_LINE=$(echo "$HEADER_LINE" | tr -d '[\r\n]' | awk '{print tolower($0)}')
       if [[ "$HEADER_LINE" =~ ([^:]*):[[:space:]]*(.*) ]]; then
-        HEADER_NAME=${BASH_REMATCH[1]}
-        HEADER_VAL=${BASH_REMATCH[2]}
+        HEADER_NAME="${BASH_REMATCH[1]}"
+        HEADER_VAL="${BASH_REMATCH[2]}"
         REQUEST[$HEADER_NAME]=$HEADER_VAL
       fi
     fi
@@ -83,10 +83,7 @@ function find_mapping_func () {
   path="$2"
 
   for mapping_entry in ${REQUEST_MAPPING[@]}; do
-    IFS='>' read -a mapping <<< "$mapping_entry"
-    m_method="${mapping[0]}"
-    m_path="${mapping[1]}"
-    m_func="${mapping[2]}"
+    IFS='>' read m_method m_path m_func  <<< "$mapping_entry"
     if [[ $method =~ $m_method ]] && [[ $path =~ $m_path ]]; then
       echo "$m_func"
       exit
