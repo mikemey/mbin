@@ -98,11 +98,11 @@ function process_request () {
   if [[ -z $status_line ]]; then
     mapping_unfinished "$mapping"
   fi
-  ../common/timelog "${REQUEST['original']} -- $status_line"
+  timelog "${REQUEST['original']} -- $status_line"
   respond_with "$status_line" "$response_body"
 }
 
-../common/timelog "server start on port $PORT"
+timelog "server start on port $PORT"
 while true; do
   cat $OUT_PIPE | nc -l $PORT > >(process_request)
 done
