@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 CONN_THRESHOLD=10
 PNAME="node"
 
-result=`ssh -o ConnectTimeout=10 $MSMSSH /bin/bash --login 2>&1 << EOF
+result=`ssh -o ConnectTimeout=10 $MSMSSH /usr/bin/env bash -l << EOF
   open_connections -s $PNAME
 EOF`
 ssh_exit_code=$?

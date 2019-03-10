@@ -1,5 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-ssh "$MEMORIA" /bin/bash << EOF
+ssh "$MEMORIA" /usr/bin/env bash << EOF
   halt
 EOF

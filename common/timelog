@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 function formatLog () {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')]: $*"

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 function print_usage () {
   echo -e "\n usage: $(basename $0) [-s] p_name"

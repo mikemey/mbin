@@ -1,4 +1,6 @@
-for dir in * 
+#!/usr/bin/env bash
+
+for dir in *
   do if [ -d $dir ] && [ -d "$dir/.git" ]
     then 
       cd $dir
