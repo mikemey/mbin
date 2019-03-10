@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
 PORT=${1:-4545}
+
 HTTP_200="HTTP/1.1 200 OK"
 HTTP_404="HTTP/1.1 404 Not Found"
 HTTP_500="HTTP/1.1 500 Internal Server Error"
 HTTP_501="HTTP/1.1 501 Not Implemented"
+
 CONTENT_LENGTH_HEADER="content-length"
 
 OUT_PIPE="$(basename $0)_out"
@@ -16,29 +18,6 @@ REQUEST_MAPPING=(
 "put>/map/.*>add_mapping"
 ".*>.*>mapping_not_found"
 )
-
-function find_mapping () {
-  method="${REQUEST['method']}"
-  path="${REQUEST['path']}"
-
-  for mapping_entry in ${REQUEST_MAPPING[@]}; do
-    IFS='>' read -a mapping <<< "$mapping_entry"
-    m_method="${mapping[0]}"
-    m_path="${mapping[1]}"
-    m_func="${mapping[2]}"
-    if [[ $method =~ $m_method ]] && [[ $path =~ $m_path ]]; then
-      echo "$m_func"
-      exit
-    fi
-  done
-}
-
-function respond_with () {
-  status_line="$1"
-  response_body="$2"
-  response_len=`echo "$2" | wc -c`
-  printf "%s\n${CONTENT_LENGTH_HEADER}: %d\n\n%s\n" "$status_line" $response_len "$response_body" > $OUT_PIPE
-}
 
 function add_mapping () {
   request_body="${REQUEST['body']}"
@@ -52,18 +31,22 @@ function mapping_not_found () {
   response_body="no mapping found for '${REQUEST['original']}'"
 }
 
-function mapping_unfinished () {
-  unfinished_func="$1"
-  status_line="$HTTP_500"
-  response_body="mapping function '$unfinished_func' doesn't set \$status_line"
-}
-
 function process_request () {
   declare -A REQUEST
-  FIRST_LINE=true
-  HEADER_DONE=false
-  CONTENT_LENGTH=0
+  read_request_headers
+  read_request_body "${REQUEST[$CONTENT_LENGTH_HEADER]}"
 
+  mapping_func=`find_mapping_func "${REQUEST['method']}" "${REQUEST['path']}"`
+  status_line= response_body=
+  run_mapping "$mapping_func"
+
+  timelog "${REQUEST['original']} -- $status_line"
+  respond_with "$status_line" "$response_body"
+}
+
+function read_request_headers () {
+  HEADER_DONE=false
+  FIRST_LINE=true
   while ! $HEADER_DONE && read LINE; do
     ORIGINAL=$(echo "$LINE" | tr -d '[\r\n]' )
     HEADER_LINE=$(echo "$ORIGINAL" | awk '{print tolower($0)}')
@@ -85,21 +68,46 @@ function process_request () {
       fi
     fi
   done
+}
 
-  content_length="${REQUEST[$CONTENT_LENGTH_HEADER]}"
+function read_request_body () {
+  content_length="$1"
   if [[ $content_length -ne 0 ]]; then
     read -n $content_length body
     REQUEST['body']="$body"
   fi
+}
 
-  status_line= response_body=
-  mapping=`find_mapping`
-  $mapping
+function find_mapping_func () {
+  method="$1"
+  path="$2"
+
+  for mapping_entry in ${REQUEST_MAPPING[@]}; do
+    IFS='>' read -a mapping <<< "$mapping_entry"
+    m_method="${mapping[0]}"
+    m_path="${mapping[1]}"
+    m_func="${mapping[2]}"
+    if [[ $method =~ $m_method ]] && [[ $path =~ $m_path ]]; then
+      echo "$m_func"
+      exit
+    fi
+  done
+}
+
+function run_mapping () {
+  mapping_func="$1"
+  $mapping_func
   if [[ -z $status_line ]]; then
-    mapping_unfinished "$mapping"
+    status_line="$HTTP_500"
+    response_body="mapping function '$mapping_func' doesn't set \$status_line"
   fi
-  timelog "${REQUEST['original']} -- $status_line"
-  respond_with "$status_line" "$response_body"
+}
+
+function respond_with () {
+  status_line="$1"
+  response_body="$2"
+  response_len=`echo "$2" | wc -c`
+  printf "%s\n${CONTENT_LENGTH_HEADER}: %d\n\n%s\n" "$status_line" $response_len "$response_body" > $OUT_PIPE
 }
 
 timelog "server start on port $PORT"
