@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+
+PORT=${1:-4545}
+HTTP_200="HTTP/1.1 200 OK"
+HTTP_404="HTTP/1.1 404 Not Found"
+HTTP_500="HTTP/1.1 500 Internal Server Error"
+HTTP_501="HTTP/1.1 501 Not Implemented"
+CONTENT_LENGTH_HEADER="content-length"
+
+OUT_PIPE="$(basename $0)_out"
+rm -f $OUT_PIPE
+mkfifo $OUT_PIPE
+trap "rm -f $OUT_PIPE" EXIT
+
+REQUEST_MAPPING=(
+"put>/map/.*>add_mapping"
+".*>.*>mapping_not_found"
+)
+
+function find_mapping () {
+  method="${REQUEST['method']}"
+  path="${REQUEST['path']}"
+
+  for mapping_entry in ${REQUEST_MAPPING[@]}; do
+    IFS='>' read -a mapping <<< "$mapping_entry"
+    m_method="${mapping[0]}"
+    m_path="${mapping[1]}"
+    m_func="${mapping[2]}"
+    if [[ $method =~ $m_method ]] && [[ $path =~ $m_path ]]; then
+      echo "$m_func"
+      exit
+    fi
+  done
+}
+
+function respond_with () {
+  status_line="$1"
+  response_body="$2"
+  response_len=`echo "$2" | wc -c`
+  printf "%s\n${CONTENT_LENGTH_HEADER}: %d\n\n%s\n" "$status_line" $response_len "$response_body" > $OUT_PIPE
+}
+
+function add_mapping () {
+  request_body="${REQUEST['body']}"
+
+  status_line="$HTTP_200"
+  response_body="echo: ${request_body} END"
+}
+
+function mapping_not_found () {
+  status_line="$HTTP_501"
+  response_body="no mapping found for '${REQUEST['original']}'"
+}
+
+function mapping_unfinished () {
+  unfinished_func="$1"
+  status_line="$HTTP_500"
+  response_body="mapping function '$unfinished_func' doesn't set \$status_line"
+}
+
+function process_request () {
+  declare -A REQUEST
+  FIRST_LINE=true
+  HEADER_DONE=false
+  CONTENT_LENGTH=0
+
+  while ! $HEADER_DONE && read LINE; do
+    ORIGINAL=$(echo "$LINE" | tr -d '[\r\n]' )
+    HEADER_LINE=$(echo "$ORIGINAL" | awk '{print tolower($0)}')
+
+    if $FIRST_LINE; then
+      REQUEST['original']="$ORIGINAL"
+      IFS=' ' read -a REQUEST_LINE <<< "$HEADER_LINE"
+      REQUEST['method']=${REQUEST_LINE[0]}
+      REQUEST['path']=${REQUEST_LINE[1]}
+      FIRST_LINE=false
+    elif [[ -z "$HEADER_LINE" ]]; then
+      HEADER_DONE=true
+    else
+      HEADER_LINE=$(echo "$HEADER_LINE" | tr -d '[\r\n]' | awk '{print tolower($0)}')
+      if [[ "$HEADER_LINE" =~ ([^:]*):[[:space:]]*(.*) ]]; then
+        HEADER_NAME=${BASH_REMATCH[1]}
+        HEADER_VAL=${BASH_REMATCH[2]}
+        REQUEST[$HEADER_NAME]=$HEADER_VAL
+      fi
+    fi
+  done
+
+  content_length="${REQUEST[$CONTENT_LENGTH_HEADER]}"
+  if [[ $content_length -ne 0 ]]; then
+    read -n $content_length body
+    REQUEST['body']="$body"
+  fi
+
+  status_line= response_body=
+  mapping=`find_mapping`
+  $mapping
+  if [[ -z $status_line ]]; then
+    mapping_unfinished "$mapping"
+  fi
+  ../common/timelog "${REQUEST['original']} -- $status_line"
+  respond_with "$status_line" "$response_body"
+}
+
+../common/timelog "server start on port $PORT"
+while true; do
+  cat $OUT_PIPE | nc -l $PORT > >(process_request)
+done
