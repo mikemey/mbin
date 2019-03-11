@@ -3,11 +3,11 @@
 out_file_ext="mp4"
 
 function error_message () {
-  echo
   echo -e "ERROR: $1"
-  echo -e "\n usage: $(basename $0) csv_file"
+  echo -e "\n usage: $(basename $0) [ -d ] csv"
   echo -e "\nParameters:"
-  echo -e "\t csv_file \t CSV file containing video tracks to record"
+  echo -e "  -d  \t dry run"
+  echo -e "  csv \t CSV file containing video tracks to record"
   exit 1
 }
 
@@ -29,7 +29,15 @@ function safe_name () {
   echo "${name// /.}"
 }
 
-if [[ $(file_not_found "$1") ]]; then
+DRY_RUN=false
+if [[ $1 == "-d" ]]; then
+  DRY_RUN=true
+  echo -e "${FG_LIGHT_MAGENTA}========== DRY RUN ============"
+  shift
+fi
+CSV_FILE="$1"
+
+if [[ $(file_not_found "$CSV_FILE") ]]; then
   error_message "No CSV file provided!"
 fi
 
@@ -52,7 +60,7 @@ while IFS=\; read show season episode title link; do
     fi
     missing_files+=( "$show;$season;$episode;$title;$fname;$url;$count" )
   fi
-done < "$1"
+done < "$CSV_FILE"
 echo
 
 missing_count="${#missing_files[@]}"
@@ -77,9 +85,14 @@ fi
 
 for miss in "${missing_files[@]}"; do
   IFS=';' read show season episode title fname url count <<< "$miss"
-  record_ts "${url}" ${count} ${fname}
-  check_exit_code "record_ts"
-  rm -rf delete_me
-  set_title ${fname} "${season}${episode} ${title//./ }"
-  check_exit_code "set_title"
+
+  if $DRY_RUN; then
+    echo "record_ts" "${url}" ${count} ${fname}
+  else
+    record_ts "${url}" ${count} ${fname}
+    check_exit_code "record_ts"
+    rm -rf delete_me
+    set_title ${fname} "${season}${episode} ${title//./ }"
+    check_exit_code "set_title"
+  fi
 done
