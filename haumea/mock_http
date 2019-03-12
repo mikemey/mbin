@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-PORT=${1:-4545}
-
 HTTP_200="HTTP/1.1 200 OK"
 HTTP_404="HTTP/1.1 404 Not Found"
 HTTP_500="HTTP/1.1 500 Internal Server Error"
@@ -10,9 +8,6 @@ HTTP_501="HTTP/1.1 501 Not Implemented"
 CONTENT_LENGTH_HEADER="content-length"
 
 OUT_PIPE="$(basename $0)_out"
-rm -f $OUT_PIPE
-mkfifo $OUT_PIPE
-trap "rm -f $OUT_PIPE" EXIT
 
 ROUTES=(
 "put>/route>put_route"
@@ -106,6 +101,12 @@ function respond_with () {
   response_len=`echo "$2" | wc -c`
   printf "%s\n${CONTENT_LENGTH_HEADER}: %d\n\n%s\n" "$status_line" $response_len "$response_body" > $OUT_PIPE
 }
+
+PORT=${1:-4545}
+
+rm -f $OUT_PIPE
+mkfifo $OUT_PIPE
+trap "rm -f $OUT_PIPE" EXIT
 
 timelog "server start on port $PORT"
 while true; do
