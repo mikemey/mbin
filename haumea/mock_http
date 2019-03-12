@@ -14,21 +14,21 @@ rm -f $OUT_PIPE
 mkfifo $OUT_PIPE
 trap "rm -f $OUT_PIPE" EXIT
 
-REQUEST_MAPPING=(
-"put>/map/.*>add_mapping"
-".*>.*>mapping_not_found"
+ROUTES=(
+"put>/route>put_route"
+".*>.*>route_not_found"
 )
 
-function add_mapping () {
+function put_route () {
   request_body="${REQUEST['body']}"
 
   status_line="$HTTP_200"
   response_body="echo: ${request_body} END"
 }
 
-function mapping_not_found () {
+function route_not_found () {
   status_line="$HTTP_501"
-  response_body="no mapping found for '${REQUEST['original']}'"
+  response_body="no route found for '${REQUEST['original']}'"
 }
 
 function process_request () {
@@ -36,11 +36,11 @@ function process_request () {
   read_request_headers
   read_request_body "${REQUEST[$CONTENT_LENGTH_HEADER]}"
 
-  mapping_func=`find_mapping_func "${REQUEST['method']}" "${REQUEST['path']}"`
+  route_func=`find_route_func "${REQUEST['method']}" "${REQUEST['path']}"`
   status_line= response_body=
-  run_mapping "$mapping_func"
+  run_route "$route_func"
 
-  timelog "${REQUEST['original']% *} [${status_line#* }]"
+  timelog "${REQUEST['original']% *} [${status_line#* }] >>$response_body<<"
   respond_with "$status_line" "$response_body"
 }
 
@@ -78,25 +78,25 @@ function read_request_body () {
   fi
 }
 
-function find_mapping_func () {
+function find_route_func () {
   method="$1"
   path="$2"
 
-  for mapping_entry in ${REQUEST_MAPPING[@]}; do
-    IFS='>' read m_method m_path m_func  <<< "$mapping_entry"
-    if [[ $method =~ $m_method ]] && [[ $path =~ $m_path ]]; then
-      echo "$m_func"
+  for route in ${ROUTES[@]}; do
+    IFS='>' read route_method route_path route_func  <<< "$route"
+    if [[ $method =~ $route_method ]] && [[ $path =~ $route_path ]]; then
+      echo "$route_func"
       exit
     fi
   done
 }
 
-function run_mapping () {
-  mapping_func="$1"
-  $mapping_func
+function run_route () {
+  route_func="$1"
+  $route_func
   if [[ -z $status_line ]]; then
     status_line="$HTTP_500"
-    response_body="mapping function '$mapping_func' doesn't set \$status_line"
+    response_body="route function '$route_func' doesn't set \$status_line"
   fi
 }
 
