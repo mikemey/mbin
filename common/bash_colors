@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # foreground colors
 export set FG_DEFAULT="\033[39m"
 export set FG_BLACK="\033[30m"
@@ -35,3 +36,36 @@ export set BG_LIGHT_BLUE="\033[104m"
 export set BG_LIGHT_MAGENTA="\033[105m"
 export set BG_LIGHT_CYAN="\033[106m"
 export set BG_WHITE="\033[107m"
+
+FG_COLORS=(
+  $FG_DEFAULT $FG_BLACK $FG_RED $FG_GREEN $FG_YELLOW $FG_BLUE $FG_MAGENTA $FG_CYAN
+  $FG_LIGHT_GRAY $FG_DARK_GRAY $FG_LIGHT_RED $FG_LIGHT_GREEN $FG_LIGHT_YELLOW
+  $FG_LIGHT_BLUE $FG_LIGHT_MAGENTA $FG_LIGHT_CYAN $FG_WHITE
+)
+FG_COLOR_NAMES=(
+  "DEFAULT\t" "BLACK\t" "RED\t" "GREEN\t" "YELLOW\t" "BLUE\t" "MAGENTA\t" "CYAN\t"
+  LIGHT_GRAY DARK_GRAY LIGHT_RED LIGHT_GREEN LIGHT_YELLOW
+  LIGHT_BLUE LIGHT_MAGENTA LIGHT_CYAN "WHITE\t"
+)
+BG_COLORS=(
+  $BG_DEFAULT $BG_BLACK $BG_RED $BG_GREEN $BG_YELLOW $BG_BLUE $BG_MAGENTA $BG_CYAN
+  $BG_LIGHT_GRAY $BG_DARK_GRAY $BG_LIGHT_RED $BG_LIGHT_GREEN $BG_LIGHT_YELLOW
+  $BG_LIGHT_BLUE $BG_LIGHT_MAGENTA $BG_LIGHT_CYAN $BG_WHITE
+)
+
+function colorchart () {
+  printf "\t\tDFLT BLCK _RED GREN YELW BLUE MGTA CYAN LGRY DGRY LRED LGRN LYLW LBLU LMGT LCYN WHIT\n"
+  name_ix=0
+  for fg in ${FG_COLORS[@]}; do
+    printf "${FG_DEFAULT}${FG_COLOR_NAMES[name_ix]}\t"
+    let name_ix+=1
+    for bg in ${BG_COLORS[@]}; do
+      printf "${fg}${bg}AB12${BG_DEFAULT} "
+    done
+    printf "\n"
+  done
+}
+
+export FG_COLORS
+export BG_COLORS
+export colorchart
