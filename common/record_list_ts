@@ -63,7 +63,6 @@ while IFS=\; read show season episode title link; do
     fi
   fi
 done < "$CSV_FILE"
-echo
 
 missing_count="${#missing_files[@]}"
 if [[ $missing_count == 0 ]]; then
@@ -71,14 +70,14 @@ if [[ $missing_count == 0 ]]; then
   exit
 fi
 
-echo -e "Missing files: ${missing_count}"
-echo -e "\t Show \t Season \t Episode \t Title \t # pieces"
+echo -e "pieces \t file "
 for miss in "${missing_files[@]}"; do
-  miss=`echo "$miss" | cut -f 1-4,7 -d ';'`
-  miss="${miss//;/\\t}"
-  miss="${miss//./ }"
-  echo -e "${miss}"
+  miss=`echo "$miss" | cut -f 5,7 -d ';'`
+  pieces=${miss#*;}
+  fname=${miss%;*}
+  echo -e "${pieces} \t ${fname}"
 done
+echo -e "Missing files: ${missing_count}"
 request_confirmation "continue?"
 if [[ $? == 0 ]]; then
   echo "abort."
