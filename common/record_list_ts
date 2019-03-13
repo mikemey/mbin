@@ -44,21 +44,23 @@ fi
 missing_files=()
 echo "finding missing files..."
 while IFS=\; read show season episode title link; do
-  show=`safe_name "${show}"`
-  season=`trim_str "${season}"`
-  episode=`trim_str "${episode}"`
-  title=`safe_name "${title}"`
-  link=`trim_str "${link}"`
-  fname="${show}.${season}${episode:+$episode.}${title}.${out_file_ext}"
+  if [[ "${show}${season}${episode}${title}${link}" ]]; then
+    show=`safe_name "${show}"`
+    season=`trim_str "${season}"`
+    episode=`trim_str "${episode}"`
+    title=`safe_name "${title}"`
+    link=`trim_str "${link}"`
+    fname="${show}.${season}${episode:+$episode.}${title}.${out_file_ext}"
 
-  if [[ $(file_not_found "$fname") ]]; then
-    if [[ "$link" =~ (.*_)([0-9]*)(\.ts.*) ]]; then
-      url="${BASH_REMATCH[1]}XXX${BASH_REMATCH[3]}"
-      count="${BASH_REMATCH[2]}"
-    else
-      error_message "File: [$fname]\nCannot extract URL template from link: [$link]"
+    if [[ $(file_not_found "$fname") ]]; then
+      if [[ "$link" =~ (.*_)([0-9]*)(\.ts.*) ]]; then
+        url="${BASH_REMATCH[1]}XXX${BASH_REMATCH[3]}"
+        count="${BASH_REMATCH[2]}"
+      else
+        error_message "File: [$fname]\nCannot extract URL template from link: [$link]"
+      fi
+      missing_files+=( "$show;$season;$episode;$title;$fname;$url;$count" )
     fi
-    missing_files+=( "$show;$season;$episode;$title;$fname;$url;$count" )
   fi
 done < "$CSV_FILE"
 echo
