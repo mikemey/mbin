@@ -7,7 +7,11 @@ HTTP_501="HTTP/1.1 501 Not Implemented"
 
 CONTENT_LENGTH_HEADER="content-length"
 
+CMD=${1}
+PORT=${2:-4545}
 OUT_PIPE="$(basename $0)_out"
+LOCK_FILE="$(basename $0)_lock"
+LOG_FILE="$(basename $0).log"
 
 ROUTES=(
 "put>/route>put_route"
@@ -102,13 +106,55 @@ function respond_with () {
   printf "%s\n${CONTENT_LENGTH_HEADER}: %d\n\n%s\n" "$status_line" $response_len "$response_body" > $OUT_PIPE
 }
 
-PORT=${1:-4545}
+function start_server () {
+  if [[ -e $LOCK_FILE ]]; then
+    timelog "server already running!"
+    exit 1
+  fi
 
-rm -f $OUT_PIPE
-mkfifo $OUT_PIPE
-trap "rm -f $OUT_PIPE" EXIT
+  timelog "starting..."
+  request_loop $1 > $LOG_FILE &
+  pid="$!"
+  echo "pid: $pid" > $LOCK_FILE
+  timelog "done"
+}
 
-timelog "server start on port $PORT"
-while true; do
-  cat $OUT_PIPE | nc -l $PORT > >(process_request)
-done
+function stop_server () {
+  timelog "stopping..."
+  lock=`cat $LOCK_FILE`
+  if [[ ${lock} =~ ^pid:.([0-9]*)$ ]]; then
+    pid="${BASH_REMATCH[1]}"
+    timelog "pid: $pid"
+    kill ${pid}
+    rm ${LOCK_FILE}
+  else
+    timelog "error reading pid-file: $LOCK_FILE"
+  fi
+  timelog "done"
+}
+
+function request_loop () {
+  PORT=$1
+  rm -f $OUT_PIPE
+  mkfifo $OUT_PIPE
+  trap "rm -f $OUT_PIPE" EXIT
+
+  echo "server start on port $PORT"
+  while true; do
+    cat $OUT_PIPE | nc -l $PORT > >(process_request)
+  done
+}
+
+case $CMD in
+  "start" )
+    start_server $PORT
+  ;;
+  "stop" )
+    stop_server
+  ;;
+  * )
+    timelog "command not recognized: $1"
+  ;;
+esac
+
+exit 0
