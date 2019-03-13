@@ -42,7 +42,8 @@ if [[ $(file_not_found "$CSV_FILE") ]]; then
 fi
 
 missing_files=()
-echo "finding missing files..."
+printf "finding missing files...\033[s"
+missing_count=0
 while IFS=\; read show season episode title link; do
   if [[ "${show}${season}${episode}${title}${link}" ]]; then
     show=`safe_name "${show}"`
@@ -55,29 +56,30 @@ while IFS=\; read show season episode title link; do
     if [[ $(file_not_found "$fname") ]]; then
       if [[ "$link" =~ (.*_)([0-9]*)(\.ts.*) ]]; then
         url="${BASH_REMATCH[1]}XXX${BASH_REMATCH[3]}"
-        count="${BASH_REMATCH[2]}"
+        pieces="${BASH_REMATCH[2]}"
       else
         error_message "File: [$fname]\nCannot extract URL template from link: [$link]"
       fi
-      missing_files+=( "$show;$season;$episode;$title;$fname;$url;$count" )
+      missing_files+=( "$show;$season;$episode;$title;$fname;$url;$pieces" )
+      let missing_count=missing_count+1
+      printf "\033[u $missing_count"
     fi
   fi
 done < "$CSV_FILE"
 
-missing_count="${#missing_files[@]}"
 if [[ $missing_count == 0 ]]; then
   echo "all files available."
   exit
 fi
 
-echo -e "pieces \t file "
+echo -e "\n pieces\t file "
 for miss in "${missing_files[@]}"; do
   miss=`echo "$miss" | cut -f 5,7 -d ';'`
   pieces=${miss#*;}
   fname=${miss%;*}
-  echo -e "${pieces} \t ${fname}"
+  echo -e " ${pieces} \t ${fname}"
 done
-echo -e "Missing files: ${missing_count}"
+
 request_confirmation "continue?"
 if [[ $? == 0 ]]; then
   echo "abort."
