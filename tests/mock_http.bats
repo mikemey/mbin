@@ -2,6 +2,17 @@
 
 load assertions
 
+SERVER_DIR="$(dirname "$(which "mock_http")")"
+SERVER_PORT=1500
+
+function setup () {
+  mock_http start $SERVER_PORT
+}
+
+function teardown () {
+  mock_http stop
+}
+
 function query_server() {
   cmd=(curl -s)
   if [[ $1 == "PUT" ]]; then
@@ -10,6 +21,13 @@ function query_server() {
   cmd+=("localhost:1500${2}")
   run "${cmd[@]}"
   assert_status 0
+}
+
+@test "server start writes lock file" {
+  lockfile="$SERVER_DIR/mock_http_lock"
+  file_exists $lockfile
+  content=`cat $lockfile`
+  str_match "$content" "^pid: [0-9]*$" "lockfile content"
 }
 
 @test "route not found" {
