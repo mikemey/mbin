@@ -49,7 +49,7 @@ while IFS=\; read show season episode title link; do
   episode=`trim_str "${episode}"`
   title=`safe_name "${title}"`
   link=`trim_str "${link}"`
-  fname="${show}.${season}${episode}.${title}.${out_file_ext}"
+  fname="${show}.${season}${episode:+$episode.}${title}.${out_file_ext}"
 
   if [[ $(file_not_found "$fname") ]]; then
     if [[ "$link" =~ (.*_)([0-9]*)(\.ts.*) ]]; then
