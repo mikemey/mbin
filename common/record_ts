@@ -87,6 +87,7 @@ else
 fi
 
 if [[ "$encode" = true ]]; then
+  echo "start encoding: $(date +'%Y-%m-%d %H:%M')"
   HandBrakeCLI --preset-import-gui --preset="$enc_preset" -i "$combined_ts" -o "$outfile" 2> /dev/null
   check_exit_code "handbrake"
 else
