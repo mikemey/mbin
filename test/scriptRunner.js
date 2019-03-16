@@ -1,6 +1,5 @@
 const spawn = require('child-process-promise').spawn
 const fs = require('fs')
-const cp = require('child_process')
 const chai = require('chai')
 const should = chai.should()
 
@@ -37,21 +36,13 @@ const ScriptRunner = () => {
     should.fail(`SCRIPT error: ${err.syscall}: ${err.code}`)
   }
 
-  const execute = () => {
-    // const n = cp.fork(`${__dirname}/sub.js`)
-    // n.on('message', m => {
-    //   console.log('PARENT got message:', m)
-    // })
-    // // Causes the child to print: CHILD got message: { hello: 'world' }
-    // n.send({ hello: 'world' });
+  const execute = () => spawn(data.cmd, data.params, { capture: ['stdin', 'stdout', 'stderr'] })
+    .then(result => data.resultFunc(result.stdout.toString().trim()))
+    .catch(err => err instanceof chai.AssertionError
+      ? should.fail(err.actual, err.expected, err.message)
+      : handleShellError(err)
+    )
 
-    return spawn(data.cmd, data.params, { capture: ['stdin', 'stdout', 'stderr'] })
-      .then(result => data.resultFunc(result.stdout.toString().trim()))
-      .catch(err => err instanceof chai.AssertionError
-        ? should.fail(err.actual, err.expected, err.message)
-        : handleShellError(err)
-      )
-  }
   data.self = { command, execute, expectOut, fixturesDir }
   return data.self
 }

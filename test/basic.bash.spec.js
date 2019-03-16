@@ -18,25 +18,19 @@ describe('bash tests', () => {
     )
 
     it('runs user home bash profile/rc', () => {
-      const testFile = runner.fixturesDir('basic-bash-question.sh')
+      const testFile = runner.fixturesDir('setup-env.sh')
       return runner
         .command('ll', testFile)
         .expectOut(output => output.should.match(new RegExp(`.*${testFile}$`)))
         .execute()
     })
 
-    it('can execute scripts-under-tests', () => runner
-      .command('timelog', 'hello')
-      .expectOut(output => output.should.match(new RegExp(`^\\[[0-9\\-: ]*]: hello$`)))
-      .execute()
-    )
+    it('can execute scripts-under-tests', () => {
+      const msg = 'hello'
+      return runner
+        .command('timelog', msg)
+        .expectOut(output => output.should.match(new RegExp(`^\\[[0-9\\-: ]*]: ${msg}$`)))
+        .execute()
+    })
   })
-
-   describe('interactive', () => {
-     it('can answer question', () => runner
-       .command(runner.fixturesDir('basic-bash-question.sh'))
-       .expectOut(output => output.should.equal('success')
-       .execute()
-     )
-   })
 })
