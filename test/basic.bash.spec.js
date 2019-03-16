@@ -2,26 +2,41 @@ const chai = require('chai')
 chai.use(require('chai-match'))
 
 const ScriptRunner = require('./scriptRunner')
+
 describe('bash tests', () => {
+  let runner
+
   beforeEach(() => {
-    console.log('beforeEach')
+    runner = ScriptRunner()
   })
-
-  afterEach(() => {
-    console.log('afterEach')
-  })
-
-  const fixsturesDirectory = file => `test/fixtures/${file}`
 
   describe('basics', () => {
+    it('uses bash version 5', () => runner
+      .command('echo', `\${BASH_VERSION%%[^0-9]*}`)
+      .expectOut(output => output.should.equal('5'))
+      .execute()
+    )
+
     it('runs user home bash profile/rc', () => {
-      // console.log('echo ${BASH_VERSION%%[^0-9]*}')
-      const runner = ScriptRunner()
-      const testFile = fixsturesDirectory('bash-basics')
+      const testFile = runner.fixturesDir('bash-basics')
       return runner
-        .command('ls', testFile)
-        .stdout(output => output.should.match(new RegExp(`.*${testFile}\n$`)))
+        .command('ll', testFile)
+        .expectOut(output => output.should.match(new RegExp(`.*${testFile}$`)))
         .execute()
     })
+
+    it('can execute scripts-under-tests', () => runner
+      .command('timelog', 'hello')
+      .expectOut(output => output.should.match(new RegExp(`^\\[[0-9\\-: ]*]: hello$`)))
+      .execute()
+    )
   })
+
+  // describe('interactive', () => {
+  //   it('can answer question', () => runner
+  //     .command('timelog', 'hello')
+  //     .expectOut(output => output.should.match(new RegExp(`^\\[[0-9\\-: ]*]: hello$`)))
+  //     .execute()
+  //   )
+  // })
 })
