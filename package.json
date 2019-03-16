@@ -1,0 +1,42 @@
+{
+  "name": "mbin-tests",
+  "version": "1.0.0",
+  "description": "tests for mbin scripts",
+  "engines": {
+    "node": "11"
+  },
+  "scripts": {
+    "lint": "standard",
+    "all-test": "mocha 'test/**/**.spec.js'",
+    "all-watch": "nodemon -x 'npm run all-test -s' --ignore '**.log'",
+    "pretest": "npm install",
+    "test": "npm run lint -s && npm run all-test -s"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mikemey/mbin.git"
+  },
+  "author": "mikemey",
+  "license": "MIT",
+  "bugs": {},
+  "dependencies": {},
+  "standard": {
+    "env": [
+      "mocha"
+    ]
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-match": "^1.1.1",
+    "chai-string": "^1.5.0",
+    "child-process": "^1.0.2",
+    "child-process-promise": "^2.2.1",
+    "eslint": "^5.9.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-mocha": "^5.2.0",
+    "eslint-plugin-standard": "^4.0.0",
+    "mocha": "^6.0.2",
+    "nodemon": "^1.18.7",
+    "standard": "^12.0.1"
+  }
+}

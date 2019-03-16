@@ -2,7 +2,10 @@ logs
 *.log
 .DS_Store
 .idea
+
 *.pyc
 cache
+node_modules
+package-lock.json
 
 aeon*
