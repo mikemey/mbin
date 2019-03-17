@@ -18,7 +18,7 @@ describe('bash tests', () => {
   describe('basics', () => {
     it('uses bash version 5', () => runner
       .command('echo', `\${BASH_VERSION%%[^0-9]*}`)
-      .expectOut(output => output.should.equal('5'))
+      .expectOutput('5')
       .execute()
     )
 
@@ -26,13 +26,13 @@ describe('bash tests', () => {
       const testFile = runner.fixturesDir('setup-env.sh')
       return runner
         .command('ll', testFile)
-        .expectOut(output => output.should.match(new RegExp(`.*${testFile}$`)))
+        .expectOutput(output => output.should.match(new RegExp(`.*${testFile}$`)))
         .execute()
     })
 
     it('can execute scripts-under-tests', () => runner
       .command('timelog', testMessage)
-      .expectOut(output => output.should.match(new RegExp(`^\\[[0-9\\-: ]*]: ${testMessage}$`)))
+      .expectOutput(output => output.should.match(new RegExp(`^\\[[0-9\\-: ]*]: ${testMessage}$`)))
       .execute()
     )
   })
@@ -41,7 +41,7 @@ describe('bash tests', () => {
     it('known command exit status', () => runner
       .command('test/fixtures/test-exit-status.sh')
       .mockCommand('request_confirmation', 73)
-      .expectOut(output => output.should.equal(`success 73`))
+      .expectOutput(`success 73`)
       .execute()
     )
 
@@ -49,7 +49,7 @@ describe('bash tests', () => {
       .mockCommand('mock1', 5)
       .mockCommand('ll', 2)
       .command('mock1; res1=$?; ll; res2=$?; echo "$res1-$res2"')
-      .expectOut(output => output.should.equal('5-2'))
+      .expectOutput('5-2')
       .execute()
     )
 
@@ -57,21 +57,21 @@ describe('bash tests', () => {
       return runner
         .mockEnvironment('HOME', testMessage)
         .command('echo $HOME')
-        .expectOut(output => output.should.equal(testMessage))
+        .expectOutput(testMessage)
         .execute()
     })
 
     it('returns static data', () => runner
       .command('cygpath')
       .mockCommand('cygpath', 0, testMessage)
-      .expectOut(output => output.should.equal(testMessage))
+      .expectOutput(testMessage)
       .execute()
     )
 
     it('returns dynamic data', () => runner
       .command('cygpath')
       .mockCommand('cygpath', 0, () => testMessage)
-      .expectOut(output => output.should.equal(testMessage))
+      .expectOutput(testMessage)
       .execute()
     )
   })

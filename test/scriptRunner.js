@@ -58,8 +58,10 @@ const ScriptRunner = () => {
     return data.self
   }
 
-  const expectOut = resultFunc => {
-    data.resultFunc = resultFunc
+  const expectOutput = expectedOutput => {
+    data.resultFunc = expectedOutput instanceof Function
+      ? expectedOutput
+      : output => output.should.equal(expectedOutput)
     return data.self
   }
 
@@ -87,7 +89,7 @@ const ScriptRunner = () => {
     return data.self
   }
 
-  data.self = { command, execute, expectOut, fixturesDir, mockCommand, mockEnvironment, cleanup }
+  data.self = { command, execute, expectOutput, fixturesDir, mockCommand, mockEnvironment, cleanup }
   setup()
   return data.self
 }
