@@ -36,8 +36,10 @@ describe('bash tests', () => {
         .expectOut(output => output.should.match(new RegExp(`^\\[[0-9\\-: ]*]: ${msg}$`)))
         .execute()
     })
+  })
 
-    it('can mock exit status', () => {
+  describe('mocking', () => {
+    it('known command exit status', () => {
       const testExitCode = 73
       return runner
         .command('test/fixtures/test-exit-status-mock.sh')
@@ -46,10 +48,10 @@ describe('bash tests', () => {
         .execute()
     })
 
-    it('mocks multiple unknown commands', () => runner
+    it('unknown command + alias', () => runner
       .mock('mock1', 5)
-      .mock('mock2', 2)
-      .command('mock1; res1=$?; mock2; res2=$?; echo "$res1-$res2"')
+      .mock('ll', 2)
+      .command('mock1; res1=$?; ll; res2=$?; echo "$res1-$res2"')
       .expectOut(output => output.should.equal('5-2'))
       .execute()
     )

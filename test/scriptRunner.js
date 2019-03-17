@@ -12,7 +12,8 @@ const writeFile = (file, data, createNew = false) => {
 }
 
 const mockFunction = (commandName, exitCode) => {
-  return `function ${commandName} () { ${EOL}` +
+  return `unalias ${commandName} ${EOL}` +
+    `function ${commandName} () { ${EOL}` +
     `$(exit ${exitCode}) ${EOL}` +
     `} ${EOL}` +
     `export -f ${commandName} ${EOL}`
