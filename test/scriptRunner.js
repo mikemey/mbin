@@ -1,23 +1,43 @@
 const spawn = require('child-process-promise').spawn
 const fs = require('fs')
+const EOL = require('os').EOL
 const chai = require('chai')
 const should = chai.should()
 
+const SHE_BANG = `#!/usr/bin/env bash${EOL}`
+
+const writeFile = (file, data, createNew = false) => {
+  const options = createNew ? {} : { flag: 'a' }
+  fs.writeFileSync(file, data, options)
+}
+
+const mockFunction = (commandName, exitCode) => {
+  return `function ${commandName} () { ${EOL}` +
+    `$(exit ${exitCode}) ${EOL}` +
+    `} ${EOL}` +
+    `export -f ${commandName} ${EOL}`
+}
+
 const ScriptRunner = () => {
-  const fixturesDir = file => {
+  const fixturesDir = (file, checkExists = true) => {
     const fullPath = `test/fixtures/${file}`
-    if (fs.existsSync(fullPath)) {
+    if (!checkExists || fs.existsSync(fullPath)) {
       return fullPath
     }
     throw new Error(`file doesn't exist: ${fullPath}`)
   }
 
+  const mockFile = fixturesDir('.test.mocks', false)
   const data = {
     self: null,
+    mockFile,
     cmd: 'env',
-    params: ['bash', '-i', fixturesDir('setup-env.sh')],
+    params: ['bash', '-i', fixturesDir('setup-env.sh'), mockFile],
     resultFunc: null
   }
+
+  const setup = () => { writeFile(data.mockFile, SHE_BANG, true) }
+  const cleanup = () => { fs.unlinkSync(data.mockFile) }
 
   const command = (...cmd) => {
     data.params.push(...cmd)
@@ -33,7 +53,7 @@ const ScriptRunner = () => {
     if (err.stderr) {
       should.fail(`SCRIPT error: ${err.stderr}`)
     }
-    should.fail(`SCRIPT error: ${err.syscall}: ${err.code}`)
+    should.fail(`RUNNER error: ${err.syscall}: ${err.code}`)
   }
 
   const execute = () => spawn(data.cmd, data.params, { capture: ['stdin', 'stdout', 'stderr'] })
@@ -43,7 +63,13 @@ const ScriptRunner = () => {
       : handleShellError(err)
     )
 
-  data.self = { command, execute, expectOut, fixturesDir }
+  const mock = (commandName, exitCode) => {
+    writeFile(data.mockFile, mockFunction(commandName, exitCode))
+    return data.self
+  }
+
+  data.self = { command, execute, expectOut, fixturesDir, mock, cleanup }
+  setup()
   return data.self
 }
 

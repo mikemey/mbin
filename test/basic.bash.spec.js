@@ -10,6 +10,10 @@ describe('bash tests', () => {
     runner = ScriptRunner()
   })
 
+  after(() => {
+    if (runner) runner.cleanup()
+  })
+
   describe('basics', () => {
     it('uses bash version 5', () => runner
       .command('echo', `\${BASH_VERSION%%[^0-9]*}`)
@@ -30,6 +34,15 @@ describe('bash tests', () => {
       return runner
         .command('timelog', msg)
         .expectOut(output => output.should.match(new RegExp(`^\\[[0-9\\-: ]*]: ${msg}$`)))
+        .execute()
+    })
+
+    it('can mock exit status', () => {
+      const testExitCode = 73
+      return runner
+        .command('test/fixtures/test-exit-status-mock.sh')
+        .mock('request_confirmation', testExitCode)
+        .expectOut(output => output.should.equal(`success ${testExitCode}`))
         .execute()
     })
   })

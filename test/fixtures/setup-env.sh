@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 
-profiles=(
+mockFile=$1
+cmd=$2
+shift 2
+
+sources=(
   "${HOME}/.bash_profile"
   "${HOME}/.bashrc"
+  $mockFile
 )
 
-for prof in "${profiles[@]}"; do
+for prof in "${sources[@]}"; do
   if [[ -e $prof ]]; then
     source $prof
   fi
 done
-
-cmd=$1
-shift
 
 eval $cmd $*
