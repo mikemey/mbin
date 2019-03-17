@@ -11,12 +11,21 @@ const writeFile = (file, data, createNew = false) => {
   fs.writeFileSync(file, data, options)
 }
 
-const bashFunction = (commandName, exitCode) => {
+const bashFunction = (commandName, exitCode, output) => {
   return `unalias ${commandName} ${EOL}` +
     `function ${commandName} () { ${EOL}` +
+    bashOutput(output) +
     `$(exit ${exitCode}) ${EOL}` +
     `} ${EOL}` +
     `export -f ${commandName} ${EOL}`
+}
+
+const bashOutput = output => output === undefined
+  ? '' : bashCreateOutput(output)
+
+const bashCreateOutput = output => {
+  const outputResult = output instanceof Function ? output() : output
+  return `echo "${outputResult}" ${EOL}`
 }
 
 const bashEnvironment = (envName, envValue) => {
@@ -68,8 +77,8 @@ const ScriptRunner = () => {
       : handleShellError(err)
     )
 
-  const mockCommand = (commandName, exitCode) => {
-    writeFile(data.mockFile, bashFunction(commandName, exitCode))
+  const mockCommand = (commandName, exitCode, output) => {
+    writeFile(data.mockFile, bashFunction(commandName, exitCode, output))
     return data.self
   }
 

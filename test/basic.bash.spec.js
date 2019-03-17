@@ -4,6 +4,7 @@ chai.use(require('chai-match'))
 const ScriptRunner = require('./scriptRunner')
 
 describe('bash tests', () => {
+  const testMessage = 'hello world!'
   let runner
 
   beforeEach(() => {
@@ -29,24 +30,20 @@ describe('bash tests', () => {
         .execute()
     })
 
-    it('can execute scripts-under-tests', () => {
-      const msg = 'hello'
-      return runner
-        .command('timelog', msg)
-        .expectOut(output => output.should.match(new RegExp(`^\\[[0-9\\-: ]*]: ${msg}$`)))
-        .execute()
-    })
+    it('can execute scripts-under-tests', () => runner
+      .command('timelog', testMessage)
+      .expectOut(output => output.should.match(new RegExp(`^\\[[0-9\\-: ]*]: ${testMessage}$`)))
+      .execute()
+    )
   })
 
   describe('mocking', () => {
-    it('known command exit status', () => {
-      const testExitCode = 73
-      return runner
-        .command('test/fixtures/test-exit-status.sh')
-        .mockCommand('request_confirmation', testExitCode)
-        .expectOut(output => output.should.equal(`success ${testExitCode}`))
-        .execute()
-    })
+    it('known command exit status', () => runner
+      .command('test/fixtures/test-exit-status.sh')
+      .mockCommand('request_confirmation', 73)
+      .expectOut(output => output.should.equal(`success 73`))
+      .execute()
+    )
 
     it('unknown command + alias', () => runner
       .mockCommand('mock1', 5)
@@ -57,12 +54,25 @@ describe('bash tests', () => {
     )
 
     it('environment variables', () => {
-      const testHome = 'this is a test'
       return runner
-        .mockEnvironment('HOME', testHome)
+        .mockEnvironment('HOME', testMessage)
         .command('echo $HOME')
-        .expectOut(output => output.should.equal(testHome))
+        .expectOut(output => output.should.equal(testMessage))
         .execute()
     })
+
+    it('returns static data', () => runner
+      .command('cygpath')
+      .mockCommand('cygpath', 0, testMessage)
+      .expectOut(output => output.should.equal(testMessage))
+      .execute()
+    )
+
+    it('returns dynamic data', () => runner
+      .command('cygpath')
+      .mockCommand('cygpath', 0, () => testMessage)
+      .expectOut(output => output.should.equal(testMessage))
+      .execute()
+    )
   })
 })
