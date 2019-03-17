@@ -42,7 +42,7 @@ describe('bash tests', () => {
     it('known command exit status', () => {
       const testExitCode = 73
       return runner
-        .command('test/fixtures/test-exit-status-mock.sh')
+        .command('test/fixtures/test-exit-status.sh')
         .mockCommand('request_confirmation', testExitCode)
         .expectOut(output => output.should.equal(`success ${testExitCode}`))
         .execute()
