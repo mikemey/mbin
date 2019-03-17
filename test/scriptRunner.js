@@ -11,12 +11,16 @@ const writeFile = (file, data, createNew = false) => {
   fs.writeFileSync(file, data, options)
 }
 
-const mockFunction = (commandName, exitCode) => {
+const bashFunction = (commandName, exitCode) => {
   return `unalias ${commandName} ${EOL}` +
     `function ${commandName} () { ${EOL}` +
     `$(exit ${exitCode}) ${EOL}` +
     `} ${EOL}` +
     `export -f ${commandName} ${EOL}`
+}
+
+const bashEnvironment = (envName, envValue) => {
+  return `export ${envName}="${envValue}" ${EOL}`
 }
 
 const ScriptRunner = () => {
@@ -64,12 +68,17 @@ const ScriptRunner = () => {
       : handleShellError(err)
     )
 
-  const mock = (commandName, exitCode) => {
-    writeFile(data.mockFile, mockFunction(commandName, exitCode))
+  const mockCommand = (commandName, exitCode) => {
+    writeFile(data.mockFile, bashFunction(commandName, exitCode))
     return data.self
   }
 
-  data.self = { command, execute, expectOut, fixturesDir, mock, cleanup }
+  const mockEnvironment = (envName, envValue) => {
+    writeFile(data.mockFile, bashEnvironment(envName, envValue))
+    return data.self
+  }
+
+  data.self = { command, execute, expectOut, fixturesDir, mockCommand, mockEnvironment, cleanup }
   setup()
   return data.self
 }

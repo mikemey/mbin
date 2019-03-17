@@ -43,17 +43,26 @@ describe('bash tests', () => {
       const testExitCode = 73
       return runner
         .command('test/fixtures/test-exit-status-mock.sh')
-        .mock('request_confirmation', testExitCode)
+        .mockCommand('request_confirmation', testExitCode)
         .expectOut(output => output.should.equal(`success ${testExitCode}`))
         .execute()
     })
 
     it('unknown command + alias', () => runner
-      .mock('mock1', 5)
-      .mock('ll', 2)
+      .mockCommand('mock1', 5)
+      .mockCommand('ll', 2)
       .command('mock1; res1=$?; ll; res2=$?; echo "$res1-$res2"')
       .expectOut(output => output.should.equal('5-2'))
       .execute()
     )
+
+    it('environment variables', () => {
+      const testHome = 'this is a test'
+      return runner
+        .mockEnvironment('HOME', testHome)
+        .command('echo $HOME')
+        .expectOut(output => output.should.equal(testHome))
+        .execute()
+    })
   })
 })
