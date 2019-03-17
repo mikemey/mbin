@@ -45,5 +45,13 @@ describe('bash tests', () => {
         .expectOut(output => output.should.equal(`success ${testExitCode}`))
         .execute()
     })
+
+    it('mocks multiple unknown commands', () => runner
+      .mock('mock1', 5)
+      .mock('mock2', 2)
+      .command('mock1; res1=$?; mock2; res2=$?; echo "$res1-$res2"')
+      .expectOut(output => output.should.equal('5-2'))
+      .execute()
+    )
   })
 })
