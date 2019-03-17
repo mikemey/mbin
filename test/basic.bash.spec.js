@@ -11,10 +11,6 @@ describe('bash tests', () => {
     runner = ScriptRunner()
   })
 
-  after(() => {
-    if (runner) runner.cleanup()
-  })
-
   describe('basics', () => {
     it('uses bash version 5', () => runner
       .command('echo', `\${BASH_VERSION%%[^0-9]*}`)
@@ -23,7 +19,7 @@ describe('bash tests', () => {
     )
 
     it('runs user home bash profile/rc', () => {
-      const testFile = runner.fixturesDir('setup-env.sh')
+      const testFile = runner.fixturesFilePath('setup-env.sh')
       return runner
         .command('ll', testFile)
         .expectOutput(output => output.should.match(new RegExp(`.*${testFile}$`)))
@@ -46,10 +42,10 @@ describe('bash tests', () => {
     )
 
     it('unknown command + alias', () => runner
-      .mockCommand('mock1', 5)
-      .mockCommand('ll', 2)
+      .mockCommand('mock1', 45)
+      .mockCommand('ll', 22)
       .command('mock1; res1=$?; ll; res2=$?; echo "$res1-$res2"')
-      .expectOutput('5-2')
+      .expectOutput('45-22')
       .execute()
     )
 
@@ -72,6 +68,18 @@ describe('bash tests', () => {
       .command('cygpath')
       .mockCommand('cygpath', 0, () => testMessage)
       .expectOutput(testMessage)
+      .execute()
+    )
+
+    it('forwards parameters', () => runner
+      .command('cygpath', 'abc', 123, testMessage)
+      .mockCommand('cygpath', 0, (str, num, msg) => {
+        str.should.equal('abc')
+        num.should.equal('123')
+        msg.should.equal(testMessage)
+        return `${str}=${num}=${testMessage}`
+      })
+      .expectOutput(`abc=123=${testMessage}`)
       .execute()
     )
   })
