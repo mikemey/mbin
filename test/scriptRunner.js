@@ -57,7 +57,7 @@ const bashDynamicFunc = (commandName, exitCode, func) => {
     originalName: commandName,
     parametersFile,
     retvalFile,
-    output: bashFunction(commandName, exitCode, `waitForResponse "${parametersFile}" "${retvalFile}" "$@"`)
+    output: bashFunction(commandName, exitCode, `wait_for_function_result "${parametersFile}" "${retvalFile}" "$@"`)
   }
 }
 

@@ -24,16 +24,16 @@ function save_params () {
   echo "${ret[@]}"
 }
 
-function waitForResponse () {
+function wait_for_function_result () {
   readonly _parameterFile="$1"
-  readonly _watchFile="$2"
+  readonly _resultFile="$2"
   shift 2
   echo `save_params "${@}"` >> "$_parameterFile"
-  while ! [[ -e "$_watchFile" ]]; do
+  while ! [[ -e "$_resultFile" ]]; do
     sleep 0.01
   done
-  cat "$_watchFile"
+  cat "$_resultFile"
 }
 
-export -f waitForResponse
+export -f wait_for_function_result
 eval $cmd `save_params "${@}"`
