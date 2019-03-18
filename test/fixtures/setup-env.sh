@@ -24,15 +24,19 @@ function save_params () {
   echo "${ret[@]}"
 }
 
+function file_exists () {
+  [[ -e "$1" ]] && true || false
+}
+
 function wait_for_function_result () {
   readonly _parameterFile="$1"
   readonly _resultFile="$2"
   shift 2
   echo `save_params "${@}"` >> "$_parameterFile"
-  while ! [[ -e "$_resultFile" ]]; do
+  while ! file_exists "$_resultFile" && file_exists "$_parameterFile"; do
     sleep 0.01
   done
-  cat "$_resultFile"
+  file_exists "$_resultFile" && cat "$_resultFile"
 }
 
 export -f wait_for_function_result
