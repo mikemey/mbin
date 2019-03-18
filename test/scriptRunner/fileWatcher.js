@@ -49,11 +49,9 @@ const createFileWatcher = () => {
 
   const cleanup = () => {
     if (fsextra.existsSync(data.tempDir)) {
-      console.log('=========== cleaning TMP-DIR')
       fsextra.removeSync(data.tempDir)
     }
     if (data.watch) {
-      console.log('=========== cleaning file WATCH')
       data.watch.close()
       data.allFileListener.filter(l => l.abort).forEach(l => l.abort())
       data.allFileListener = []
