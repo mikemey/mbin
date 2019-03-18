@@ -3,17 +3,9 @@ const fsextra = require('fs-extra')
 const EOL = require('os').EOL
 const chai = require('chai')
 const should = chai.should()
+const { createFileWatcher, UnusedFileWatchError } = require('./fileWatcher')
 
 const SHE_BANG = `#!/usr/bin/env bash ${EOL}`
-
-class UnusedFileWatchError extends Error {
-  constructor (...params) {
-    super(...params)
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, UnusedFileWatchError)
-    }
-  }
-}
 
 const fixturesFilePath = file => {
   const fullPath = `test/fixtures/${file}`
@@ -29,8 +21,6 @@ const writeFile = (file, data, createNew = false) => {
   const options = createNew ? {} : { flag: 'a' }
   fsextra.outputFileSync(file, data, options)
 }
-
-const readFile = file => fsextra.readFileSync(file).toString().trim()
 
 const bashFunction = (commandName, exitCode, outputLine) => {
   return `[[ \`type -t "${commandName}"\` == "alias" ]] && unalias ${commandName} ${EOL}` +
@@ -65,11 +55,13 @@ const bashEnvironment = (envName, envValue) => {
   return `export ${envName}="${envValue}" ${EOL}`
 }
 
-const toCommandPromise = (cmd, params, fileWatcher) => spawn(cmd, params, { capture: ['stdout', 'stderr'] })
+const fileWatcher = createFileWatcher()
+
+const toCommandPromise = (cmd, params) => spawn(cmd, params, { capture: ['stdout', 'stderr'] })
   .finally(fileWatcher.cleanup)
 
-const toMockPromise = fileWatcher => mockOpts => {
-  return fileWatcher.watchFile(mockOpts.parametersFile)
+const toMockPromise = mockOpts => {
+  return fileWatcher.watchFileContent(mockOpts.parametersFile)
     .then(fileContent => {
       const params = fileContent.split(/(?<!\\) /).map(param => param.replace('\\ ', ' '))
       writeFile(mockOpts.retvalFile, mockOpts.func(...params), true)
@@ -81,57 +73,6 @@ const toMockPromise = fileWatcher => mockOpts => {
         : err
     })
 }
-
-const createFileWatcher = () => {
-  const data = {
-    allFileListener: [],
-    tempDir: tempFilePath(''),
-    watch: null
-  }
-
-  const _addFileListener = fileListener => {
-    data.allFileListener.push(fileListener)
-    if (!data.watch) {
-      fsextra.ensureDirSync(data.tempDir)
-      data.watch = fsextra.watch(data.tempDir, (_, filename) => {
-        const changeFilePath = tempFilePath(filename)
-        data.allFileListener
-          .filter(listener => listener.fileName === changeFilePath)
-          .forEach(listener => listener.receivedContent(readFile(listener.fileName)))
-      })
-    }
-  }
-
-  const watchFile = fileName => {
-    const fileListener = { fileName }
-    const watchFilePromise = new Promise((resolve, reject) => {
-      fileListener.abort = () => reject(new UnusedFileWatchError())
-      fileListener.receivedContent = fileContent => {
-        delete fileListener.abort
-        resolve(fileContent)
-      }
-    })
-    _addFileListener(fileListener)
-    return watchFilePromise
-  }
-
-  const cleanup = () => {
-    if (fsextra.existsSync(data.tempDir)) {
-      fsextra.removeSync(data.tempDir)
-    }
-    if (data.watch) {
-      data.watch.close()
-      data.allFileListener.filter(l => l.abort).forEach(l => l.abort())
-      data.allFileListener = []
-      data.watch = null
-    }
-  }
-  process.on('exit', cleanup)
-
-  return { cleanup, watchFile }
-}
-
-const fileWatcher = createFileWatcher()
 
 const ScriptRunner = () => {
   const mockFile = tempFilePath('test.mocks', false)
@@ -171,8 +112,8 @@ const ScriptRunner = () => {
   }
 
   const execute = () => {
-    const commandPromise = toCommandPromise(data.cmd, data.params, fileWatcher)
-    const mockPromises = data.mockOpts.map(toMockPromise(fileWatcher))
+    const commandPromise = toCommandPromise(data.cmd, data.params)
+    const mockPromises = data.mockOpts.map(toMockPromise)
     const shellPromises = mockPromises.concat(commandPromise)
     return Promise.all(shellPromises)
       .then(result => {
