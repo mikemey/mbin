@@ -42,7 +42,7 @@ describe('bash tests', () => {
       .execute()
     )
 
-    it('unknown command + alias', () => runner
+    it('unknown command + alias output', () => runner
       .mockCommand('mock1', 45)
       .mockCommand('ll', 22)
       .command('mock1; res1=$?; ll; res2=$?; echo "$res1-$res2"')
@@ -58,40 +58,33 @@ describe('bash tests', () => {
         .execute()
     })
 
-    it('returns static data', () => runner
+    it('expect output', () => runner
       .command('cygpath')
       .mockCommand('cygpath', 0, testMessage)
       .expectOutput(testMessage)
       .execute()
     )
 
-    it('assert command exit status', () => runner
+    it('expect exit-code', () => runner
       .command('test/fixtures/test-command-exit-status.sh', 37)
       .expectOutput('test-script output')
       .expectExitCode(37)
       .execute()
     )
-
-    it('asserts zero exit code', () => {
-      let expectationCalled = false
-      return runner
-        .command('test/fixtures/test-command-exit-status.sh', 0)
-        .expectExitCode(exitCode => {
-          expectationCalled = true
-          exitCode.should.equal(0)
-        })
-        .execute()
-        .finally(() => {
-          expectationCalled.should.equal(true, 'exit-code expectation not called!')
-        })
-    })
   })
 
   describe('dynamic mocks', () => {
-    it('returns dynamic data', () => runner
+    it('expect ouptut', () => runner
       .command('cygpath')
       .mockCommand('cygpath', 0, () => testMessage)
       .expectOutput(testMessage)
+      .execute()
+    )
+
+    it('expect exit-code', () => runner
+      .command('cygpath')
+      .mockCommand('cygpath', 4)
+      .expectExitCode(4)
       .execute()
     )
 
@@ -108,7 +101,7 @@ describe('bash tests', () => {
     )
   })
 
-  describe('mock errors', () => {
+  describe('mock error', () => {
     const shouldFailWith = (underTest, expectedError) => {
       let errorThrown = false
       const underTestPromise = underTest instanceof Promise
@@ -126,7 +119,7 @@ describe('bash tests', () => {
         })
     }
 
-    it('fail when mock is unused', () => {
+    it('mock is unused', () => {
       const unknownCommand = '_TEST_MOCK_'
       return shouldFailWith(
         runner
@@ -138,7 +131,7 @@ describe('bash tests', () => {
       )
     })
 
-    it('fail when static mock is specified twice', () => {
+    it('static mock is specified twice', () => {
       const commandName = '_test_static_twice'
       return shouldFailWith(
         () => runner
@@ -148,7 +141,7 @@ describe('bash tests', () => {
       )
     })
 
-    it('fail when dynamic + static mock is specified twice', () => {
+    it('dynamic + static mock is specified twice', () => {
       const commandName = '_test_mixed_twice'
       return shouldFailWith(
         () => runner
@@ -158,7 +151,7 @@ describe('bash tests', () => {
       )
     })
 
-    it('fail when dynamic mock returns undefined', () => {
+    it('dynamic mock returns undefined', () => {
       const commandName = 'cygpath'
       return shouldFailWith(
         runner
@@ -169,13 +162,37 @@ describe('bash tests', () => {
       )
     })
 
-    it('fail when zero exit code wrongly expected', () => shouldFailWith(
+    it('unexpected static output', () => shouldFailWith(
+      runner
+        .command('echo', testMessage)
+        .expectOutput('5')
+        .execute(),
+      new chai.AssertionError(`expected '${testMessage}' to equal '5'`)
+    ))
+
+    it('unexpected static exit-code', () => shouldFailWith(
       runner
         .command('test/fixtures/test-command-exit-status.sh', 0)
         .expectOutput('test-script output')
         .expectExitCode(1)
         .execute(),
       new chai.AssertionError(`expected 0 to equal 1`)
+    ))
+
+    it('unexpected dynamic output', () => shouldFailWith(
+      runner
+        .command('echo', testMessage)
+        .expectOutput(() => should.fail(testMessage))
+        .execute(),
+      new chai.AssertionError(testMessage)
+    ))
+
+    it('unexpected dynamic exit-code', () => shouldFailWith(
+      runner
+        .command('test/fixtures/test-command-exit-status.sh', 0)
+        .expectExitCode(() => should.fail(testMessage))
+        .execute(),
+      new chai.AssertionError(testMessage)
     ))
   })
 })
