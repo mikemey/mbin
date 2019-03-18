@@ -117,13 +117,23 @@ describe('bash tests', () => {
       )
     })
 
-    xit('fail when mock is specified twice', () => {
-      const commandName = '_test_twice'
+    it('fail when static mock is specified twice', () => {
+      const commandName = '_test_static_twice'
+      return shouldFailWith(
+        () => runner
+          .mockCommand(commandName, 0, testMessage)
+          .mockCommand(commandName, 0, testMessage),
+        new Error(`command mocked twice: ${commandName}`)
+      )
+    })
+
+    it('fail when dynamic + static mock is specified twice', () => {
+      const commandName = '_test_mixed_twice'
       return shouldFailWith(
         () => runner
           .mockCommand(commandName, 0, testMessage)
           .mockCommand(commandName, 0, () => testMessage),
-        new Error(`mock specified twice: [${commandName}]`)
+        new Error(`command mocked twice: ${commandName}`)
       )
     })
   })

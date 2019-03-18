@@ -82,7 +82,8 @@ const ScriptRunner = () => {
     cmd: 'env',
     params: ['bash', '-i', fixturesFilePath('setup-env.sh'), mockFile],
     resultFunc: null,
-    mockOpts: []
+    dynamicMockOpts: [],
+    allMockCommands: []
   }
 
   const setup = () => {
@@ -113,7 +114,7 @@ const ScriptRunner = () => {
 
   const execute = () => {
     const commandPromise = toCommandPromise(data.cmd, data.params)
-    const mockPromises = data.mockOpts.map(toMockPromise)
+    const mockPromises = data.dynamicMockOpts.map(toMockPromise)
     const shellPromises = mockPromises.concat(commandPromise)
     return Promise.all(shellPromises)
       .then(result => {
@@ -126,14 +127,20 @@ const ScriptRunner = () => {
   }
 
   const mockCommand = (commandName, exitCode, retval = '') => {
+    if (data.allMockCommands.includes(commandName)) {
+      throw new Error(`command mocked twice: ${commandName}`)
+    }
+    data.allMockCommands.push(commandName)
+
     const bashFuncOpts = retval instanceof Function
       ? bashDynamicFunc(commandName, exitCode, retval)
       : bashStaticFunc(commandName, exitCode, retval)
-    writeFile(data.mockFile, bashFuncOpts.output)
 
     if (bashFuncOpts.func) {
-      data.mockOpts.push(bashFuncOpts)
+      data.dynamicMockOpts.push(bashFuncOpts)
     }
+
+    writeFile(data.mockFile, bashFuncOpts.output)
     return data.self
   }
 
