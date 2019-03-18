@@ -123,7 +123,7 @@ describe('bash tests', () => {
         () => runner
           .mockCommand(commandName, 0, testMessage)
           .mockCommand(commandName, 0, testMessage),
-        new Error(`command mocked twice: ${commandName}`)
+        new Error(`command-mock defined twice: ${commandName}`)
       )
     })
 
@@ -133,7 +133,18 @@ describe('bash tests', () => {
         () => runner
           .mockCommand(commandName, 0, testMessage)
           .mockCommand(commandName, 0, () => testMessage),
-        new Error(`command mocked twice: ${commandName}`)
+        new Error(`command-mock defined twice: ${commandName}`)
+      )
+    })
+
+    it('fail when dynamic mock returns undefined', () => {
+      const commandName = 'cygpath'
+      return shouldFailWith(
+        runner
+          .command(commandName)
+          .mockCommand(commandName, 0, () => { })
+          .execute(),
+        new Error(`command-mock returns no value: ${commandName}`)
       )
     })
   })

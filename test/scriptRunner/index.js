@@ -64,6 +64,10 @@ const toMockPromise = mockOpts => {
   return fileWatcher.watchFileContent(mockOpts.parametersFile)
     .then(fileContent => {
       const params = fileContent.split(/(?<!\\) /).map(param => param.replace('\\ ', ' '))
+      const funcResult = mockOpts.func(...params)
+      if (!funcResult) {
+        throw new Error(`command-mock returns no value: ${mockOpts.originalName}`)
+      }
       writeFile(mockOpts.retvalFile, mockOpts.func(...params), true)
     })
     .catch(err => {
@@ -128,7 +132,7 @@ const ScriptRunner = () => {
 
   const mockCommand = (commandName, exitCode, retval = '') => {
     if (data.allMockCommands.includes(commandName)) {
-      throw new Error(`command mocked twice: ${commandName}`)
+      throw new Error(`command-mock defined twice: ${commandName}`)
     }
     data.allMockCommands.push(commandName)
 
