@@ -38,10 +38,7 @@ const createFileWatcher = () => {
     const fileListener = { fileName }
     const watchFilePromise = new Promise((resolve, reject) => {
       fileListener.abort = () => reject(new UnusedFileWatchError())
-      fileListener.receivedContent = fileContent => {
-        delete fileListener.abort
-        resolve(fileContent)
-      }
+      fileListener.receivedContent = resolve
     })
     _addFileListener(fileListener)
     return watchFilePromise
@@ -53,7 +50,7 @@ const createFileWatcher = () => {
     }
     if (data.watch) {
       data.watch.close()
-      data.allFileListener.filter(l => l.abort).forEach(l => l.abort())
+      data.allFileListener.forEach(l => l.abort())
       data.allFileListener = []
       data.watch = null
     }
