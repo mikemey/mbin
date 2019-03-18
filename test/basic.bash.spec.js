@@ -12,6 +12,21 @@ describe('bash tests', () => {
     runner = ScriptRunner()
   })
 
+  const shouldFailWith = (runnerPromise, expectedError) => {
+    let errorThrown = false
+    return runnerPromise
+      .catch(err => {
+        errorThrown = true
+        expectedError.name.should.equal(err.name, 'Error name')
+        expectedError.message.should.equal(err.message, 'Error name')
+      })
+      .finally(() => {
+        if (!errorThrown) {
+          should.fail(`expected error [${expectedError.message}] not thrown!`)
+        }
+      })
+  }
+
   describe('basics', () => {
     it('uses bash version 5', () => runner
       .command('echo', `\${BASH_VERSION%%[^0-9]*}`)
@@ -34,7 +49,7 @@ describe('bash tests', () => {
     )
   })
 
-  describe('mocking', () => {
+  describe('static mocks', () => {
     it('known command exit status', () => runner
       .command('test/fixtures/test-exit-status.sh')
       .mockCommand('request_confirmation', 73)
@@ -64,7 +79,9 @@ describe('bash tests', () => {
       .expectOutput(testMessage)
       .execute()
     )
+  })
 
+  describe('dynamic mocks', () => {
     it('returns dynamic data', () => runner
       .command('cygpath')
       .mockCommand('cygpath', 0, () => testMessage)
@@ -85,23 +102,15 @@ describe('bash tests', () => {
     )
 
     it('should fail when mock is unused', () => {
-      let errorThrown = false
       const unknownCommand = '_TEST_MOCK_'
-      return runner
-        .command('cygpath')
-        .mockCommand(unknownCommand, 0, () => 'UNKNOWN')
-        .mockCommand('cygpath', 0, () => testMessage)
-        .execute()
-        .catch(err => {
-          errorThrown = true
-          err.message.toString().should.equal(`Error: mock not used: [${unknownCommand}]`)
-        })
-        .finally(() => {
-          if (!errorThrown) {
-            should.fail('expected error for unknown mock not thrown!')
-          }
-        })
-    }
-    )
+      return shouldFailWith(
+        runner
+          .command('cygpath')
+          .mockCommand(unknownCommand, 0, () => 'UNKNOWN')
+          .mockCommand('cygpath', 0, () => testMessage)
+          .execute(),
+        new Error(`mock not used: [${unknownCommand}]`)
+      )
+    })
   })
 })

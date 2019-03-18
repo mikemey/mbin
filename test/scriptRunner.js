@@ -65,6 +65,9 @@ const bashEnvironment = (envName, envValue) => {
   return `export ${envName}="${envValue}" ${EOL}`
 }
 
+const toCommandPromise = (cmd, params, fileWatcher) => spawn(cmd, params, { capture: ['stdout', 'stderr'] })
+  .finally(fileWatcher.cleanup)
+
 const toMockPromise = fileWatcher => mockOpts => {
   return fileWatcher.watchFile(mockOpts.parametersFile)
     .then(fileContent => {
@@ -141,29 +144,28 @@ const ScriptRunner = () => {
     return data.self
   }
 
-  const handleShellError = err => {
-    console.log(err)
+  const handleCatchAll = err => {
+    if (err instanceof chai.AssertionError) {
+      should.fail(err.actual, err.expected, err.message)
+    }
     if (err.stderr) {
       should.fail(`SCRIPT error: ${err.stderr}`)
     }
-    should.fail(err)
+    throw err
   }
 
   const execute = () => {
+    const commandPromise = toCommandPromise(data.cmd, data.params, data.fileWatcher)
     const mockPromises = data.mockOpts.map(toMockPromise(data.fileWatcher))
-    const commandPromise = spawn(data.cmd, data.params, { capture: ['stdin', 'stdout', 'stderr'] })
-      .finally(data.fileWatcher.cleanup)
-    return Promise.all(mockPromises.concat(commandPromise))
+    const shellPromises = mockPromises.concat(commandPromise)
+    return Promise.all(shellPromises)
       .then(result => {
         if (data.resultFunc) {
           const spawnResult = result[result.length - 1]
           data.resultFunc(spawnResult.stdout.toString().trim())
         }
       })
-      .catch(err => err instanceof chai.AssertionError
-        ? should.fail(err.actual, err.expected, err.message)
-        : handleShellError(err)
-      )
+      .catch(handleCatchAll)
   }
 
   const mockCommand = (commandName, exitCode, retval = '') => {
