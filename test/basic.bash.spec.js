@@ -35,8 +35,8 @@ describe('bash tests', () => {
   })
 
   describe('static mocks', () => {
-    it('known command exit status', () => runner
-      .command('test/fixtures/test-exit-status.sh')
+    it('known command output', () => runner
+      .command('test/fixtures/test-mock-exit-status.sh')
       .mockCommand('request_confirmation', 73)
       .expectOutput(`success 73`)
       .execute()
