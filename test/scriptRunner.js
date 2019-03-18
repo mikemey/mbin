@@ -6,6 +6,15 @@ const should = chai.should()
 
 const SHE_BANG = `#!/usr/bin/env bash ${EOL}`
 
+class UnusedFileWatchError extends Error {
+  constructor (...params) {
+    super(...params)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, UnusedFileWatchError)
+    }
+  }
+}
+
 const fixturesFilePath = file => {
   const fullPath = `test/fixtures/${file}`
   if (fsextra.existsSync(fullPath)) {
@@ -38,12 +47,14 @@ const bashStaticFunc = (commandName, exitCode, output) => {
   }
 }
 
-const bashDynamicFunc = (commandName, exitCode) => {
+const bashDynamicFunc = (commandName, exitCode, func) => {
   const uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
   const name = `${commandName}_${uid}`
   const parametersFile = tempFilePath(`${name}.parameters`)
   const retvalFile = tempFilePath(`${name}.retval`)
   return {
+    func,
+    originalName: commandName,
     parametersFile,
     retvalFile,
     output: bashFunction(commandName, exitCode, `waitForResponse "${parametersFile}" "${retvalFile}" "$@"`)
@@ -54,19 +65,16 @@ const bashEnvironment = (envName, envValue) => {
   return `export ${envName}="${envValue}" ${EOL}`
 }
 
-const mockWatchObject = (func, opts) => {
-  return {
-    func,
-    parametersFile: opts.parametersFile,
-    retvalFile: opts.retvalFile
-  }
-}
-
-const toMockWatcher = fileWatcher => watch => {
-  return fileWatcher.watchFile(watch.parametersFile)
+const toMockPromise = fileWatcher => mockOpts => {
+  return fileWatcher.watchFile(mockOpts.parametersFile)
     .then(fileContent => {
       const params = fileContent.split(/(?<!\\) /).map(param => param.replace('\\ ', ' '))
-      writeFile(watch.retvalFile, watch.func(...params), true)
+      writeFile(mockOpts.retvalFile, mockOpts.func(...params), true)
+    })
+    .catch(err => {
+      throw err instanceof UnusedFileWatchError
+        ? new Error(`mock not used: [${mockOpts.originalName}]`)
+        : err
     })
 }
 
@@ -85,9 +93,9 @@ const createFileWatcher = () => {
   const watchFile = fileName => {
     const fileListener = { fileName }
     const watchFilePromise = new Promise((resolve, reject) => {
-      fileListener.abort = reject
+      fileListener.abort = () => reject(new UnusedFileWatchError())
       fileListener.receivedContent = fileContent => {
-        fileListener.abort = () => { }
+        delete fileListener.abort
         resolve(fileContent)
       }
     })
@@ -98,10 +106,7 @@ const createFileWatcher = () => {
   const cleanup = () => {
     fsextra.removeSync(tempDir)
     watch.close()
-    let listener
-    while ((listener = allFileListener.pop()) !== undefined) {
-      listener.abort()
-    }
+    allFileListener.filter(l => l.abort).forEach(l => l.abort())
   }
 
   return { cleanup, watchFile }
@@ -115,7 +120,7 @@ const ScriptRunner = () => {
     cmd: 'env',
     params: ['bash', '-i', fixturesFilePath('setup-env.sh'), mockFile],
     resultFunc: null,
-    mockWatches: [],
+    mockOpts: [],
     fileWatcher: null
   }
 
@@ -141,32 +146,34 @@ const ScriptRunner = () => {
     if (err.stderr) {
       should.fail(`SCRIPT error: ${err.stderr}`)
     }
-    should.fail(`RUNNER error: ${err.message}: ${err.code}`)
+    should.fail(err)
   }
 
   const execute = () => {
-    const allPromises = data.mockWatches.map(toMockWatcher(data.fileWatcher))
-    allPromises.push(spawn(data.cmd, data.params, { capture: ['stdin', 'stdout', 'stderr'] }))
-    return Promise.all(allPromises)
+    const mockPromises = data.mockOpts.map(toMockPromise(data.fileWatcher))
+    const commandPromise = spawn(data.cmd, data.params, { capture: ['stdin', 'stdout', 'stderr'] })
+      .finally(data.fileWatcher.cleanup)
+    return Promise.all(mockPromises.concat(commandPromise))
       .then(result => {
-        const spawnResult = result[result.length - 1]
-        return data.resultFunc(spawnResult.stdout.toString().trim())
+        if (data.resultFunc) {
+          const spawnResult = result[result.length - 1]
+          data.resultFunc(spawnResult.stdout.toString().trim())
+        }
       })
       .catch(err => err instanceof chai.AssertionError
         ? should.fail(err.actual, err.expected, err.message)
         : handleShellError(err)
       )
-      .finally(data.fileWatcher.cleanup)
   }
 
   const mockCommand = (commandName, exitCode, retval = '') => {
     const bashFuncOpts = retval instanceof Function
-      ? bashDynamicFunc(commandName, exitCode)
+      ? bashDynamicFunc(commandName, exitCode, retval)
       : bashStaticFunc(commandName, exitCode, retval)
     writeFile(data.mockFile, bashFuncOpts.output)
 
-    if (bashFuncOpts.parametersFile) {
-      data.mockWatches.push(mockWatchObject(retval, bashFuncOpts))
+    if (bashFuncOpts.func) {
+      data.mockOpts.push(bashFuncOpts)
     }
     return data.self
   }

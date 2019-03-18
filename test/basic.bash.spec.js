@@ -1,4 +1,5 @@
 const chai = require('chai')
+const should = chai.should()
 chai.use(require('chai-match'))
 
 const ScriptRunner = require('./scriptRunner')
@@ -71,7 +72,7 @@ describe('bash tests', () => {
       .execute()
     )
 
-    it('forwards parameters', () => runner
+    it('forwards mock parameters', () => runner
       .command('cygpath', 'abc', 123, testMessage)
       .mockCommand('cygpath', 0, (str, num, msg) => {
         str.should.equal('abc')
@@ -81,6 +82,26 @@ describe('bash tests', () => {
       })
       .expectOutput(`abc=123=${testMessage}`)
       .execute()
+    )
+
+    it('should fail when mock is unused', () => {
+      let errorThrown = false
+      const unknownCommand = '_TEST_MOCK_'
+      return runner
+        .command('cygpath')
+        .mockCommand(unknownCommand, 0, () => 'UNKNOWN')
+        .mockCommand('cygpath', 0, () => testMessage)
+        .execute()
+        .catch(err => {
+          errorThrown = true
+          err.message.toString().should.equal(`Error: mock not used: [${unknownCommand}]`)
+        })
+        .finally(() => {
+          if (!errorThrown) {
+            should.fail('expected error for unknown mock not thrown!')
+          }
+        })
+    }
     )
   })
 })
