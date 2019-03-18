@@ -6,6 +6,9 @@ const should = chai.should()
 const { createFileWatcher, UnusedFileWatchError } = require('./fileWatcher')
 const { createMockFile, writeRetvalFile } = require('./mockFiles')
 
+const STDOUT = 'stdout'
+const STDERR = 'stderr'
+
 const fixturesFilePath = file => {
   const fullPath = `test/fixtures/${file}`
   if (fsextra.existsSync(fullPath)) {
@@ -16,7 +19,7 @@ const fixturesFilePath = file => {
 
 const fileWatcher = createFileWatcher()
 
-const __toCommandPromise = (cmd, params) => spawn(cmd, params, { capture: ['stdout', 'stderr'] })
+const __toCommandPromise = (cmd, params) => spawn(cmd, params, { capture: [STDOUT, STDERR] })
   .finally(fileWatcher.cleanup)
 
 const __toMockPromise = mockOpts => {
@@ -45,7 +48,8 @@ const ScriptRunner = () => {
     mockFile,
     cmd: 'env',
     params: ['bash', '-i', fixturesFilePath('setup-env.sh'), mockFile.path],
-    resultFunc: null,
+    resultExpectFunc: null,
+    exitCodeExpectFunc: null,
     dynamicMockOpts: [],
     allMockCommands: []
   }
@@ -56,9 +60,12 @@ const ScriptRunner = () => {
   }
 
   const expectOutput = expectedOutput => {
-    data.resultFunc = expectedOutput instanceof Function
-      ? expectedOutput
-      : output => output.should.equal(expectedOutput)
+    data.resultExpectFunc = __ExpectationFunction(expectedOutput)
+    return data.self
+  }
+
+  const expectExitCode = expectedExitCode => {
+    data.exitCodeExpectFunc = __ExpectationFunction(expectedExitCode)
     return data.self
   }
 
@@ -86,14 +93,26 @@ const ScriptRunner = () => {
     const mockPromises = data.dynamicMockOpts.map(__toMockPromise)
     const shellPromises = mockPromises.concat(commandPromise)
     return Promise.all(shellPromises)
+      .catch(__checkExitStatus)
       .then(result => {
-        if (data.resultFunc) {
-          const spawnResult = result[result.length - 1]
-          data.resultFunc(spawnResult.stdout.toString().trim())
+        const outputSource = result[result.length - 1]
+        if (data.resultExpectFunc) {
+          data.resultExpectFunc(__readAllStreams(outputSource))
+        }
+        if (data.exitCodeExpectFunc) {
+          data.exitCodeExpectFunc(outputSource.code)
         }
       })
       .catch(__handleCatchAll)
   }
+
+  const __checkExitStatus = err => {
+    if (err.code) { return [err] }
+    throw err
+  }
+
+  const __readAllStreams = obj => `${__readStream(obj[STDOUT])}${__readStream(obj[STDERR])}`
+  const __readStream = stream => stream.toString().trim()
 
   const __handleCatchAll = err => {
     if (err instanceof chai.AssertionError) {
@@ -105,7 +124,11 @@ const ScriptRunner = () => {
     throw err
   }
 
-  data.self = { command, execute, expectOutput, fixturesFilePath, mockCommand, mockEnvironment }
+  const __ExpectationFunction = expectation => expectation instanceof Function
+    ? expectation
+    : output => output.should.equal(expectation)
+
+  data.self = { command, execute, expectOutput, expectExitCode, fixturesFilePath, mockCommand, mockEnvironment }
   return data.self
 }
 

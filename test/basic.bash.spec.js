@@ -64,6 +64,27 @@ describe('bash tests', () => {
       .expectOutput(testMessage)
       .execute()
     )
+
+    it('assert command exit status', () => runner
+      .command('test/fixtures/test-command-exit-status.sh', 37)
+      .expectOutput('test-script output')
+      .expectExitCode(37)
+      .execute()
+    )
+
+    it('asserts zero exit code', () => {
+      let expectationCalled = false
+      return runner
+        .command('test/fixtures/test-command-exit-status.sh', 0)
+        .expectExitCode(exitCode => {
+          expectationCalled = true
+          exitCode.should.equal(0)
+        })
+        .execute()
+        .finally(() => {
+          expectationCalled.should.equal(true, 'exit-code expectation not called!')
+        })
+    })
   })
 
   describe('dynamic mocks', () => {
@@ -147,5 +168,14 @@ describe('bash tests', () => {
         new Error(`command-mock returns no value: ${commandName}`)
       )
     })
+
+    it('fail when zero exit code wrongly expected', () => shouldFailWith(
+      runner
+        .command('test/fixtures/test-command-exit-status.sh', 0)
+        .expectOutput('test-script output')
+        .expectExitCode(1)
+        .execute(),
+      new chai.AssertionError(`expected 0 to equal 1`)
+    ))
   })
 })
