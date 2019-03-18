@@ -12,21 +12,6 @@ describe('bash tests', () => {
     runner = ScriptRunner()
   })
 
-  const shouldFailWith = (runnerPromise, expectedError) => {
-    let errorThrown = false
-    return runnerPromise
-      .catch(err => {
-        errorThrown = true
-        expectedError.name.should.equal(err.name, 'Error name')
-        expectedError.message.should.equal(err.message, 'Error name')
-      })
-      .finally(() => {
-        if (!errorThrown) {
-          should.fail(`expected error [${expectedError.message}] not thrown!`)
-        }
-      })
-  }
-
   describe('basics', () => {
     it('uses bash version 5', () => runner
       .command('echo', `\${BASH_VERSION%%[^0-9]*}`)
@@ -100,8 +85,27 @@ describe('bash tests', () => {
       .expectOutput(`abc=123=${testMessage}`)
       .execute()
     )
+  })
 
-    it('should fail when mock is unused', () => {
+  describe('mock errors', () => {
+    const shouldFailWith = (underTest, expectedError) => {
+      let errorThrown = false
+      const underTestPromise = underTest instanceof Promise
+        ? underTest
+        : new Promise(underTest)
+      return underTestPromise
+        .catch(err => {
+          errorThrown = true
+          expectedError.name.should.equal(err.name, 'Error name')
+          expectedError.message.should.equal(err.message, 'Error name')
+        }).finally(() => {
+          if (!errorThrown) {
+            should.fail(`expected error [${expectedError.message}] not thrown!`)
+          }
+        })
+    }
+
+    it('fail when mock is unused', () => {
       const unknownCommand = '_TEST_MOCK_'
       return shouldFailWith(
         runner
@@ -110,6 +114,16 @@ describe('bash tests', () => {
           .mockCommand('cygpath', 0, () => testMessage)
           .execute(),
         new Error(`mock not used: [${unknownCommand}]`)
+      )
+    })
+
+    xit('fail when mock is specified twice', () => {
+      const commandName = '_test_twice'
+      return shouldFailWith(
+        () => runner
+          .mockCommand(commandName, 0, testMessage)
+          .mockCommand(commandName, 0, () => testMessage),
+        new Error(`mock specified twice: [${commandName}]`)
       )
     })
   })
