@@ -1,5 +1,4 @@
 const fsextra = require('fs-extra')
-// const chai = require('chai')
 
 class UnusedFileWatchError extends Error {
   constructor (...params) {
