@@ -124,7 +124,7 @@ describe('bash tests', () => {
         })
     }
 
-    it('mock is unused', () => {
+    it.only('mock is unused', () => {
       const unknownCommand = '_TEST_MOCK_'
       return shouldFailWith(
         runner
@@ -136,7 +136,7 @@ describe('bash tests', () => {
       )
     })
 
-    it('static mock is specified twice', () => {
+    it.only('static mock is specified twice', () => {
       const commandName = '_test_static_twice'
       return shouldFailWith(
         () => runner
@@ -146,7 +146,7 @@ describe('bash tests', () => {
       )
     })
 
-    it('dynamic + static mock is specified twice', () => {
+    it.only('dynamic + static mock is specified twice', () => {
       const commandName = '_test_mixed_twice'
       return shouldFailWith(
         () => runner

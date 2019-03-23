@@ -59,7 +59,7 @@ const fixturesFilePath = file => {
 //   return { stop, promise }
 // }
 
-const __toCommandPromiseObj = (mockOpts, commands) => {
+const __toCommandPromiseObj = (commandMockOpts, commands) => {
   logMessage(`__toCommandPromiseObj [${commands}]`)
   const targetCommand = commands[4]
   const cmdLog = msg => logMessage(`CommandPromise [${targetCommand}]: ${msg}`)
@@ -89,9 +89,10 @@ const __toCommandPromiseObj = (mockOpts, commands) => {
   // })
   const getMockResult = shellMsg => {
     cmdLog(`mock callback( [${shellMsg.command}] [${shellMsg.parameters}])`)
-    const commandMockOpts = mockOpts.filter(options => options.originalName === shellMsg.command)
-    const commandMock = commandMockOpts[0]
+    const filteredMocks = commandMockOpts.filter(options => options.originalName === shellMsg.command)
     // if mock not found ==> error
+    const commandMock = filteredMocks[0]
+    commandMock.called = true
 
     const funcResult = commandMock.retvalFunc(...shellMsg.parameters)
     cmdLog(`response [${funcResult}]`)
@@ -132,13 +133,15 @@ const __toCommandPromiseObj = (mockOpts, commands) => {
       // })
       cmdProcess.on('close', code => {
         cmdLog(`child process exit: <${code}>`)
+        const unusedMocks = commandMockOpts.filter(commandMock => commandMock.called !== true)
+        unusedMocks.forEach(unusedMock => reject(new Error(`mock not used: [${unusedMock.originalName}]`)))
         return result
           ? resolve(result)
           : reject(new Error(`no response from command: [${execCommand}]`))
       })
       cmdProcess.on('error', err => {
         cmdLog('PROCESS error!')
-        console.log(err)
+        reject(err)
       })
 
       // if (promiseFinished) {
