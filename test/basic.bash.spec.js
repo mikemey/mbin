@@ -110,6 +110,7 @@ describe('bash tests', () => {
   })
 
   describe('mock errors', () => {
+    const shouldFail = underTest => shouldFailWith(underTest)
     const shouldFailWith = (underTest, expectedError) => {
       let errorThrown = false
       const underTestPromise = underTest instanceof Promise
@@ -118,14 +119,25 @@ describe('bash tests', () => {
       return underTestPromise
         .catch(err => {
           errorThrown = true
-          expectedError.name.should.equal(err.name, 'Error name')
-          expectedError.message.should.equal(err.message, 'Error name')
+          if (expectedError) {
+            expectedError.name.should.equal(err.name, 'Error name')
+            expectedError.message.should.equal(err.message, 'Error name')
+          }
         }).finally(() => {
           if (!errorThrown) {
-            should.fail(`expected error [${expectedError.message}] not thrown!`)
+            const errorMsg = expectedError ? `[${expectedError.message}] ` : ''
+            should.fail(`expected error ${errorMsg}not thrown!`)
           }
         })
     }
+
+    it('deletes test directory after failing test', () => {
+      return shouldFail(runner
+        .command('echo', testMessage)
+        .expectOutput('')
+        .execute()
+      ).then(() => fsextra.pathExistsSync(TEST_DIR).should.equal(false))
+    })
 
     it('command not found', () => {
       const unknownCommand = 'unknownCmd'
