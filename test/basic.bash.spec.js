@@ -101,7 +101,7 @@ describe('bash tests', () => {
     )
   })
 
-  describe('mock error', () => {
+  describe('mock errors', () => {
     const shouldFailWith = (underTest, expectedError) => {
       let errorThrown = false
       const underTestPromise = underTest instanceof Promise
@@ -179,7 +179,7 @@ describe('bash tests', () => {
       new chai.AssertionError(`expected 0 to equal 1`)
     ))
 
-    it('unexpected dynamic output', () => shouldFailWith(
+    it('dynamic output function throws error', () => shouldFailWith(
       runner
         .command('echo', testMessage)
         .expectOutput(() => should.fail(testMessage))
@@ -187,7 +187,7 @@ describe('bash tests', () => {
       new chai.AssertionError(testMessage)
     ))
 
-    it('unexpected dynamic exit-code', () => shouldFailWith(
+    it('dynamic exit-code function throws error', () => shouldFailWith(
       runner
         .command('test/fixtures/test-command-exit-status.sh', 0)
         .expectExitCode(() => should.fail(testMessage))

@@ -1,13 +1,13 @@
 const fsextra = require('fs-extra')
 
-class UnusedFileWatchError extends Error {
-  constructor (...params) {
-    super(...params)
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, UnusedFileWatchError)
-    }
-  }
-}
+// class UnusedFileWatchError extends Error {
+//   constructor (...params) {
+//     super(...params)
+//     if (Error.captureStackTrace) {
+//       Error.captureStackTrace(this, UnusedFileWatchError)
+//     }
+//   }
+// }
 
 const tempFilePath = file => `.testtmp/${file}`
 
@@ -28,19 +28,20 @@ const createFileWatcher = () => {
         const changeFilePath = tempFilePath(filename)
         data.allFileListener
           .filter(listener => listener.fileName === changeFilePath)
-          .forEach(listener => listener.receivedContent(readFile(listener.fileName)))
+          .forEach(listener => listener.callback(readFile(listener.fileName)))
       })
     }
   }
 
-  const watchFileContent = fileName => {
-    const fileListener = { fileName }
-    const watchFilePromise = new Promise((resolve, reject) => {
-      fileListener.abort = () => reject(new UnusedFileWatchError())
-      fileListener.receivedContent = resolve
-    })
-    _addFileListener(fileListener)
-    return watchFilePromise
+  const watchFileContent = (fileName, callback) => {
+    if (!fileName) throw Error('file watch requires file-name!')
+    if (!callback) throw Error('file watch requires callback!')
+    // const fileListener = { fileName }
+    // const watchFilePromise = new Promise((resolve, reject) => {
+    //   fileListener.receivedContent = resolve
+    // })
+    _addFileListener({ fileName, callback })
+    // return watchFilePromise
   }
 
   const cleanup = () => {
@@ -48,9 +49,8 @@ const createFileWatcher = () => {
       fsextra.removeSync(data.tempDir)
     }
     if (data.watch) {
-      data.watch.close()
-      data.allFileListener.forEach(l => l.abort())
       data.allFileListener = []
+      data.watch.close()
       data.watch = null
     }
   }
@@ -59,4 +59,4 @@ const createFileWatcher = () => {
   return { cleanup, watchFileContent }
 }
 
-module.exports = { createFileWatcher, UnusedFileWatchError }
+module.exports = { createFileWatcher }
