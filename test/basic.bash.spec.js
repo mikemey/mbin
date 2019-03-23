@@ -9,7 +9,12 @@ describe('bash tests', () => {
   let runner
 
   beforeEach(() => {
+    console.log('++++++++++++++++++++++++++++++++++++++++++++++++++++ beforeEach TEST')
     runner = ScriptRunner()
+  })
+
+  afterEach(() => {
+    console.log('++++++++++++++++++++++++++++++++++++++++++++++++++++ afterEach TEST')
   })
 
   describe('basics', () => {
@@ -19,11 +24,11 @@ describe('bash tests', () => {
       .execute()
     )
 
-    it('runs user home bash profile/rc', () => {
+    it.only('runs user home bash profile/rc', () => {
       const testFile = runner.fixturesFilePath('setup-env.sh')
       return runner
         .command('ll', testFile)
-        .expectOutput(output => output.should.match(new RegExp(`.*${testFile}$`)))
+        .expectOutput(output => output.should.match(new RegExp(`^[-rwx]{10}.*${testFile}$`)))
         .execute()
     })
 
