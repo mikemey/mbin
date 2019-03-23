@@ -124,6 +124,10 @@ describe('bash tests', () => {
         })
     }
 
+    it('mock not found', () => {
+      should.fail('not yet implemented')
+    })
+
     it.only('mock is unused', () => {
       const unknownCommand = '_TEST_MOCK_'
       return shouldFailWith(
@@ -156,7 +160,7 @@ describe('bash tests', () => {
       )
     })
 
-    it('dynamic mock returns undefined', () => {
+    it.only('dynamic mock returns undefined', () => {
       const commandName = 'cygpath'
       return shouldFailWith(
         runner

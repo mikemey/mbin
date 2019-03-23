@@ -21,8 +21,6 @@ const createMockFile = () => {
   return { path: mockFile, writeFunc, writeEnv }
 }
 
-const writeRetvalFile = (mockOpts, funcResult) => __writeFile(mockOpts.retvalFile, funcResult, true)
-
 const __writeFile = (file, data, createNew = false) => {
   const options = createNew ? {} : { flag: 'a' }
   fsextra.outputFileSync(file, data, options)
@@ -48,4 +46,4 @@ const __bashFunction = (commandName, exitCode, outputLine) => {
     `export -f ${commandName} ${EOL}`
 }
 
-module.exports = { createMockFile, writeRetvalFile }
+module.exports = createMockFile
