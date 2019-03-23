@@ -6,14 +6,6 @@ function output_log () {
   printf "$1 \n" >> $OUTPUT_LOG
 }
 
-function save_params () {
-  ret=()
-  for param in "${@}"; do
-    ret+=( "${param/ /\\ }" )
-  done
-  echo "${ret[@]}"
-}
-
 function source_profiles () {
   mockProfile="$1"
   sources=(
@@ -36,15 +28,42 @@ function send_to_node () {
   echo "$output" 1>& "${NODE_CHANNEL_FD}"
 }
 
+function read_from_node () {
+  read message <& "${NODE_CHANNEL_FD}"
+  message="${message%%\"}"
+  message="${message##\"}"
+  output_log "received message: [${message}]"
+  echo "$message"
+}
+
 function send_command_result () {
   resultMsg="{\"type\":\"result\",\"output\":\"${1}\",\"exitCode\":${2}}"
   send_to_node "${resultMsg}"
 }
 
 function invoke_mock_callback() {
-  mockMsg="{\"type\":\"mock\",\"command\":\"${1}\",\"parameters\":\"${2}\"}"
+  output_log "start invoking mock callback..."
+  command="${1}"
+  shift
+  parameters=""
+  for param in "$@"; do
+    output_log "adding parameter: [${param}]"
+    if [[ "$parameters" != "" ]]; then
+      parameters+=","
+    fi
+    parameters+="\"${param}\""
+  done
+  mockMsg="{\"type\":\"mock\",\"command\":\"$command\",\"parameters\":[${parameters}]}"
   send_to_node "${mockMsg}"
+  read_from_node
+}
 
+function save_params () {
+  ret=()
+  for param in "${@}"; do
+    ret+=( "${param/ /\\ }" )
+  done
+  echo "${ret[@]}"
 }
 
 #function invoke_mock_callback() {
@@ -74,14 +93,12 @@ mockFile="$1"
 testCommand="$2"
 shift 2
 
-source_profiles "$mockFile"
 output_log "running [$testCommand] [$(save_params "${@}")]"
 output_log "mockfile [$mockFile]"
+
+source_profiles "$mockFile"
 commandOutput=`eval $testCommand $(save_params "${@}")`
 exitCode=$?
-#commandOutput="${commandOutput//$'\n'/\\n}"
-output_log "EXIT CODE [$exitCode]"
-output_log "      OUT [$commandOutput]"
 send_command_result "$commandOutput" $exitCode
 exit
 

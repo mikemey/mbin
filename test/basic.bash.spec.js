@@ -78,7 +78,7 @@ describe('bash tests', () => {
     )
   })
 
-  describe('dynamic mocks', () => {
+  describe.only('dynamic mocks', () => {
     it('expect ouptut', () => runner
       .command('cygpath')
       .mockCommand('cygpath', 0, () => testMessage)

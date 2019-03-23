@@ -59,7 +59,7 @@ const fixturesFilePath = file => {
 //   return { stop, promise }
 // }
 
-const __toCommandPromiseObj = commands => {
+const __toCommandPromiseObj = (mockOpts, commands) => {
   logMessage(`__toCommandPromiseObj [${commands}]`)
   const targetCommand = commands[4]
   const cmdLog = msg => logMessage(`CommandPromise [${targetCommand}]: ${msg}`)
@@ -87,6 +87,16 @@ const __toCommandPromiseObj = commands => {
   //   console.log('+++ EXIT +++')
   //   console.log(code)
   // })
+  const getMockResult = shellMsg => {
+    cmdLog(`mock callback( [${shellMsg.command}] [${shellMsg.parameters}])`)
+    const commandMockOpts = mockOpts.filter(options => options.originalName === shellMsg.command)
+    const commandMock = commandMockOpts[0]
+    // if mock not found ==> error
+
+    const funcResult = commandMock.retvalFunc(...shellMsg.parameters)
+    cmdLog(`response [${funcResult}]`)
+    return funcResult
+  }
   const promise = new Promise((resolve, reject) => {
     // const commandStr = commands.reduce((cumCmd, cmd) => `${ cumCmd } ${ cmd }`, '').trim()
     const cmd = commands.shift()
@@ -100,6 +110,9 @@ const __toCommandPromiseObj = commands => {
         switch (message.type) {
           case 'result':
             result = message
+            break
+          case 'mock':
+            cmdProcess.send(getMockResult(message))
             break
           default:
             throw new Error(`message type not recognised: [${message.type}]`)
@@ -262,7 +275,7 @@ const ScriptRunner = () => {
 
   const execute = () => {
     logMessage('START execute', true)
-    const commandPromiseObj = __toCommandPromiseObj(data.commands)
+    const commandPromiseObj = __toCommandPromiseObj(data.dynamicMockOpts, data.commands)
     // const mockPromiseObjects = data.dynamicMockOpts.map(__toMockPromiseObj)
     // const shellObjects = mockPromiseObjects.concat(commandPromiseObj)
     logMessage('Promise.all(commandPromiseObj.promise)')
