@@ -30,11 +30,39 @@ function source_profiles () {
   done
 }
 
-function send_command_result () {
-  resultMsg="{\"success\":true,\"output\":\"${1}\",\"exitCode\":\"${2}\"}"
-  echo "${resultMsg}" 1>& "${NODE_CHANNEL_FD}"
-#  output_log "command result message: [${resultMsg}]" > output.log
+function send_to_node () {
+  output="${1//$'\n'/\\n}"
+  output_log "sending back: ===>\n$output\n<==============="
+  echo "$output" 1>& "${NODE_CHANNEL_FD}"
 }
+
+function send_command_result () {
+  resultMsg="{\"type\":\"result\",\"output\":\"${1}\",\"exitCode\":${2}}"
+  send_to_node "${resultMsg}"
+}
+
+function invoke_mock_callback() {
+  mockMsg="{\"type\":\"mock\",\"command\":\"${1}\",\"parameters\":\"${2}\"}"
+  send_to_node "${mockMsg}"
+
+}
+
+#function invoke_mock_callback() {
+#  ="$1"
+#  mockMsg="{\"type\":\"mock\",\"output\":\"${1}\",\"exitCode\":\"${2}\"}"
+#  echo "${resultMsg}" 1>& "${NODE_CHANNEL_FD}"
+#
+#  readonly _resultFile="$2"
+#  shift 2
+#  echo `save_params "${@}"` >> "$_parameterFile"
+#
+#  readonly stopTime=$((`now` + 1))
+#  while ! file_exists "$_resultFile" && [[ $stopTime -ge `now` ]]; do
+#    sleep 0.01
+#  done
+#  file_exists "$_resultFile" && cat "$_resultFile"
+#}
+#export -f wait_for_function_result
 
 output_log "=============[ $(date +%T) ]=============="
 output_log "params: [$@]"
@@ -51,7 +79,9 @@ output_log "running [$testCommand] [$(save_params "${@}")]"
 output_log "mockfile [$mockFile]"
 commandOutput=`eval $testCommand $(save_params "${@}")`
 exitCode=$?
-output_log "EXIT CODE [$exitCode], output: ==============>\n$commandOutput]\n==============="
+#commandOutput="${commandOutput//$'\n'/\\n}"
+output_log "EXIT CODE [$exitCode]"
+output_log "      OUT [$commandOutput]"
 send_command_result "$commandOutput" $exitCode
 exit
 
@@ -68,7 +98,7 @@ function now() {
 #  readonly _parameterFile="$1"
 #  readonly _resultFile="$2"
 #  shift 2
-#  echo `save_params "${@}"` >> "$_parameterFile"
+#  x§§
 #
 #  readonly stopTime=$((`now` + 1))
 #  while ! file_exists "$_resultFile" && [[ $stopTime -ge `now` ]]; do

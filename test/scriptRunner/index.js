@@ -9,7 +9,7 @@ const should = chai.should()
 
 const logMessage = msg => console.log(`==> ${msg}`)
 
-const { createFileWatcher } = require('./fileWatcher')
+// const { createFileWatcher } = require('./fileWatcher')
 const { createMockFile, writeRetvalFile } = require('./mockFiles')
 
 const SHELL_COMMAND_TIMEOUT = 1000
@@ -24,7 +24,7 @@ const fixturesFilePath = file => {
   throw new Error(`file doesn't exist: ${fullPath}`)
 }
 
-const fileWatcher = createFileWatcher()
+// const fileWatcher = createFileWatcher()
 
 // const stopCallbackObj = () => {
 //   let promiseFinished = false
@@ -64,10 +64,8 @@ const __toCommandPromiseObj = commands => {
   const targetCommand = commands[4]
   const cmdLog = msg => logMessage(`CommandPromise [${targetCommand}]: ${msg}`)
   // let _childProcess
-  let promiseFinished = false
 
   const cleanup = () => {
-    promiseFinished = true
     // if (!promiseFinished) {
     // }
   }
@@ -95,13 +93,18 @@ const __toCommandPromiseObj = commands => {
     const execCommand = commands.reduce((concatCmd, curr) => concatCmd + ` ${curr}`, cmd)
     try {
       cmdLog(`childProcess.spawn( [${execCommand}], options)`)
-      const cmdProcess = childProcess.spawn(cmd, commands, { stdio: ['pipe', 1, 'pipe', 'ipc'] })
+      const cmdProcess = childProcess.spawn(cmd, commands, { stdio: ['ignore', 1, 'ignore', 'ipc'] })
       let result
       cmdProcess.on('message', message => {
-        cmdLog(`RECV: [${message}]`)
-        if (message.success) {
-          result = message
+        cmdLog(`message received: [${message.type}]`)
+        switch (message.type) {
+          case 'result':
+            result = message
+            break
+          default:
+            throw new Error(`message type not recognised: [${message.type}]`)
         }
+
         // const message = 'hello world back'
         // const responseSuccess = cmdProcess.send(message)
         // cmdLog('sent message back success: ' + responseSuccess)
@@ -116,11 +119,9 @@ const __toCommandPromiseObj = commands => {
       // })
       cmdProcess.on('close', code => {
         cmdLog(`child process exit: <${code}>`)
-        if (result) {
-          resolve(result)
-        } else {
-          reject(new Error(`no response from command: [${execCommand}]`))
-        }
+        return result
+          ? resolve(result)
+          : reject(new Error(`no response from command: [${execCommand}]`))
       })
       cmdProcess.on('error', err => {
         cmdLog('PROCESS error!')
@@ -159,53 +160,53 @@ const __toCommandPromiseObj = commands => {
 
 const __readStr = stream => stream ? stream.toString().trim() : ''
 
-const __toMockPromiseObj = mockOpts => {
-  logMessage(`__toMockPromise [${mockOpts.parametersFile}]`)
-  let cleanup = () => { }
-  const promise = new Promise((resolve, reject) => {
-    logMessage(`MockPromise [${mockOpts.parametersFile}]: START __toMockPromise`)
-    cleanup = resolve
-    const callback = fileContent => {
-      logMessage(`MockPromise [${mockOpts.parametersFile}]: fileWatcher.callback(fileContent)`)
-      const params = fileContent.split(/(?<!\\) /).map(param => param.replace('\\ ', ' '))
-      const funcResult = mockOpts.retvalFunc(...params)
-      logMessage(`MockPromise [${mockOpts.parametersFile}]: const funcResult = mockOpts.retvalFunc(...params)`)
+// const __toMockPromiseObj = mockOpts => {
+//   logMessage(`__toMockPromise [${mockOpts.parametersFile}]`)
+//   let cleanup = () => { }
+//   const promise = new Promise((resolve, reject) => {
+//     logMessage(`MockPromise [${mockOpts.parametersFile}]: START __toMockPromise`)
+//     cleanup = resolve
+//     const callback = fileContent => {
+//       logMessage(`MockPromise [${mockOpts.parametersFile}]: fileWatcher.callback(fileContent)`)
+//       const params = fileContent.split(/(?<!\\) /).map(param => param.replace('\\ ', ' '))
+//       const funcResult = mockOpts.retvalFunc(...params)
+//       logMessage(`MockPromise [${mockOpts.parametersFile}]: const funcResult = mockOpts.retvalFunc(...params)`)
 
-      if (!funcResult) {
-        logMessage(`MockPromise [${mockOpts.parametersFile}]: if (!funcResult) {  --> reject(command-mock returns no value)`)
-        reject(Error(`command-mock returns no value: ${mockOpts.originalName}`))
-      }
-      writeRetvalFile(mockOpts, funcResult)
-      logMessage(`MockPromise [${mockOpts.parametersFile}]: writeRetvalFile( ... )`)
-      resolve()
-      logMessage(`MockPromise [${mockOpts.parametersFile}]: END __toMockPromise`)
-    }
-    fileWatcher.watchFileContent(mockOpts.parametersFile, callback)
-  })
-  return { cleanup, promise }
-  // return fileWatcher.watchFileContent(mockOpts.parametersFile, callback)
-  //   .then(fileContent => {
-  //     logMessage(`MockPromise [${mockOpts.parametersFile}]: fileWatcher.watchFileContent( ... ).then(fileContent => {`)
-  //     const params = fileContent.split(/(?<!\\) /).map(param => param.replace('\\ ', ' '))
-  //     const funcResult = mockOpts.retvalFunc(...params)
-  //     logMessage(`MockPromise [${mockOpts.parametersFile}]: const funcResult = mockOpts.retvalFunc(...params)`)
+//       if (!funcResult) {
+//         logMessage(`MockPromise [${mockOpts.parametersFile}]: if (!funcResult) {  --> reject(command-mock returns no value)`)
+//         reject(Error(`command-mock returns no value: ${mockOpts.originalName}`))
+//       }
+//       writeRetvalFile(mockOpts, funcResult)
+//       logMessage(`MockPromise [${mockOpts.parametersFile}]: writeRetvalFile( ... )`)
+//       resolve()
+//       logMessage(`MockPromise [${mockOpts.parametersFile}]: END __toMockPromise`)
+//     }
+//     fileWatcher.watchFileContent(mockOpts.parametersFile, callback)
+//   })
+//   return { cleanup, promise }
+// return fileWatcher.watchFileContent(mockOpts.parametersFile, callback)
+//   .then(fileContent => {
+//     logMessage(`MockPromise [${mockOpts.parametersFile}]: fileWatcher.watchFileContent( ... ).then(fileContent => {`)
+//     const params = fileContent.split(/(?<!\\) /).map(param => param.replace('\\ ', ' '))
+//     const funcResult = mockOpts.retvalFunc(...params)
+//     logMessage(`MockPromise [${mockOpts.parametersFile}]: const funcResult = mockOpts.retvalFunc(...params)`)
 
-  //     if (!funcResult) {
-  //       logMessage(`MockPromise [${mockOpts.parametersFile}]: if (!funcResult) {  --> throw new Error(command-mock returns no value)`)
-  //       throw new Error(`command-mock returns no value: ${mockOpts.originalName}`)
-  //     }
-  //     writeRetvalFile(mockOpts, funcResult)
-  //     logMessage(`MockPromise [${mockOpts.parametersFile}]: writeRetvalFile( ... )`)
-  //     logMessage(`MockPromise [${mockOpts.parametersFile}]: END __toMockPromise`)
-  //   })
-  //   .catch(err => {
-  //     logMessage(`MockPromise [${mockOpts.parametersFile}]: .catch(err => {`)
-  //     logMessage(`MockPromise [${mockOpts.parametersFile}]:         --> throw err instanceof UnusedFileWatchError`)
-  //     throw err instanceof UnusedFileWatchError
-  //       ? new Error(`mock not used: [${mockOpts.originalName}]`)
-  //       : err
-  //   })
-}
+//     if (!funcResult) {
+//       logMessage(`MockPromise [${mockOpts.parametersFile}]: if (!funcResult) {  --> throw new Error(command-mock returns no value)`)
+//       throw new Error(`command-mock returns no value: ${mockOpts.originalName}`)
+//     }
+//     writeRetvalFile(mockOpts, funcResult)
+//     logMessage(`MockPromise [${mockOpts.parametersFile}]: writeRetvalFile( ... )`)
+//     logMessage(`MockPromise [${mockOpts.parametersFile}]: END __toMockPromise`)
+//   })
+//   .catch(err => {
+//     logMessage(`MockPromise [${mockOpts.parametersFile}]: .catch(err => {`)
+//     logMessage(`MockPromise [${mockOpts.parametersFile}]:         --> throw err instanceof UnusedFileWatchError`)
+//     throw err instanceof UnusedFileWatchError
+//       ? new Error(`mock not used: [${mockOpts.originalName}]`)
+//       : err
+//   })
+// }
 
 const ScriptRunner = () => {
   const mockFile = createMockFile()
@@ -242,7 +243,7 @@ const ScriptRunner = () => {
     return data.self
   }
 
-  const mockCommand = (commandName, exitCode, retval = '') => {
+  const mockCommand = (commandName, exitCode, retval = null) => {
     logMessage('START mockCommand')
     if (data.allMockCommands.includes(commandName)) {
       logMessage('if (data.allMockCommands.includes(commandName)) { --> throw new Error(command-mock defined twice:)')
@@ -262,13 +263,13 @@ const ScriptRunner = () => {
   const execute = () => {
     logMessage('START execute', true)
     const commandPromiseObj = __toCommandPromiseObj(data.commands)
-    const mockPromiseObjects = data.dynamicMockOpts.map(__toMockPromiseObj)
-    const shellObjects = mockPromiseObjects.concat(commandPromiseObj)
-    logMessage('Promise.all(shellPromises)')
-    return Promise.all(shellObjects.map(o => o.promise))
-      .then(allResult => {
-        logMessage('Promise.all(shellPromises).then(result => {')
-        const commandResult = allResult[allResult.length - 1]
+    // const mockPromiseObjects = data.dynamicMockOpts.map(__toMockPromiseObj)
+    // const shellObjects = mockPromiseObjects.concat(commandPromiseObj)
+    logMessage('Promise.all(commandPromiseObj.promise)')
+    return commandPromiseObj.promise
+      .then(commandResult => {
+        logMessage('Promise.all(commandPromiseObj.promise).then(result => {')
+        // const commandResult = allResult[allResult.length - 1]
         if (data.resultExpectFunc) {
           logMessage('data.resultExpectFunc')
           data.resultExpectFunc(commandResult.output)
@@ -280,12 +281,12 @@ const ScriptRunner = () => {
         logMessage('END execute')
       })
       .catch(__handleCatchAll)
-      .finally(() => {
-        logMessage('FINALLY START execute')
-        shellObjects.forEach(o => o.cleanup())
-        fileWatcher.cleanup()
-        logMessage('FINALLY STOP execute')
-      })
+    // .finally(() => {
+    //   logMessage('FINALLY START execute')
+    // shellObjects.forEach(o => o.cleanup())
+    // fileWatcher.cleanup()
+    //   logMessage('FINALLY STOP execute')
+    // })
   }
 
   // const __checkExitStatus = err => {

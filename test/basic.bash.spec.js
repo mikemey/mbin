@@ -17,14 +17,14 @@ describe('bash tests', () => {
     console.log('++++++++++++++++++++++++++++++++++++++++++++++++++++ afterEach TEST')
   })
 
-  describe('basics', () => {
+  describe.only('basics', () => {
     it('uses bash version 5', () => runner
       .command('echo', `\${BASH_VERSION%%[^0-9]*}`)
       .expectOutput('5')
       .execute()
     )
 
-    it.only('runs user home bash profile/rc', () => {
+    it('runs user home bash profile/rc', () => {
       const testFile = runner.fixturesFilePath('setup-env.sh')
       return runner
         .command('ll', testFile)
@@ -39,7 +39,7 @@ describe('bash tests', () => {
     )
   })
 
-  describe('static mocks', () => {
+  describe.only('static mocks', () => {
     it('known command output', () => runner
       .command('test/fixtures/test-mock-exit-status.sh')
       .mockCommand('request_confirmation', 73)

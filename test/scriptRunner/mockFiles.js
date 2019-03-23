@@ -29,25 +29,21 @@ const __writeFile = (file, data, createNew = false) => {
 }
 
 const __staticFuncOpts = (commandName, exitCode, output) => {
-  return { output: __bashFunction(commandName, exitCode, `echo "${output}"`) }
+  const outputLine = output ? `echo "${output}"` : ''
+  return { output: __bashFunction(commandName, exitCode, outputLine) }
 }
 
 const __dynamicFuncOpts = (commandName, exitCode, retvalFunc) => {
-  const uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-  const name = `${commandName}_${uid}`
-
   const originalName = commandName
-  const parametersFile = tempFilePath(`${name}.parameters`)
-  const retvalFile = tempFilePath(`${name}.retval`)
-  const output = __bashFunction(commandName, exitCode, `wait_for_function_result "${parametersFile}" "${retvalFile}" "$@"`)
-  return { retvalFunc, originalName, parametersFile, retvalFile, output }
+  const output = __bashFunction(commandName, exitCode, `invoke_mock_callback "${commandName}" "$@"`)
+  return { retvalFunc, originalName, output }
 }
 
 const __bashFunction = (commandName, exitCode, outputLine) => {
   return `[[ \`type -t "${commandName}"\` == "alias" ]] && unalias ${commandName} ${EOL}` +
     `function ${commandName} () { ${EOL}` +
     `  ${outputLine} ${EOL}` +
-    `  $( exit ${exitCode} ) ${EOL}` +
+    `  return ${exitCode} ${EOL}` +
     `} ${EOL}` +
     `export -f ${commandName} ${EOL}`
 }
