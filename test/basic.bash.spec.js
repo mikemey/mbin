@@ -1,8 +1,10 @@
 const chai = require('chai')
 const should = chai.should()
 chai.use(require('chai-match'))
+const fsextra = require('fs-extra')
 
 const ScriptRunner = require('./scriptRunner')
+const { TEST_DIR } = require('./scriptRunner/mockFiles')
 
 describe('bash tests', () => {
   const testMessage = 'hello world!'
@@ -31,6 +33,12 @@ describe('bash tests', () => {
       .command('timelog', testMessage)
       .expectOutput(output => output.should.match(new RegExp(`^\\[[0-9\\-: ]*]: ${testMessage}$`)))
       .execute()
+    )
+
+    it('deletes test directory after test', () => runner
+      .command('echo', testMessage)
+      .execute()
+      .then(() => fsextra.pathExistsSync(TEST_DIR).should.equal(false))
     )
   })
 

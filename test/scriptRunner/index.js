@@ -4,7 +4,7 @@ const should = chai.should()
 
 const logMessage = msg => console.log(`==> ${msg}`)
 
-const createMockFile = require('./mockFiles')
+const { createMockFile } = require('./mockFiles')
 const createCommandPromise = require('./commandPromise')
 
 const fixturesFilePath = file => {
@@ -82,12 +82,10 @@ const ScriptRunner = () => {
         logMessage('END execute')
       })
       .catch(__handleCatchAll)
-    // .finally(() => {
-    //   logMessage('FINALLY START execute')
-    // shellObjects.forEach(o => o.cleanup())
-    // fileWatcher.cleanup()
-    //   logMessage('FINALLY STOP execute')
-    // })
+      .finally(() => {
+        logMessage('CLEANUP')
+        data.mockFile.cleanup()
+      })
   }
 
   const __handleCatchAll = err => {

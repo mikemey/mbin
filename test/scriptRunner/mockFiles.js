@@ -1,13 +1,16 @@
 const fsextra = require('fs-extra')
 
+const TEST_DIR = '.tmp.tests'
 const EOL = require('os').EOL
 const SHE_BANG = `#!/usr/bin/env bash ${EOL}`
 
-const tempFilePath = file => `.testtmp/${file}`
-
 const createMockFile = () => {
-  const mockFile = tempFilePath('test.mocks', false)
+  const mockFile = `${TEST_DIR}/test.mocks`
   __writeFile(mockFile, SHE_BANG, true)
+
+  const cleanup = () => {
+    fsextra.removeSync(TEST_DIR)
+  }
 
   const writeFunc = (commandName, exitCode, retval) => {
     const mockOpts = retval instanceof Function
@@ -18,7 +21,7 @@ const createMockFile = () => {
   }
 
   const writeEnv = (envName, envValue) => __writeFile(mockFile, `export ${envName}="${envValue}" ${EOL}`)
-  return { path: mockFile, writeFunc, writeEnv }
+  return { path: mockFile, writeFunc, writeEnv, cleanup }
 }
 
 const __writeFile = (file, data, createNew = false) => {
@@ -46,4 +49,4 @@ const __bashFunction = (commandName, exitCode, outputLine) => {
     `export -f ${commandName} ${EOL}`
 }
 
-module.exports = createMockFile
+module.exports = { createMockFile, TEST_DIR }
