@@ -9,15 +9,10 @@ describe('bash tests', () => {
   let runner
 
   beforeEach(() => {
-    console.log('++++++++++++++++++++++++++++++++++++++++++++++++++++ beforeEach TEST')
     runner = ScriptRunner()
   })
 
-  afterEach(() => {
-    console.log('++++++++++++++++++++++++++++++++++++++++++++++++++++ afterEach TEST')
-  })
-
-  describe.only('basics', () => {
+  describe('basics', () => {
     it('uses bash version 5', () => runner
       .command('echo', `\${BASH_VERSION%%[^0-9]*}`)
       .expectOutput('5')
@@ -39,7 +34,7 @@ describe('bash tests', () => {
     )
   })
 
-  describe.only('static mocks', () => {
+  describe('static mocks', () => {
     it('known command output', () => runner
       .command('test/fixtures/test-mock-exit-status.sh')
       .mockCommand('request_confirmation', 73)
@@ -78,7 +73,7 @@ describe('bash tests', () => {
     )
   })
 
-  describe.only('dynamic mocks', () => {
+  describe('dynamic mocks', () => {
     it('expect ouptut', () => runner
       .command('cygpath')
       .mockCommand('cygpath', 0, () => testMessage)
@@ -124,11 +119,18 @@ describe('bash tests', () => {
         })
     }
 
-    it('mock not found', () => {
-      should.fail('not yet implemented')
+    it('command not found', () => {
+      const unknownCommand = 'unknownCmd'
+      return shouldFailWith(
+        runner
+          .command(unknownCommand)
+          .expectOutput(testMessage)
+          .execute(),
+        new chai.AssertionError(`expected 'bash: ${unknownCommand}: command not found' to equal '${testMessage}'`)
+      )
     })
 
-    it.only('mock is unused', () => {
+    it('mock is unused', () => {
       const unknownCommand = '_TEST_MOCK_'
       return shouldFailWith(
         runner
@@ -140,7 +142,7 @@ describe('bash tests', () => {
       )
     })
 
-    it.only('static mock is specified twice', () => {
+    it('static mock is specified twice', () => {
       const commandName = '_test_static_twice'
       return shouldFailWith(
         () => runner
@@ -150,7 +152,7 @@ describe('bash tests', () => {
       )
     })
 
-    it.only('dynamic + static mock is specified twice', () => {
+    it('dynamic + static mock is specified twice', () => {
       const commandName = '_test_mixed_twice'
       return shouldFailWith(
         () => runner
@@ -160,7 +162,7 @@ describe('bash tests', () => {
       )
     })
 
-    it.only('dynamic mock returns undefined', () => {
+    it('dynamic mock returns undefined', () => {
       const commandName = 'cygpath'
       return shouldFailWith(
         runner

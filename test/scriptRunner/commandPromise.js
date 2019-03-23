@@ -1,6 +1,6 @@
 const childProcess = require('child_process')
 
-const SPAWN_OPTIONS = { stdio: ['ignore', 1, 'ignore', 'ipc'], timeout: 1000 }
+const SPAWN_OPTIONS = { stdio: ['ignore', 'pipe', 'ignore', 'ipc'], timeout: 1000 }
 
 const createCommandPromise = (mockMap, commands) => {
   const cmdLog = msg => console.log(`==> CommandPromise [${commands[4]}]: ${msg}`)
