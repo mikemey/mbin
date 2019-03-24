@@ -4,7 +4,7 @@ chai.use(require('chai-match'))
 const fsextra = require('fs-extra')
 
 const ScriptRunner = require('./scriptRunner')
-const { TEST_DIR } = require('./scriptRunner/mockFiles')
+const { TEST_DIR } = require('./scriptRunner/mockFile')
 
 describe('bash tests', () => {
   const testMessage = 'hello world!'

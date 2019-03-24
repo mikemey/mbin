@@ -4,7 +4,7 @@ const should = chai.should()
 
 const logMessage = msg => console.log(`==> ${msg}`)
 
-const { createMockFile } = require('./mockFiles')
+const { createMockFile } = require('./mockFile')
 const createCommandPromise = require('./commandPromise')
 
 const fixturesFilePath = file => {
