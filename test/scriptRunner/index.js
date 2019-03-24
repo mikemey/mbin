@@ -3,6 +3,8 @@ const fsextra = require('fs-extra')
 const createMockFile = require('./mockFile')
 const createCommandPromise = require('./commandPromise')
 
+const FORBIDDEN_COMMANDS = ['command']
+
 const DEFAULT_OPTIONS = {
   mockFile: 'bocks.mock',
   keepMockFile: false,
@@ -65,6 +67,10 @@ const ScriptRunner = (optsOverride = {}) => {
 
   const mockCommand = (commandName, exitCode, retval = null) => {
     logMessage('START mockCommand')
+    if (FORBIDDEN_COMMANDS.includes(commandName)) {
+      logMessage('if (FORBIDDEN_COMMANDS.includes(commandName)) { --> throw new Error(cant mock command)')
+      throw new Error(`can't mock command '${commandName}'`)
+    }
     if (data.allMockCommands.includes(commandName)) {
       logMessage('if (data.allMockCommands.includes(commandName)) { --> throw new Error(command-mock defined twice:)')
       throw new Error(`command-mock defined twice: ${commandName}`)

@@ -321,13 +321,21 @@ describe('bash tests', () => {
   })
 
   describe('bash commands safety', () => {
-    xit(`throws error when mocking 'command'`, () => {
-      should.fail('not yet implemented')
+    // const verboseRunner = () => ScriptRunner({ verbose: true })
+
+    it(`throws error when mocking 'command'`, () => {
+      return shouldFailWith(
+        () => runner.mockCommand('command', 0, testMessage),
+        new Error(`can't mock command 'command'`)
+      )
     })
 
-    xit('static mock can overwrite export function', () => {
-      should.fail('not yet implemented')
-    })
+    xit('static mock can overwrite export function', () => runner
+      .command('export', testMessage)
+      .mockCommand('export', 0, `${testMessage}`)
+      .expectOutput(`${testMessage}`)
+      .execute()
+    )
 
     it('dynamic mock can overwrite echo function', () => runner
       .command('echo', testMessage)
