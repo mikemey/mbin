@@ -343,10 +343,11 @@ describe('bash tests', () => {
       .execute()
     )
 
-    xit('can overwrite echo function when dynamic mock-command expectation failed', () => {
-      should.fail('not yet implemented')
-      // runner().command('echo', 'hello')
-      //     .mockCommand('echo', 0, () => should.fail(testMessage))
-    })
+    it('can overwrite echo function when dynamic mock-command expectation failed', () => shouldFailWith(
+      runner().command('echo', 'fail')
+        .mockCommand('echo', 0, () => should.fail(testMessage))
+        .execute(),
+      new chai.AssertionError(testMessage))
+    )
   })
 })
