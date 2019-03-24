@@ -28,7 +28,7 @@ const createMockFile = mockFile => {
     return mockOpts
   }
 
-  const writeEnv = (envName, envValue) => __writeFile(mockFile, `export ${envName}="${envValue}" ${EOL}`)
+  const writeEnv = (envName, envValue) => __writeFile(mockFile, `command export ${envName}="${envValue}" ${EOL}`)
   return { path: mockFile, writeFunc, writeEnv, cleanup }
 }
 
@@ -49,7 +49,7 @@ const __bashFunction = (commandName, exitCode, outputLine) => {
     `  ${outputLine} ${EOL}` +
     `  return ${exitCode} ${EOL}` +
     `} ${EOL}` +
-    `export -f ${commandName} ${EOL}`
+    `command export -f ${commandName} ${EOL}`
 }
 
 module.exports = createMockFile

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-# timeout set?, test trim_str first
-mockFile="$1"
-verbose="$2"
-outputLog="$3"
-testCommand="$4"
-shift 4
+# save rest of parameters to variable
+readonly mockFile="$1"
+readonly verbose="$2"
+readonly outputLog="$3"
+readonly testCommand="$4"
+command shift 4
 
 function output_log () {
   if [[ $verbose == "true" ]]; then
@@ -36,7 +36,7 @@ function send_to_node () {
 }
 
 function read_from_node () {
-  read message <& "${NODE_CHANNEL_FD}"
+  command read -t 1 message <& "${NODE_CHANNEL_FD}"
   message="${message%%\"}"
   message="${message##\"}"
   output_log "received message: [${message}]"
@@ -51,7 +51,7 @@ function send_command_result () {
 function invoke_mock_callback() {
   output_log "start invoking mock callback..."
   cmd="${1}"
-  shift
+  command shift
   parameters=""
   for param in "$@"; do
     output_log "adding parameter: [${param}]"
@@ -64,7 +64,7 @@ function invoke_mock_callback() {
   send_to_node "${mockMsg}"
   read_from_node
 }
-export -f invoke_mock_callback
+command export -f invoke_mock_callback
 
 function save_params () {
   ret=()
@@ -81,7 +81,7 @@ output_log "running [$testCommand] [$(save_params "${@}")]"
 output_log "mockfile [$mockFile]"
 
 source_profiles "$mockFile"
-commandOutput=`eval $testCommand $(save_params "${@}") 2>&1`
+commandOutput=`command eval $testCommand $(save_params "${@}") 2>&1`
 exitCode=$?
 send_command_result "$commandOutput" $exitCode
 exit

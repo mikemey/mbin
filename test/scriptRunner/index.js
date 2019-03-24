@@ -3,7 +3,7 @@ const fsextra = require('fs-extra')
 const createMockFile = require('./mockFile')
 const createCommandPromise = require('./commandPromise')
 
-const FORBIDDEN_COMMANDS = ['command']
+const FORBIDDEN_COMMANDS = ['command', 'invoke_mock_callback']
 
 const DEFAULT_OPTIONS = {
   mockFile: 'bocks.mock',
@@ -121,7 +121,7 @@ const ScriptRunner = (optsOverride = {}) => {
     }
   }
 
-  data.self = { command, execute, expectOutput, expectExitCode, fixturesFilePath, mockCommand, mockEnvironment }
+  data.self = { command, execute, expectOutput, expectExitCode, mockCommand, mockEnvironment }
   return data.self
 }
 
