@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
 
-# save rest of parameters to variable
 readonly mockFile="$1"
 readonly verbose="$2"
 readonly outputLog="$3"
 readonly testCommand="$4"
 command shift 4
+
+function save_params () {
+  ret=()
+  for param in "${@}"; do
+    ret+=( "${param/ /\\ }" )
+  done
+  command echo "${ret[@]}"
+}
+readonly parameters="$(save_params "${@}")"
 
 function output_log () {
   if [[ $verbose == "true" ]]; then
@@ -52,36 +60,26 @@ function invoke_mock_callback() {
   output_log "start invoking mock callback..."
   cmd="${1}"
   command shift
-  parameters=""
+  _params=""
   for param in "$@"; do
     output_log "adding parameter: [${param}]"
-    if [[ "$parameters" != "" ]]; then
-      parameters+=","
+    if [[ "$_params" != "" ]]; then
+      _params+=","
     fi
-    parameters+="\"${param}\""
+    _params+="\"${param}\""
   done
-  mockMsg="{\"type\":\"mock\",\"command\":\"$cmd\",\"parameters\":[${parameters}]}"
+  mockMsg="{\"type\":\"mock\",\"command\":\"$cmd\",\"parameters\":[${_params}]}"
   send_to_node "${mockMsg}"
   read_from_node
 }
 command export -f invoke_mock_callback
 
-function save_params () {
-  ret=()
-  for param in "${@}"; do
-    ret+=( "${param/ /\\ }" )
-  done
-  command echo "${ret[@]}"
-}
-
 output_log "\n=============[ $(date +%T) ]=============="
-output_log "params: [$@]"
-
-output_log "running [$testCommand] [$(save_params "${@}")]"
+output_log "running [$testCommand] [${parameters}]"
 output_log "mockfile [$mockFile]"
 
 source_profiles "$mockFile"
-commandOutput=`command eval $testCommand $(save_params "${@}") 2>&1`
+commandOutput=`command eval $testCommand ${parameters} 2>&1`
 exitCode=$?
 send_command_result "$commandOutput" $exitCode
 exit
