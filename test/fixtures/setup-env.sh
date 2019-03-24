@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-OUTPUT_LOG=output.log
+OUTPUT_LOG=output.bocks
+
+# output log control, timeout set?, test trim_str first
 
 function output_log () {
   printf "$1 \n" >> $OUTPUT_LOG

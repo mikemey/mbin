@@ -2,10 +2,13 @@ const fsextra = require('fs-extra')
 const chai = require('chai')
 const should = chai.should()
 
-const logMessage = msg => console.log(`==> ${msg}`)
-
-const { createMockFile } = require('./mockFile')
+const createMockFile = require('./mockFile')
 const createCommandPromise = require('./commandPromise')
+
+const DEFAULT_OPTIONS = {
+  mockFile: 'tests.mock'
+}
+const logMessage = msg => console.log(`==> ${msg}`)
 
 const fixturesFilePath = file => {
   const fullPath = `test/fixtures/${file}`
@@ -15,8 +18,12 @@ const fixturesFilePath = file => {
   throw new Error(`file doesn't exist: ${fullPath}`)
 }
 
-const ScriptRunner = () => {
-  const mockFile = createMockFile()
+const ScriptRunner = (optsOverride = {}) => {
+  const options = Object.assign({}, DEFAULT_OPTIONS, optsOverride)
+  console.log('======== OPTIONS ======== ')
+  console.log(options)
+  console.log('========================= ')
+  const mockFile = createMockFile(options.mockFile)
   const data = {
     self: null,
     mockFile,
@@ -81,25 +88,10 @@ const ScriptRunner = () => {
         }
         logMessage('END execute')
       })
-      .catch(__handleCatchAll)
       .finally(() => {
         logMessage('CLEANUP')
         data.mockFile.cleanup()
       })
-  }
-
-  const __handleCatchAll = err => {
-    logMessage('START __handleCatchAll')
-    if (err instanceof chai.AssertionError) {
-      logMessage('if (err instanceof chai.AssertionError) {')
-      should.fail(err.actual, err.expected, err.message)
-    }
-    if (err.stderr) {
-      logMessage('if (err.stderr) {')
-      should.fail(`SCRIPT error: ${err.stderr}`)
-    }
-    logMessage('END __handleCatchAll')
-    throw err
   }
 
   const __ExpectationFunction = expectation => expectation instanceof Function
@@ -110,4 +102,4 @@ const ScriptRunner = () => {
   return data.self
 }
 
-module.exports = ScriptRunner
+module.exports = { ScriptRunner, DEFAULT_OPTIONS }

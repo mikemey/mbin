@@ -3,8 +3,7 @@ const should = chai.should()
 chai.use(require('chai-match'))
 const fsextra = require('fs-extra')
 
-const ScriptRunner = require('./scriptRunner')
-const { TEST_DIR } = require('./scriptRunner/mockFile')
+const { ScriptRunner, DEFAULT_OPTIONS } = require('./scriptRunner')
 
 describe('bash tests', () => {
   const testMessage = 'hello world!'
@@ -13,6 +12,27 @@ describe('bash tests', () => {
   beforeEach(() => {
     runner = ScriptRunner()
   })
+
+  const shouldFail = underTest => shouldFailWith(underTest)
+  const shouldFailWith = (underTest, expectedError) => {
+    let errorThrown = false
+    const underTestPromise = underTest instanceof Promise
+      ? underTest
+      : new Promise(underTest)
+    return underTestPromise
+      .catch(err => {
+        errorThrown = true
+        if (expectedError) {
+          expectedError.name.should.equal(err.name, 'Error name')
+          expectedError.message.should.equal(err.message, 'Error name')
+        }
+      }).finally(() => {
+        if (!errorThrown) {
+          const errorMsg = expectedError ? `[${expectedError.message}] ` : ''
+          should.fail(`expected error ${errorMsg}not thrown!`)
+        }
+      })
+  }
 
   describe('basics', () => {
     it('uses bash version 5', () => runner
@@ -34,12 +54,94 @@ describe('bash tests', () => {
       .expectOutput(output => output.should.match(new RegExp(`^\\[[0-9\\-: ]*]: ${testMessage}$`)))
       .execute()
     )
+  })
 
-    it('deletes test directory after test', () => runner
+  describe('output files', () => {
+    const fileExists = name => fsextra.pathExistsSync(name).should.equal(true, `file not found: [${name}]`)
+    const fileDeleted = name => fsextra.pathExistsSync(name).should.equal(false, `file found: [${name}]`)
+    const deleteFile = name => fsextra.removeSync(name)
+    const fileContent = name => fsextra.readFileSync(name).toString()
+    const fileHasShaBang = name => fileContent(name).should.match(/#!\/usr\/bin\/env bash/)
+
+    it('deletes test mock file after test', () => runner
       .command('echo', testMessage)
       .execute()
-      .then(() => fsextra.pathExistsSync(TEST_DIR).should.equal(false))
+      .then(() => fileDeleted(DEFAULT_OPTIONS.mockFile))
     )
+
+    it('deletes test mock files after failing test', () => {
+      return shouldFail(runner.command('echo', testMessage).expectOutput('').execute())
+        .then(() => fileDeleted(DEFAULT_OPTIONS.mockFile))
+    })
+
+    xit('deletes test mock files after failing mock expectation', () => {
+      should.fail('not yet implemented')
+      // return shouldFail(runner.command('echo', testMessage).expectOutput('').execute())
+      //   .then(() => fileDeleted(DEFAULT_OPTIONS.mockFile))
+    })
+
+    it('test mock file not created when not necessary', () => {
+      const testMockFile = 'mocks.file.test'
+      runner = ScriptRunner({ mockFile: testMockFile })
+      return runner.command('echo', testMessage)
+        .expectOutput(() => {
+          fileDeleted(testMockFile)
+          fileDeleted(DEFAULT_OPTIONS.mockFile)
+        })
+        .execute()
+    })
+
+    it('test mock file uses custom file', () => {
+      const testMockFile = 'mocks.file.test'
+      runner = ScriptRunner({ mockFile: testMockFile })
+      return runner.command('echo', testMessage).mockEnvironment('bla', 'blu')
+        .expectOutput(() => {
+          fileExists(testMockFile)
+          fileHasShaBang(testMockFile)
+          fileDeleted(DEFAULT_OPTIONS.mockFile)
+        })
+        .execute()
+        .finally(() => fileDeleted(testMockFile))
+    })
+
+    xit('keeps test mock file after test', () => {
+      const testMock = 'someMockedCommand'
+      runner = ScriptRunner({ keepMockFile: true })
+      return runner.command(testMock).mockCommand(testMock, 0).execute()
+        .finally(() => {
+          fileExists(DEFAULT_OPTIONS.mockFile)
+          fileHasShaBang(DEFAULT_OPTIONS.mockFile)
+          deleteFile(DEFAULT_OPTIONS.mockFile)
+        })
+    })
+
+    xit('bash log uses custom file', () => {
+      const testLogFile = 'runner.log.test'
+      runner = ScriptRunner({ logFile: testLogFile, verbose: true })
+      return runner.command('echo', testMessage).execute()
+        .then(() => fileExists(testLogFile))
+        .finally(() => deleteFile(testLogFile))
+    })
+
+    xit('bash log verbosity defaults false', () => {
+      const testLogFile = 'runner.silent.log.test'
+      const testLog = 'hello'
+      fsextra.outputFileSync(testLogFile, testLog)
+      runner = ScriptRunner({ logFile: testLogFile })
+      return runner.command('echo', testMessage).execute()
+        .then(() => fileContent(testLogFile).should.equal(testLog))
+        .finally(() => deleteFile(testLogFile))
+    })
+
+    xit(`bash log file defaults to "${DEFAULT_OPTIONS.shellOutputFile}"`, () => {
+      const defaultLogFile = DEFAULT_OPTIONS.shellOutputFile
+      const testLog = 'hello'
+      fsextra.outputFileSync(defaultLogFile, testLog, { flag: 'a' })
+      runner = ScriptRunner({ verbose: true })
+      return runner.command('echo', testMessage).execute()
+        .then(() => fileContent(defaultLogFile).length.should.be.greaterThan(testLog.length))
+        .finally(() => deleteFile(defaultLogFile))
+    })
   })
 
   describe('static mocks', () => {
@@ -110,33 +212,12 @@ describe('bash tests', () => {
   })
 
   describe('mock errors', () => {
-    const shouldFail = underTest => shouldFailWith(underTest)
-    const shouldFailWith = (underTest, expectedError) => {
-      let errorThrown = false
-      const underTestPromise = underTest instanceof Promise
-        ? underTest
-        : new Promise(underTest)
-      return underTestPromise
-        .catch(err => {
-          errorThrown = true
-          if (expectedError) {
-            expectedError.name.should.equal(err.name, 'Error name')
-            expectedError.message.should.equal(err.message, 'Error name')
-          }
-        }).finally(() => {
-          if (!errorThrown) {
-            const errorMsg = expectedError ? `[${expectedError.message}] ` : ''
-            should.fail(`expected error ${errorMsg}not thrown!`)
-          }
-        })
-    }
-
-    it('deletes test directory after failing test', () => {
+    it('deletes test mock file after failing test', () => {
       return shouldFail(runner
         .command('echo', testMessage)
         .expectOutput('')
         .execute()
-      ).then(() => fsextra.pathExistsSync(TEST_DIR).should.equal(false))
+      ).then(() => fsextra.pathExistsSync(DEFAULT_OPTIONS.mockFile).should.equal(false))
     })
 
     it('command not found', () => {
