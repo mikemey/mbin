@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 # timeout set?, test trim_str first
 mockFile="$1"
 verbose="$2"
@@ -10,7 +9,7 @@ shift 4
 
 function output_log () {
   if [[ $verbose == "true" ]]; then
-    printf "$1 \n" >> "$outputLog"
+    command printf "$1 \n" >> "$outputLog"
   fi
 }
 
@@ -33,7 +32,7 @@ function source_profiles () {
 function send_to_node () {
   output="${1//$'\n'/\\n}"
   output_log "sending back: ===>\n$output\n<==============="
-  echo "$output" 1>& "${NODE_CHANNEL_FD}"
+  command echo "$output" 1>& "${NODE_CHANNEL_FD}"
 }
 
 function read_from_node () {
@@ -41,7 +40,7 @@ function read_from_node () {
   message="${message%%\"}"
   message="${message##\"}"
   output_log "received message: [${message}]"
-  echo "$message"
+  command echo "$message"
 }
 
 function send_command_result () {
@@ -51,7 +50,7 @@ function send_command_result () {
 
 function invoke_mock_callback() {
   output_log "start invoking mock callback..."
-  command="${1}"
+  cmd="${1}"
   shift
   parameters=""
   for param in "$@"; do
@@ -61,17 +60,18 @@ function invoke_mock_callback() {
     fi
     parameters+="\"${param}\""
   done
-  mockMsg="{\"type\":\"mock\",\"command\":\"$command\",\"parameters\":[${parameters}]}"
+  mockMsg="{\"type\":\"mock\",\"command\":\"$cmd\",\"parameters\":[${parameters}]}"
   send_to_node "${mockMsg}"
   read_from_node
 }
+export -f invoke_mock_callback
 
 function save_params () {
   ret=()
   for param in "${@}"; do
     ret+=( "${param/ /\\ }" )
   done
-  echo "${ret[@]}"
+  command echo "${ret[@]}"
 }
 
 output_log "\n=============[ $(date +%T) ]=============="

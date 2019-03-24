@@ -172,23 +172,12 @@ describe('bash tests', () => {
       .execute()
     )
 
-    xit('can overwrite echo function', () => {
-      should.fail('not yet implemented')
-      // runner.command('echo', 'hello')
-      //     .mockCommand('echo', 0, () => should.fail(testMessage))
-    })
-
-    xit('can overwrite export function', () => {
-      should.fail('not yet implemented')
-    })
-
-    it('environment variables', () => {
-      return runner
-        .mockEnvironment('HOME', testMessage)
-        .command('echo $HOME')
-        .expectOutput(testMessage)
-        .execute()
-    })
+    it('environment variables', () => runner
+      .mockEnvironment('HOME', testMessage)
+      .command('echo $HOME')
+      .expectOutput(testMessage)
+      .execute()
+    )
 
     it('expect output', () => runner
       .command('cygpath')
@@ -219,10 +208,6 @@ describe('bash tests', () => {
       .expectExitCode(4)
       .execute()
     )
-
-    xit('can overwrite export function', () => {
-      should.fail('not yet implemented')
-    })
 
     it('forwards mock parameters', () => runner
       .command('cygpath', 'abc', 123, testMessage)
@@ -287,10 +272,6 @@ describe('bash tests', () => {
       )
     })
 
-    xit(`throws error when mocking 'command'`, () => {
-      should.fail('not yet implemented')
-    })
-
     it('throws error when mock-command expectation failed', () => shouldFailWith(
       runner.command('blabla')
         .mockCommand('blabla', 0, () => should.fail(testMessage))
@@ -337,5 +318,39 @@ describe('bash tests', () => {
         .execute(),
       new chai.AssertionError(testMessage)
     ))
+  })
+
+  describe('bash commands safety', () => {
+    xit(`throws error when mocking 'command'`, () => {
+      should.fail('not yet implemented')
+    })
+
+    xit('static mock can overwrite export function', () => {
+      should.fail('not yet implemented')
+    })
+
+    it('dynamic mock can overwrite echo function', () => runner
+      .command('echo', testMessage)
+      .mockCommand('echo', 0, msg => `${msg}${testMessage}`)
+      .expectOutput(`${testMessage}${testMessage}`)
+      .execute()
+    )
+
+    it('dynamic mock can overwrite printf function', () => runner
+      .command('printf', testMessage)
+      .mockCommand('printf', 0, msg => `${msg}${testMessage}`)
+      .expectOutput(`${testMessage}${testMessage}`)
+      .execute()
+    )
+
+    xit('mock can overwrite shift, eval, source, read, invoke_mock_callback function', () => {
+      should.fail('not yet implemented')
+    })
+
+    xit('can overwrite echo function when dynamic mock-command expectation failed', () => {
+      should.fail('not yet implemented')
+      // runner.command('echo', 'hello')
+      //     .mockCommand('echo', 0, () => should.fail(testMessage))
+    })
   })
 })
