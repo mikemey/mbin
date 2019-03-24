@@ -64,20 +64,32 @@ describe('bash tests', () => {
     const fileHasShaBang = name => fileContent(name).should.match(/#!\/usr\/bin\/env bash/)
 
     it('deletes test mock file after test', () => runner
-      .command('echo', testMessage)
+      .command('echo', testMessage).mockEnvironment('abc', 'def')
+      .expectOutput(() => fileExists(DEFAULT_OPTIONS.mockFile))
       .execute()
       .then(() => fileDeleted(DEFAULT_OPTIONS.mockFile))
     )
 
-    it('deletes test mock files after failing test', () => {
-      return shouldFail(runner.command('echo', testMessage).expectOutput('').execute())
-        .then(() => fileDeleted(DEFAULT_OPTIONS.mockFile))
+    it('deletes test mock files after failing output expectation', () => {
+      return shouldFail(
+        runner.command('echo', testMessage).mockEnvironment('abc', 'def')
+          .expectOutput(() => {
+            fileExists(DEFAULT_OPTIONS.mockFile)
+            should.fail(testMessage)
+          })
+          .execute()
+      ).then(() => fileDeleted(DEFAULT_OPTIONS.mockFile))
     })
 
-    xit('deletes test mock files after failing mock expectation', () => {
-      should.fail('not yet implemented')
-      // return shouldFail(runner.command('echo', testMessage).expectOutput('').execute())
-      //   .then(() => fileDeleted(DEFAULT_OPTIONS.mockFile))
+    it('deletes test mock files after failing mock command expectation', () => {
+      return shouldFail(
+        runner.command('blab', testMessage).mockEnvironment('abc', 'def')
+          .mockCommand('blab', 0, () => {
+            fileExists(DEFAULT_OPTIONS.mockFile)
+            should.fail(testMessage)
+          })
+          .execute())
+        .then(() => fileDeleted(DEFAULT_OPTIONS.mockFile))
     })
 
     it('test mock file not created when not necessary', () => {
@@ -160,6 +172,16 @@ describe('bash tests', () => {
       .execute()
     )
 
+    xit('can overwrite echo function', () => {
+      should.fail('not yet implemented')
+      // runner.command('echo', 'hello')
+      //     .mockCommand('echo', 0, () => should.fail(testMessage))
+    })
+
+    xit('can overwrite export function', () => {
+      should.fail('not yet implemented')
+    })
+
     it('environment variables', () => {
       return runner
         .mockEnvironment('HOME', testMessage)
@@ -198,6 +220,10 @@ describe('bash tests', () => {
       .execute()
     )
 
+    xit('can overwrite export function', () => {
+      should.fail('not yet implemented')
+    })
+
     it('forwards mock parameters', () => runner
       .command('cygpath', 'abc', 123, testMessage)
       .mockCommand('cygpath', 0, (str, num, msg) => {
@@ -223,8 +249,7 @@ describe('bash tests', () => {
     it('command not found', () => {
       const unknownCommand = 'unknownCmd'
       return shouldFailWith(
-        runner
-          .command(unknownCommand)
+        runner.command(unknownCommand)
           .expectOutput(testMessage)
           .execute(),
         new Error(`expected 'bash: ${unknownCommand}: command not found' to equal '${testMessage}'`)
@@ -234,8 +259,7 @@ describe('bash tests', () => {
     it('mock is unused', () => {
       const unknownCommand = '_TEST_MOCK_'
       return shouldFailWith(
-        runner
-          .command('cygpath')
+        runner.command('cygpath')
           .mockCommand(unknownCommand, 0, () => 'UNKNOWN')
           .mockCommand('cygpath', 0, () => testMessage)
           .execute(),
@@ -263,6 +287,17 @@ describe('bash tests', () => {
       )
     })
 
+    xit(`throws error when mocking 'command'`, () => {
+      should.fail('not yet implemented')
+    })
+
+    it('throws error when mock-command expectation failed', () => shouldFailWith(
+      runner.command('blabla')
+        .mockCommand('blabla', 0, () => should.fail(testMessage))
+        .execute(),
+      new chai.AssertionError(testMessage))
+    )
+
     it('dynamic mock returns undefined', () => {
       const commandName = 'cygpath'
       return shouldFailWith(
@@ -275,16 +310,14 @@ describe('bash tests', () => {
     })
 
     it('unexpected static output', () => shouldFailWith(
-      runner
-        .command('echo', testMessage)
+      runner.command('echo', testMessage)
         .expectOutput('5')
         .execute(),
       new Error(`expected '${testMessage}' to equal '5'`)
     ))
 
     it('unexpected static exit-code', () => shouldFailWith(
-      runner
-        .command('test/fixtures/test-command-exit-status.sh', 0)
+      runner.command('test/fixtures/test-command-exit-status.sh', 0)
         .expectOutput('test-script output')
         .expectExitCode(1)
         .execute(),
@@ -292,16 +325,14 @@ describe('bash tests', () => {
     ))
 
     it('dynamic output function throws error', () => shouldFailWith(
-      runner
-        .command('echo', testMessage)
+      runner.command('echo', testMessage)
         .expectOutput(() => should.fail(testMessage))
         .execute(),
       new chai.AssertionError(testMessage)
     ))
 
     it('dynamic exit-code function throws error', () => shouldFailWith(
-      runner
-        .command('test/fixtures/test-command-exit-status.sh', 0)
+      runner.command('test/fixtures/test-command-exit-status.sh', 0)
         .expectExitCode(() => should.fail(testMessage))
         .execute(),
       new chai.AssertionError(testMessage)

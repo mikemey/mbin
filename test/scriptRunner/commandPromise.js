@@ -29,13 +29,15 @@ const createCommandPromise = (promiseLog, mockMap, commands) => {
     const commandMock = mockMap.get(shellMsg.command)
     commandMock.called = true
 
-    const funcResult = commandMock.retvalFunc(...shellMsg.parameters)
-    if (!funcResult) {
-      abortProcessing(Error(`command-mock returns no value: ${commandMock.originalName}`))
+    try {
+      const funcResult = commandMock.retvalFunc(...shellMsg.parameters)
+      if (!funcResult) { throw new Error(`command-mock returns no value: ${commandMock.originalName}`) }
+      promiseLog(`response [${funcResult}]`)
+      return funcResult
+    } catch (err) {
+      abortProcessing(err)
       return ''
     }
-    promiseLog(`response [${funcResult}]`)
-    return funcResult
   }
 
   const processOnClose = (abortProcessing, resolve) => code => {
