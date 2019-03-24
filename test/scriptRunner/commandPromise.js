@@ -9,68 +9,76 @@ const createCommandPromise = (promiseLog, mockMap, commands) => {
 
   const data = { result: null }
 
-  const processMessage = (abortProcessing, sendBack) => message => {
-    promiseLog(`message received: [${message.type}]`)
+  const processMessage = sendBack => message => {
+    promiseLog(`on MESSAGE: [${message.type}]`)
     switch (message.type) {
       case 'result':
         data.result = message
         break
       case 'mock':
-        sendBack(getMockResult(abortProcessing, message))
+        sendMockResult(sendBack, message)
         break
       default:
-        abortProcessing(new Error(`message type not recognised: [${message.type}]`))
-        break
+        throw new Error(`message type not recognised: [${message.type}]`)
     }
   }
 
-  const getMockResult = (abortProcessing, shellMsg) => {
-    promiseLog(`mock callback( [${shellMsg.command}] [${shellMsg.parameters}])`)
-    const commandMock = mockMap.get(shellMsg.command)
-    commandMock.called = true
-
+  const sendMockResult = (sendBack, message) => {
+    promiseLog(`mock callback( [${message.command}] [${message.parameters}])`)
+    let funcResult = ''
+    let error = null
     try {
-      const funcResult = commandMock.retvalFunc(...shellMsg.parameters)
-      if (!funcResult) { throw new Error(`command-mock returns no value: ${commandMock.originalName}`) }
-      promiseLog(`response [${funcResult}]`)
-      return funcResult
+      const commandMock = mockMap.get(message.command)
+      commandMock.called = true
+
+      funcResult = commandMock.retvalFunc(...message.parameters)
+      if (!funcResult) {
+        funcResult = ''
+        throw new Error(`command-mock returns no value: ${commandMock.originalName}`)
+      }
     } catch (err) {
-      abortProcessing(err)
-      return ''
+      error = err
     }
+    promiseLog(`response [${funcResult}]`)
+    sendBack(funcResult)
+    if (error) { throw error }
   }
 
-  const processOnClose = (abortProcessing, resolve) => code => {
-    promiseLog(`child process exit: <${code}>`)
+  const processOnClose = resolve => code => {
+    promiseLog(`on CLOSE: <${code}>`)
     for (const unusedMock of mockMap.values()) {
       if (unusedMock.called !== true) {
-        return abortProcessing(new Error(`mock not used: [${unusedMock.originalName}]`))
+        throw new Error(`mock not used: [${unusedMock.originalName}]`)
       }
     }
-    return data.result
-      ? resolve(data.result)
-      : abortProcessing(new Error(`no response from command: [${execCommand}]`))
+    if (!data.result) { throw new Error(`no response from command: [${execCommand}]`) }
+
+    promiseLog(`returning: [${data.result}]`)
+    return resolve(data.result)
   }
 
-  const processError = abortProcessing => err => {
-    promiseLog('PROCESS ERROR!')
-    abortProcessing(err)
+  const processError = err => {
+    promiseLog(`on ERROR: ${err}`)
+    throw err
   }
 
   return new Promise((resolve, reject) => {
     promiseLog(`childProcess.spawn( [${execCommand}], options)`)
     const commandProcess = childProcess.spawn(cmd, commands, SPAWN_OPTIONS)
-    const abortProcessing = err => {
-      reject(err)
-      if (commandProcess && !commandProcess.killed) {
-        commandProcess.kill()
-      }
-    }
     const sendBack = msg => { commandProcess.send(msg) }
 
-    commandProcess.on('message', processMessage(abortProcessing, sendBack))
-    commandProcess.on('close', processOnClose(abortProcessing, resolve))
-    commandProcess.on('error', processError(abortProcessing))
+    const safe = unsafeFunc => event => {
+      try { return unsafeFunc(event) } catch (err) {
+        reject(err)
+        if (commandProcess && !commandProcess.killed) {
+          commandProcess.kill()
+        }
+      }
+    }
+
+    commandProcess.on('message', safe(processMessage(sendBack)))
+    commandProcess.on('close', safe(processOnClose(resolve)))
+    commandProcess.on('error', safe(processError))
   })
 }
 
