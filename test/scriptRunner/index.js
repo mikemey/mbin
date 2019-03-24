@@ -1,6 +1,4 @@
 const fsextra = require('fs-extra')
-const chai = require('chai')
-const should = chai.should()
 
 const createMockFile = require('./mockFile')
 const createCommandPromise = require('./commandPromise')
@@ -94,9 +92,14 @@ const ScriptRunner = (optsOverride = {}) => {
       })
   }
 
-  const __ExpectationFunction = expectation => expectation instanceof Function
-    ? expectation
-    : output => output.should.equal(expectation)
+  const __ExpectationFunction = expectation => {
+    if (expectation instanceof Function) { return expectation }
+    return output => {
+      if (output !== expectation) {
+        throw new Error(`expected '${output}' to equal '${expectation}'`)
+      }
+    }
+  }
 
   data.self = { command, execute, expectOutput, expectExitCode, fixturesFilePath, mockCommand, mockEnvironment }
   return data.self

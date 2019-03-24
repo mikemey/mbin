@@ -227,7 +227,7 @@ describe('bash tests', () => {
           .command(unknownCommand)
           .expectOutput(testMessage)
           .execute(),
-        new chai.AssertionError(`expected 'bash: ${unknownCommand}: command not found' to equal '${testMessage}'`)
+        new Error(`expected 'bash: ${unknownCommand}: command not found' to equal '${testMessage}'`)
       )
     })
 
@@ -279,7 +279,7 @@ describe('bash tests', () => {
         .command('echo', testMessage)
         .expectOutput('5')
         .execute(),
-      new chai.AssertionError(`expected '${testMessage}' to equal '5'`)
+      new Error(`expected '${testMessage}' to equal '5'`)
     ))
 
     it('unexpected static exit-code', () => shouldFailWith(
@@ -288,7 +288,7 @@ describe('bash tests', () => {
         .expectOutput('test-script output')
         .expectExitCode(1)
         .execute(),
-      new chai.AssertionError(`expected 0 to equal 1`)
+      new Error(`expected '0' to equal '1'`)
     ))
 
     it('dynamic output function throws error', () => shouldFailWith(
