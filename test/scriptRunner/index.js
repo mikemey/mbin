@@ -3,7 +3,17 @@ const fsextra = require('fs-extra')
 const createMockFile = require('./mockFile')
 const createCommandPromise = require('./commandPromise')
 
-const FORBIDDEN_COMMANDS = ['command', 'invoke_mock_callback']
+const FORBIDDEN_COMMANDS = ['', 'command', 'output_log', 'source_profiles',
+  'send_to_node', 'read_from_node', 'send_command_result', 'invoke_mock_callback', 'save_params']
+
+const safeCommandName = (originCommand, log) => {
+  const commandName = originCommand.trim ? originCommand.trim() : originCommand
+  if (FORBIDDEN_COMMANDS.includes(commandName)) {
+    log('if (FORBIDDEN_COMMANDS.includes(commandName)) { --> throw new Error(cant mock command)')
+    throw new Error(`can't mock command '${originCommand}'`)
+  }
+  return commandName
+}
 
 const DEFAULT_OPTIONS = {
   mockFile: 'bocks.mock',
@@ -43,8 +53,8 @@ const ScriptRunner = (optsOverride = {}) => {
     allMockCommands: []
   }
 
-  const command = (...cmd) => {
-    data.commands.push(...cmd)
+  const command = (...commands) => {
+    data.commands.push(...commands.map(cmd => safeCommandName(cmd, logMessage)))
     return data.self
   }
 
@@ -65,15 +75,12 @@ const ScriptRunner = (optsOverride = {}) => {
     return data.self
   }
 
-  const mockCommand = (commandName, exitCode, retval = null) => {
+  const mockCommand = (originCommandName, exitCode, retval = null) => {
     logMessage('START mockCommand')
-    if (FORBIDDEN_COMMANDS.includes(commandName)) {
-      logMessage('if (FORBIDDEN_COMMANDS.includes(commandName)) { --> throw new Error(cant mock command)')
-      throw new Error(`can't mock command '${commandName}'`)
-    }
+    const commandName = safeCommandName(originCommandName, logMessage)
     if (data.allMockCommands.includes(commandName)) {
       logMessage('if (data.allMockCommands.includes(commandName)) { --> throw new Error(command-mock defined twice:)')
-      throw new Error(`command-mock defined twice: ${commandName}`)
+      throw new Error(`command-mock defined twice: ${originCommandName}`)
     }
     data.allMockCommands.push(commandName)
 

@@ -225,6 +225,22 @@ describe('bash tests', () => {
       ).then(() => fsextra.pathExistsSync(DEFAULT_OPTIONS.mockFile).should.equal(false))
     })
 
+    it('empty command', () => {
+      const emptyCommand = '      '
+      return shouldFailWith(
+        () => runner().command(emptyCommand),
+        new Error(`can't mock command '${emptyCommand}'`)
+      )
+    })
+
+    it('empty mock', () => {
+      const emptyCommand = '      '
+      return shouldFailWith(
+        () => runner().mockCommand(emptyCommand),
+        new Error(`can't mock command '${emptyCommand}'`)
+      )
+    })
+
     it('command not found', () => {
       const unknownCommand = 'unknownCmd'
       return shouldFailWith(
@@ -315,9 +331,10 @@ describe('bash tests', () => {
   })
 
   describe('bash commands safety', () => {
-    const prohibitedCommands = ['command', 'invoke_mock_callback']
-    const scriptRunnerCommands = ['echo', 'printf', 'shift', 'eval', 'source', 'read']
-    // function output_log
+    const prohibitedCommands = [
+      '', '  ', ' \n ', 'command', 'invoke_mock_callback', 'output_log', 'source_profiles',
+      'send_to_node', 'read_from_node', 'send_command_result', 'save_params'
+    ]
     prohibitedCommands.forEach(cmdName => {
       it(`throws error when mocking '${cmdName}'`, () => {
         return shouldFailWith(
@@ -327,6 +344,7 @@ describe('bash tests', () => {
       })
     })
 
+    const scriptRunnerCommands = ['echo', 'printf', 'shift', 'eval', 'source', 'read']
     scriptRunnerCommands.forEach(cmdName => {
       it(`dynamic mock can overwrite '${cmdName}' function`, () => runner()
         .command(cmdName, testMessage)
