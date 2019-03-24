@@ -115,7 +115,7 @@ describe('bash tests', () => {
         })
     })
 
-    xit('bash log uses custom file', () => {
+    it('bash log uses custom file', () => {
       const testLogFile = 'runner.log.test'
       runner = ScriptRunner({ logFile: testLogFile, verbose: true })
       return runner.command('echo', testMessage).execute()
@@ -123,7 +123,7 @@ describe('bash tests', () => {
         .finally(() => deleteFile(testLogFile))
     })
 
-    xit('bash log verbosity defaults false', () => {
+    it('bash log verbosity defaults false', () => {
       const testLogFile = 'runner.silent.log.test'
       const testLog = 'hello'
       fsextra.outputFileSync(testLogFile, testLog)
@@ -133,8 +133,8 @@ describe('bash tests', () => {
         .finally(() => deleteFile(testLogFile))
     })
 
-    xit(`bash log file defaults to "${DEFAULT_OPTIONS.shellOutputFile}"`, () => {
-      const defaultLogFile = DEFAULT_OPTIONS.shellOutputFile
+    it(`bash log file defaults to "${DEFAULT_OPTIONS.logFile}"`, () => {
+      const defaultLogFile = DEFAULT_OPTIONS.logFile
       const testLog = 'hello'
       fsextra.outputFileSync(defaultLogFile, testLog, { flag: 'a' })
       runner = ScriptRunner({ verbose: true })

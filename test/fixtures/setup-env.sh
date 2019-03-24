@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 
-OUTPUT_LOG=output.bocks
 
-# output log control, timeout set?, test trim_str first
+# timeout set?, test trim_str first
+mockFile="$1"
+verbose="$2"
+outputLog="$3"
+testCommand="$4"
+shift 4
 
 function output_log () {
-  printf "$1 \n" >> $OUTPUT_LOG
+  if [[ $verbose == "true" ]]; then
+    printf "$1 \n" >> "$outputLog"
+  fi
 }
 
 function source_profiles () {
@@ -68,15 +74,8 @@ function save_params () {
   echo "${ret[@]}"
 }
 
-output_log "=============[ $(date +%T) ]=============="
+output_log "\n=============[ $(date +%T) ]=============="
 output_log "params: [$@]"
-output_log "HOME: <${HOME}>"
-output_log "SHELL: <$SHELL>"
-output_log "VERSION: <${BASH_VERSION}>"
-
-mockFile="$1"
-testCommand="$2"
-shift 2
 
 output_log "running [$testCommand] [$(save_params "${@}")]"
 output_log "mockfile [$mockFile]"

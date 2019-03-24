@@ -2,16 +2,15 @@ const childProcess = require('child_process')
 
 const SPAWN_OPTIONS = { stdio: ['ignore', 'pipe', 'ignore', 'ipc'], timeout: 1000 }
 
-const createCommandPromise = (mockMap, commands) => {
-  const cmdLog = msg => console.log(`==> CommandPromise [${commands[4]}]: ${msg}`)
+const createCommandPromise = (promiseLog, mockMap, commands) => {
+  promiseLog('start')
   const cmd = commands.shift()
   const execCommand = commands.reduce((concatCmd, curr) => concatCmd + ` "${curr}"`, cmd)
-  cmdLog(`start`)
 
   const data = { result: null }
 
   const processMessage = (abortProcessing, sendBack) => message => {
-    cmdLog(`message received: [${message.type}]`)
+    promiseLog(`message received: [${message.type}]`)
     switch (message.type) {
       case 'result':
         data.result = message
@@ -26,9 +25,8 @@ const createCommandPromise = (mockMap, commands) => {
   }
 
   const getMockResult = (abortProcessing, shellMsg) => {
-    cmdLog(`mock callback( [${shellMsg.command}] [${shellMsg.parameters}])`)
+    promiseLog(`mock callback( [${shellMsg.command}] [${shellMsg.parameters}])`)
     const commandMock = mockMap.get(shellMsg.command)
-    // if mock not found ==> error
     commandMock.called = true
 
     const funcResult = commandMock.retvalFunc(...shellMsg.parameters)
@@ -36,12 +34,12 @@ const createCommandPromise = (mockMap, commands) => {
       abortProcessing(Error(`command-mock returns no value: ${commandMock.originalName}`))
       return ''
     }
-    cmdLog(`response [${funcResult}]`)
+    promiseLog(`response [${funcResult}]`)
     return funcResult
   }
 
   const processOnClose = (abortProcessing, resolve) => code => {
-    cmdLog(`child process exit: <${code}>`)
+    promiseLog(`child process exit: <${code}>`)
     for (const unusedMock of mockMap.values()) {
       if (unusedMock.called !== true) {
         return abortProcessing(new Error(`mock not used: [${unusedMock.originalName}]`))
@@ -53,12 +51,12 @@ const createCommandPromise = (mockMap, commands) => {
   }
 
   const processError = abortProcessing => err => {
-    cmdLog('PROCESS ERROR!')
+    promiseLog('PROCESS ERROR!')
     abortProcessing(err)
   }
 
   return new Promise((resolve, reject) => {
-    cmdLog(`childProcess.spawn( [${execCommand}], options)`)
+    promiseLog(`childProcess.spawn( [${execCommand}], options)`)
     const commandProcess = childProcess.spawn(cmd, commands, SPAWN_OPTIONS)
     const abortProcessing = err => {
       reject(err)
