@@ -104,7 +104,7 @@ describe('bash tests', () => {
         .finally(() => fileDeleted(testMockFile))
     })
 
-    xit('keeps test mock file after test', () => {
+    it('keeps test mock file after test', () => {
       const testMock = 'someMockedCommand'
       runner = ScriptRunner({ keepMockFile: true })
       return runner.command(testMock).mockCommand(testMock, 0).execute()

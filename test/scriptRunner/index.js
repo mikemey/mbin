@@ -4,7 +4,8 @@ const createMockFile = require('./mockFile')
 const createCommandPromise = require('./commandPromise')
 
 const DEFAULT_OPTIONS = {
-  mockFile: 'tests.mock'
+  mockFile: 'tests.mock',
+  keepMockFile: false
 }
 const logMessage = msg => console.log(`==> ${msg}`)
 
@@ -87,8 +88,10 @@ const ScriptRunner = (optsOverride = {}) => {
         logMessage('END execute')
       })
       .finally(() => {
-        logMessage('CLEANUP')
-        data.mockFile.cleanup()
+        if (!options.keepMockFile) {
+          logMessage('CLEANUP')
+          data.mockFile.cleanup()
+        }
       })
   }
 
