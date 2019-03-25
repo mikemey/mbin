@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
 
-readonly mockFile="$1"
-readonly verbose="$2"
-readonly outputLog="$3"
-readonly testCommand="$4"
-command shift 4
-
 function save_params () {
   ret=()
   for param in "${@}"; do
-    ret+=( "${param/ /\\ }" )
+    ret+=( "${param// /\\ }" )
   done
   command echo "${ret[@]}"
 }
+
+readonly mockFile="$1"
+readonly verbose="$2"
+readonly logFile="$3"
+readonly testCommand="$4"
+command shift 4
 readonly parameters="$(save_params "${@}")"
 
 function output_log () {
   if [[ $verbose == "true" ]]; then
-    command printf "$1 \n" >> "$outputLog"
+    command printf "$1 \n" >> "$logFile"
   fi
 }
 
@@ -75,10 +75,10 @@ function invoke_mock_callback() {
 command export -f invoke_mock_callback
 
 output_log "\n=============[ $(date +%T) ]=============="
-output_log "running [$testCommand] [${parameters}]"
 output_log "mockfile [$mockFile]"
-
 source_profiles "$mockFile"
+
+output_log "running: [$testCommand] [$parameters]"
 commandOutput=`command eval $testCommand ${parameters} 2>&1`
 exitCode=$?
 send_command_result "$commandOutput" $exitCode

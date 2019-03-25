@@ -54,7 +54,8 @@ const ScriptRunner = (optsOverride = {}) => {
   }
 
   const command = (...commands) => {
-    data.commands.push(...commands.map(cmd => safeCommandName(cmd, logMessage)))
+    const execCommand = safeCommandName(commands.shift(), logMessage)
+    data.commands.push(execCommand, ...commands)
     return data.self
   }
 
@@ -69,9 +70,7 @@ const ScriptRunner = (optsOverride = {}) => {
   }
 
   const mockEnvironment = (envName, envValue) => {
-    logMessage('START mockEnvironment')
     data.mockFile.writeEnv(envName, envValue)
-    logMessage('END mockEnvironment')
     return data.self
   }
 

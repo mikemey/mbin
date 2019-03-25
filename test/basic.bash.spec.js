@@ -6,7 +6,7 @@ const fsextra = require('fs-extra')
 const { ScriptRunner, DEFAULT_OPTIONS } = require('./scriptRunner')
 
 describe('bash tests', () => {
-  const testMessage = 'hello world!'
+  const testMessage = 'he llo  world!'
   const runner = () => ScriptRunner()
   const verboseRunner = () => ScriptRunner({ verbose: true })
 
@@ -168,7 +168,7 @@ describe('bash tests', () => {
 
     it('environment variables', () => runner()
       .mockEnvironment('HOME', testMessage)
-      .command('echo $HOME')
+      .command('echo "$HOME"')
       .expectOutput(testMessage)
       .execute()
     )
@@ -184,6 +184,12 @@ describe('bash tests', () => {
       .command('test/fixtures/test-command-exit-status.sh', 37)
       .expectOutput('test-script output')
       .expectExitCode(37)
+      .execute()
+    )
+
+    it('can pass empty parameter', () => runner()
+      .command('echo', ';', '', 'echo', '"xXx"')
+      .expectOutput('\nxXx')
       .execute()
     )
   })
@@ -203,17 +209,19 @@ describe('bash tests', () => {
       .execute()
     )
 
-    it('forwards mock parameters', () => runner()
-      .command('cygpath', 'abc', 123, testMessage)
-      .mockCommand('cygpath', 0, (str, num, msg) => {
-        str.should.equal('abc')
-        num.should.equal('123')
-        msg.should.equal(testMessage)
-        return `${str}=${num}=${testMessage}`
-      })
-      .expectOutput(`abc=123=${testMessage}`)
-      .execute()
-    )
+    it('forwards mock parameters', () => {
+      const mockCommandResponse = `abc=123=${testMessage}`
+      return runner()
+        .command('cygpath', 'abc', 123, testMessage)
+        .mockCommand('cygpath', 0, (str, num, msg) => {
+          str.should.equal('abc')
+          num.should.equal('123')
+          msg.should.equal(testMessage)
+          return mockCommandResponse
+        })
+        .expectOutput(mockCommandResponse)
+        .execute()
+    })
   })
 
   describe('mock errors', () => {
@@ -332,7 +340,7 @@ describe('bash tests', () => {
 
   describe('bash commands safety', () => {
     const prohibitedCommands = [
-      '', '  ', ' \n ', 'command', 'invoke_mock_callback', 'output_log', 'source_profiles',
+      '', '  ', ' \n ', 'command', '  invoke_mock_callback  ', 'output_log', 'source_profiles',
       'send_to_node', 'read_from_node', 'send_command_result', 'save_params'
     ]
     prohibitedCommands.forEach(cmdName => {
