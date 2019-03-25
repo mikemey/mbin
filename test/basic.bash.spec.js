@@ -6,7 +6,7 @@ const fsextra = require('fs-extra')
 const { ScriptRunner, DEFAULT_OPTIONS } = require('./scriptRunner')
 
 describe('bash tests', () => {
-  const testMessage = 'he llo  world!'
+  const testMessage = 'he llo world!'
   const runner = () => ScriptRunner()
   const verboseRunner = () => ScriptRunner({ verbose: true })
 
@@ -188,8 +188,8 @@ describe('bash tests', () => {
     )
 
     it('can pass empty parameter', () => runner()
-      .command('echo', ';', '', 'echo', '"xXx"')
-      .expectOutput('\nxXx')
+      .command('echo', '', 'xXx')
+      .expectOutput('xXx')
       .execute()
     )
   })

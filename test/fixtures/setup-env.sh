@@ -17,7 +17,7 @@ readonly parameters="$(save_params "${@}")"
 
 function output_log () {
   if [[ $verbose == "true" ]]; then
-    command printf "$1 \n" >> "$logFile"
+    command printf "$1\n" >> "$logFile"
   fi
 }
 
@@ -40,7 +40,7 @@ function source_profiles () {
 function send_to_node () {
   output="${1//$'\n'/\\n}"
   output_log "sending back: ===>\n$output\n<==============="
-  command echo "$output" 1>& "${NODE_CHANNEL_FD}"
+  command printf "$output\n" 1>& "${NODE_CHANNEL_FD}"
 }
 
 function read_from_node () {
@@ -61,7 +61,7 @@ function invoke_mock_callback() {
   cmd="${1}"
   command shift
   _params=""
-  for param in "$@"; do
+  for param in "${@}"; do
     output_log "adding parameter: [${param}]"
     if [[ "$_params" != "" ]]; then
       _params+=","
@@ -79,7 +79,7 @@ output_log "mockfile [$mockFile]"
 source_profiles "$mockFile"
 
 output_log "running: [$testCommand] [$parameters]"
-commandOutput=`command eval $testCommand ${parameters} 2>&1`
+commandOutput=`command eval $testCommand $parameters 2>&1`
 exitCode=$?
 send_command_result "$commandOutput" $exitCode
 exit
