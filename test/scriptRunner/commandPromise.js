@@ -39,7 +39,7 @@ const createCommandPromise = (promiseLog, mockMap, commands) => {
     } catch (err) {
       error = err
     }
-    promiseLog(`response [${funcResult}]`)
+    promiseLog(`mock response [${funcResult}]`)
     sendBack(funcResult)
     if (error) { throw error }
   }
@@ -53,7 +53,7 @@ const createCommandPromise = (promiseLog, mockMap, commands) => {
     }
     if (!data.result) { throw new Error(`no response from command: [${execCommand}]`) }
 
-    promiseLog(`returning: [${data.result}]`)
+    promiseLog(`received output: [${data.result.output}]`)
     return resolve(data.result)
   }
 
