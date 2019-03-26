@@ -6,7 +6,7 @@ const fsextra = require('fs-extra')
 const { ScriptRunner, DEFAULT_OPTIONS } = require('./scriptRunner')
 
 describe('bash tests', () => {
-  const testMessage = 'he llo world!'
+  const testMessage = 'he llo  world!'
   const runner = () => ScriptRunner()
   const verboseRunner = () => ScriptRunner({ verbose: true })
 
@@ -20,8 +20,8 @@ describe('bash tests', () => {
       .catch(err => {
         errorThrown = true
         if (expectedError) {
-          expectedError.name.should.equal(err.name, 'Error name')
-          expectedError.message.should.equal(err.message, 'Error name')
+          err.name.should.equal(expectedError.name, 'Error name')
+          err.message.should.equal(expectedError.message, 'Error message')
         }
       }).finally(() => {
         if (!errorThrown) {

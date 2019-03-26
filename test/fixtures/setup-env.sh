@@ -3,9 +3,8 @@
 readonly mockFile="$1"
 readonly verbose="$2"
 readonly logFile="$3"
-readonly testCommand="$4"
-command shift 4
-readonly parameters="${@}"
+command shift 3
+readonly testCommands="${@}"
 
 function output_log () {
   if [[ $verbose == "true" ]]; then
@@ -31,7 +30,7 @@ function source_profiles () {
 
 function send_to_node () {
   output="${1//$'\n'/\\n}"
-  output_log "sending back: ===>\n$output\n<==============="
+  output_log "─────── send to node: ───────\n$output"
   command printf "$output\n" 1>& "${NODE_CHANNEL_FD}"
 }
 
@@ -39,7 +38,7 @@ function read_from_node () {
   command read -t 1 message <& "${NODE_CHANNEL_FD}"
   message="${message%%\"}"
   message="${message##\"}"
-  output_log "received message: [${message}]"
+  output_log "─────── received: ───────────\n[${message}]"
   command echo "$message"
 }
 
@@ -51,16 +50,8 @@ function send_command_result () {
 function invoke_mock_callback() {
   output_log "start invoking mock callback..."
   cmd="${1}"
-  command shift
-  _params=""
-  for param in "${@}"; do
-    output_log "adding parameter: [${param}]"
-    if [[ "$_params" != "" ]]; then
-      _params+=","
-    fi
-    _params+="\"${param}\""
-  done
-  mockMsg="{\"type\":\"mock\",\"command\":\"$cmd\",\"parameters\":[${_params}]}"
+  params="${2}"
+  mockMsg="{\"type\":\"mock\",\"command\":\"$cmd\",\"parameters\":[${params}]}"
   send_to_node "${mockMsg}"
   read_from_node
 }
@@ -70,8 +61,8 @@ output_log "\n=============[ $(date +%T) ]=============="
 output_log "mockfile [$mockFile]"
 source_profiles "$mockFile"
 
-output_log "running: [$testCommand] [$parameters]"
-commandOutput=`command eval $testCommand $parameters 2>&1`
+output_log "running: [$testCommands]"
+commandOutput=`command eval "$testCommands" 2>&1`
 exitCode=$?
 send_command_result "$commandOutput" $exitCode
 exit

@@ -5,7 +5,7 @@ const SPAWN_OPTIONS = { stdio: ['ignore', 'pipe', 'ignore', 'ipc'], timeout: 100
 const createCommandPromise = (promiseLog, mockMap, commands) => {
   promiseLog('start')
   const cmd = commands.shift()
-  const execCommand = commands.reduce((concatCmd, curr) => concatCmd + ` "${curr}"`, cmd)
+  const cmdLogName = commands.reduce((concatCmd, curr) => concatCmd + ` ${curr}`, cmd)
 
   const data = { result: null }
 
@@ -51,7 +51,7 @@ const createCommandPromise = (promiseLog, mockMap, commands) => {
         throw new Error(`mock not used: [${unusedMock.originalName}]`)
       }
     }
-    if (!data.result) { throw new Error(`no response from command: [${execCommand}]`) }
+    if (!data.result) { throw new Error(`no response from command: [${cmdLogName}]`) }
 
     promiseLog(`received output: [${data.result.output}]`)
     return resolve(data.result)
@@ -63,7 +63,7 @@ const createCommandPromise = (promiseLog, mockMap, commands) => {
   }
 
   return new Promise((resolve, reject) => {
-    promiseLog(`childProcess.spawn( [${execCommand}], options)`)
+    promiseLog(`childProcess.spawn( [${cmdLogName}], options)`)
     const commandProcess = childProcess.spawn(cmd, commands, SPAWN_OPTIONS)
     const sendBack = msg => { commandProcess.send(msg) }
 

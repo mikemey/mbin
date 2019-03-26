@@ -39,7 +39,15 @@ const __staticFuncOpts = (commandName, exitCode, output) => {
 
 const __dynamicFuncOpts = (commandName, exitCode, retvalFunc) => {
   const originalName = commandName
-  const output = __bashFunction(commandName, exitCode, `invoke_mock_callback "${commandName}" "$@"`)
+  const outputLine =
+    `  params="" ${EOL}` +
+    `  for p in "\${@}"; do ${EOL}` +
+    `    output_log "adding parameter: [$p]" ${EOL}` +
+    `    if [[ "$params" != "" ]]; then params+=","; fi ${EOL}` +
+    `    params+="\\"$p\\"" ${EOL}` +
+    `  done ${EOL}` +
+    `  invoke_mock_callback "${commandName}" "$params"`
+  const output = __bashFunction(commandName, exitCode, outputLine)
   return { retvalFunc, originalName, output }
 }
 
