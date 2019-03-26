@@ -3,8 +3,14 @@ const fsextra = require('fs-extra')
 const createMockFile = require('./mockFile')
 const createCommandPromise = require('./commandPromise')
 
+const DEFAULT_OPTIONS = {
+  mockFile: 'bocks.mock',
+  keepMockFile: false,
+  logFile: 'output.bocks',
+  verbose: false
+}
 const FORBIDDEN_COMMANDS = ['', 'command', 'output_log', 'source_profiles',
-  'send_to_node', 'read_from_node', 'send_command_result', 'invoke_mock_callback', 'save_params']
+  'send_to_node', 'read_from_node', 'send_command_result', 'invoke_mock_callback']
 
 const safeCommandName = (originCommand, log) => {
   const commandName = originCommand.trim ? originCommand.trim() : originCommand
@@ -15,12 +21,7 @@ const safeCommandName = (originCommand, log) => {
   return commandName
 }
 
-const DEFAULT_OPTIONS = {
-  mockFile: 'bocks.mock',
-  keepMockFile: false,
-  logFile: 'output.bocks',
-  verbose: false
-}
+const toEscapedParameter = parameter => `"${parameter}"`
 
 const fixturesFilePath = file => {
   const fullPath = `test/fixtures/${file}`
@@ -55,7 +56,7 @@ const ScriptRunner = (optsOverride = {}) => {
 
   const command = (...commands) => {
     const execCommand = safeCommandName(commands.shift(), logMessage)
-    data.commands.push(execCommand, ...commands)
+    data.commands.push(execCommand, ...commands.map(toEscapedParameter))
     return data.self
   }
 
@@ -74,7 +75,7 @@ const ScriptRunner = (optsOverride = {}) => {
     return data.self
   }
 
-  const mockCommand = (originCommandName, exitCode, retval = null) => {
+  const mockCommand = (originCommandName, exitCode = 0, retval = null) => {
     logMessage('START mockCommand')
     const commandName = safeCommandName(originCommandName, logMessage)
     if (data.allMockCommands.includes(commandName)) {

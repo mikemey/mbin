@@ -1,19 +1,11 @@
 #!/usr/bin/env bash
 
-function save_params () {
-  ret=()
-  for param in "${@}"; do
-    ret+=( "${param// /\\ }" )
-  done
-  command echo "${ret[@]}"
-}
-
 readonly mockFile="$1"
 readonly verbose="$2"
 readonly logFile="$3"
 readonly testCommand="$4"
 command shift 4
-readonly parameters="$(save_params "${@}")"
+readonly parameters="${@}"
 
 function output_log () {
   if [[ $verbose == "true" ]]; then

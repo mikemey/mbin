@@ -189,7 +189,7 @@ describe('bash tests', () => {
 
     it('can pass empty parameter', () => runner()
       .command('echo', '', 'xXx')
-      .expectOutput('xXx')
+      .expectOutput(' xXx')
       .execute()
     )
   })
@@ -341,10 +341,10 @@ describe('bash tests', () => {
   describe('bash commands safety', () => {
     const prohibitedCommands = [
       '', '  ', ' \n ', 'command', '  invoke_mock_callback  ', 'output_log', 'source_profiles',
-      'send_to_node', 'read_from_node', 'send_command_result', 'save_params'
+      'send_to_node', 'read_from_node', 'send_command_result'
     ]
     prohibitedCommands.forEach(cmdName => {
-      it(`throws error when mocking '${cmdName}'`, () => {
+      it(`throws error when mocking '${cmdName.replace(/\n/g, '\\n')}'`, () => {
         return shouldFailWith(
           () => runner().mockCommand(cmdName, 0, testMessage),
           new Error(`can't mock command '${cmdName}'`)
