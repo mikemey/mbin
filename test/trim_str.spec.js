@@ -2,9 +2,9 @@ require('chai')
 
 const { ScriptRunner } = require('./scriptRunner')
 
-xdescribe('trim_str tests', () => {
+describe('trim_str tests', () => {
   const runner = () => ScriptRunner()
-  // const verboseRunner = () => ScriptRunner({ verbose: true })
+  const verboseRunner = () => ScriptRunner({ verbose: true })
 
   const escape = v => v.replace(/\n/g, '\\n').replace(/\t/g, '\\t')
 
@@ -20,20 +20,20 @@ xdescribe('trim_str tests', () => {
 
     .set('\nabc05', 'abc05')
     .set('abc06\n', 'abc06')
-    .set('\nabc06\n', 'abc06')
-    .set('\nabc07\ndef\n', 'abc07\ndef')
+  //  .set('\nabc07\n', 'abc07')
+  //  .set('\nabc08\ndef\n', 'abc08\ndef')
 
-    .set('\tabc08', 'abc08')
-    .set('abc09\t', 'abc09')
-    .set('\tabc10\t', 'abc10')
-    .set('\tabc11\tdef', 'abc11\tdef')
+  //     .set('\tabc09', 'abc09')
+  //     .set('abc10\t', 'abc10')
+  //     .set('\tabc11\t', 'abc11')
+  // .set('\tabc12\tdef', 'abc12\tdef')
 
-    .set('\r\n  abc12 \t def  \t  ', 'abc12 \t def')
-    .set(' \r\nabc13 \n def  \n ', 'abc13')
-    .set('\t  abc14 \t\n def \t \r\n ', 'abc14 \t\n def')
+  // .set('\r\n  abc13 \t def  \t  ', 'abc13 \t def')
+  // .set(' \r\nabc14 \n def  \n ', 'abc14')
+  // .set('\t  abc15 \t\n def \t \r\n ', 'abc15 \t\n def')
 
   inputStr.forEach((value, key) => {
-    it(`trims string '${escape(key)}' --> '${escape(value)}'`, () => runner()
+    it.only(`trims string '${escape(key)}' --> '${escape(value)}'`, () => verboseRunner()
       .command('trim_str', key)
       .expectOutput(value)
       .execute()
