@@ -7,6 +7,12 @@
   "execMap": {
     "js": "node"
   },
-  "watch": [ "test/*" ],
-  "ext": "js json sh"
+  "watch": [
+    "test/*",
+    "common/*",
+    "haumea/*",
+    "memoria/*",
+    "mercury/*"
+  ],
+  "ext": ""
 }
