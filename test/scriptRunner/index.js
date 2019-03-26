@@ -6,7 +6,7 @@ const createCommandPromise = require('./commandPromise')
 const DEFAULT_OPTIONS = {
   mockFile: 'bocks.mock',
   keepMockFile: false,
-  logFile: 'output.bocks',
+  logFile: 'bocks.log',
   verbose: false
 }
 const FORBIDDEN_COMMANDS = ['', 'command', 'output_log', 'source_profiles',
