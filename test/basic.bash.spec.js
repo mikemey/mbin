@@ -338,10 +338,10 @@ describe('bash tests', () => {
     ))
   })
 
-  describe('bash commands safety', () => {
+  describe.only('bash commands safety', () => {
     const prohibitedCommands = [
       '', '  ', ' \n ', 'command', '  invoke_mock_callback  ', 'output_log', 'source_profiles',
-      'send_to_node', 'read_from_node', 'send_command_result'
+      'send_to_node', 'read_from_node', 'send_command_result', 'local'
     ]
     prohibitedCommands.forEach(cmdName => {
       it(`throws error when mocking '${cmdName.replace(/\n/g, '\\n')}'`, () => {

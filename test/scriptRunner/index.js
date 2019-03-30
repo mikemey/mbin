@@ -9,7 +9,7 @@ const DEFAULT_OPTIONS = {
   logFile: 'bocks.log',
   verbose: false
 }
-const FORBIDDEN_COMMANDS = ['', 'command', 'output_log', 'source_profiles',
+const FORBIDDEN_COMMANDS = ['', 'command', 'output_log', 'source_profiles', 'local',
   'send_to_node', 'read_from_node', 'send_command_result', 'invoke_mock_callback']
 
 const safeCommandName = (originCommand, log) => {
