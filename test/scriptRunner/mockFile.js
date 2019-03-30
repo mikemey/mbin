@@ -40,7 +40,7 @@ const __staticFuncOpts = (commandName, exitCode, output) => {
 const __dynamicFuncOpts = (commandName, exitCode, retvalFunc) => {
   const originalName = commandName
   const outputLine =
-    `  params="" ${EOL}` +
+    `  local params="" ${EOL}` +
     `  for p in "\${@}"; do ${EOL}` +
     `    output_log "adding parameter: [$p]" ${EOL}` +
     `    if [[ "$params" != "" ]]; then params+=","; fi ${EOL}` +

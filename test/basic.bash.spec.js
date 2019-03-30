@@ -338,7 +338,7 @@ describe('bash tests', () => {
     ))
   })
 
-  describe.only('bash commands safety', () => {
+  describe('bash commands safety', () => {
     const prohibitedCommands = [
       '', '  ', ' \n ', 'command', '  invoke_mock_callback  ', 'output_log', 'source_profiles',
       'send_to_node', 'read_from_node', 'send_command_result', 'local'

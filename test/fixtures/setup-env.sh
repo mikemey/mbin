@@ -13,8 +13,8 @@ function output_log () {
 }
 
 function source_profiles () {
-  mockProfile="$1"
-  sources=(
+  local mockProfile="$1"
+  local sources=(
     "${HOME}/.bash_profile"
     "${HOME}/.bashrc"
     "$mockProfile"
@@ -29,29 +29,29 @@ function source_profiles () {
 }
 
 function send_to_node () {
-  output="${1//$'\n'/\\n}"
+  local output="${1//$'\n'/\\n}"
   output_log "─────── send to node: ───────\n$output"
   command printf "$output\n" 1>& "${NODE_CHANNEL_FD}"
 }
 
 function read_from_node () {
   command read -t 1 message <& "${NODE_CHANNEL_FD}"
-  message="${message%%\"}"
+  local message="${message%%\"}"
   message="${message##\"}"
   output_log "─────── received: ───────────\n[${message}]"
   command echo "$message"
 }
 
 function send_command_result () {
-  resultMsg="{\"type\":\"result\",\"output\":\"${1}\",\"exitCode\":${2}}"
+  local resultMsg="{\"type\":\"result\",\"output\":\"${1}\",\"exitCode\":${2}}"
   send_to_node "${resultMsg}"
 }
 
 function invoke_mock_callback() {
   output_log "start invoking mock callback..."
-  cmd="${1}"
-  params="${2}"
-  mockMsg="{\"type\":\"mock\",\"command\":\"$cmd\",\"parameters\":[${params}]}"
+  local cmd="${1}"
+  local params="${2}"
+  local mockMsg="{\"type\":\"mock\",\"command\":\"$cmd\",\"parameters\":[${params}]}"
   send_to_node "${mockMsg}"
   read_from_node
 }
