@@ -1,13 +1,16 @@
 const childProcess = require('child_process')
 
-const SPAWN_OPTIONS = { stdio: ['ignore', 'pipe', 'ignore', 'ipc'], timeout: 1000 }
+const SPAWN_OPTIONS = { stdio: ['ignore', 'ignore', 'ignore', 'ipc'], timeout: 1000 }
 
 const createCommandPromise = (promiseLog, mockMap, commands) => {
   promiseLog('start')
   const cmd = commands.shift()
   const cmdLogName = commands.reduce((concatCmd, curr) => concatCmd + ` ${curr}`, cmd)
 
-  const data = { result: null }
+  const data = {
+    errorOccurred: false,
+    result: null
+  }
 
   const processMessage = sendBack => message => {
     promiseLog(`on MESSAGE: [${message.type}]`)
@@ -45,6 +48,8 @@ const createCommandPromise = (promiseLog, mockMap, commands) => {
   }
 
   const processOnClose = resolve => code => {
+    if (data.errorOccurred) { return }
+
     promiseLog(`on CLOSE: <${code}>`)
     for (const unusedMock of mockMap.values()) {
       if (unusedMock.called !== true) {
@@ -63,22 +68,34 @@ const createCommandPromise = (promiseLog, mockMap, commands) => {
   }
 
   return new Promise((resolve, reject) => {
-    promiseLog(`childProcess.spawn( [${cmdLogName}], options)`)
+    promiseLog(`childProcess.spawn(${cmdLogName}, options)`)
     const commandProcess = childProcess.spawn(cmd, commands, SPAWN_OPTIONS)
-    const sendBack = msg => { commandProcess.send(msg) }
 
-    const safe = unsafeFunc => event => {
-      try { return unsafeFunc(event) } catch (err) {
+    const promiseError = err => {
+      promiseLog(`command promise error: ${err}`)
+      if (!data.errorOccurred) {
+        data.errorOccurred = true
+        promiseLog('command promise error CLEANUP')
+
+        process.removeAllListeners()
+        commandProcess.removeAllListeners()
+        if (!commandProcess.killed) { commandProcess.kill() }
         reject(err)
-        if (commandProcess && !commandProcess.killed) {
-          commandProcess.kill()
-        }
       }
     }
 
-    commandProcess.on('message', safe(processMessage(sendBack)))
-    commandProcess.on('close', safe(processOnClose(resolve)))
-    commandProcess.on('error', safe(processError))
+    const sendBack = msg => { commandProcess.send(msg, err => err && promiseError(err)) }
+    const safe = (unsafeFunc, name) => event => {
+      promiseLog(`calling function: ${name}`)
+      try { return unsafeFunc(event) } catch (err) {
+        promiseError(err)
+      }
+    }
+
+    process.on('uncaughtException', safe(promiseError, 'uncaughtHandler'))
+    commandProcess.on('message', safe(processMessage(sendBack), 'processMessage'))
+    commandProcess.on('close', safe(processOnClose(resolve), 'processOnClose'))
+    commandProcess.on('error', safe(processError, 'processError'))
   })
 }
 
