@@ -6,14 +6,14 @@ const SHE_BANG = `#!/usr/bin/env bash ${EOL}`
 const createMockFile = mockFile => {
   let firstWrite = true
 
-  const __writeFile = (file, data) => {
+  const __writeFile = data => {
     let options = { flag: 'a' }
     if (firstWrite) {
       firstWrite = false
       options = {}
       data = `${SHE_BANG}${data}`
     }
-    fsextra.outputFileSync(file, data, options)
+    fsextra.outputFileSync(mockFile, data, options)
   }
 
   const cleanup = () => {
@@ -24,11 +24,11 @@ const createMockFile = mockFile => {
     const mockOpts = retval instanceof Function
       ? __dynamicFuncOpts(commandName, exitCode, retval)
       : __staticFuncOpts(commandName, exitCode, retval)
-    __writeFile(mockFile, mockOpts.output)
+    __writeFile(mockOpts.output)
     return mockOpts
   }
 
-  const writeEnv = (envName, envValue) => __writeFile(mockFile, `command export ${envName}="${envValue}" ${EOL}`)
+  const writeEnv = (envName, envValue) => __writeFile(`command export ${envName}="${envValue}" ${EOL}`)
   return { path: mockFile, writeFunc, writeEnv, cleanup }
 }
 
