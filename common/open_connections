@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# add check for lsof availability
 function print_usage () {
   echo -e "\n usage: $(basename $0) [-s] p_name"
   echo -e "\nPrints number of open connections of p_name (used for grepping)"
