@@ -71,17 +71,26 @@ const createCommandPromise = (promiseLog, mockMap, commands) => {
     promiseLog(`childProcess.spawn(${cmdLogName}, options)`)
     const commandProcess = childProcess.spawn(cmd, commands, SPAWN_OPTIONS)
 
+    const cleanup = () => {
+      promiseLog('command promise error CLEANUP')
+
+      process.removeAllListeners()
+      commandProcess.removeAllListeners()
+      if (!commandProcess.killed) { commandProcess.kill() }
+    }
+
     const promiseError = err => {
       promiseLog(`command promise error: ${err}`)
       if (!data.errorOccurred) {
         data.errorOccurred = true
-        promiseLog('command promise error CLEANUP')
-
-        process.removeAllListeners()
-        commandProcess.removeAllListeners()
-        if (!commandProcess.killed) { commandProcess.kill() }
+        cleanup()
         reject(err)
       }
+    }
+
+    const promiseSuccess = result => {
+      cleanup()
+      resolve(result)
     }
 
     const sendBack = msg => {
@@ -98,7 +107,7 @@ const createCommandPromise = (promiseLog, mockMap, commands) => {
 
     process.on('uncaughtException', safe(promiseError, 'uncaughtHandler'))
     commandProcess.on('message', safe(processMessage(sendBack), 'processMessage'))
-    commandProcess.on('close', safe(processOnClose(resolve), 'processOnClose'))
+    commandProcess.on('close', safe(processOnClose(promiseSuccess), 'processOnClose'))
     commandProcess.on('error', safe(processError, 'processError'))
   })
 }
