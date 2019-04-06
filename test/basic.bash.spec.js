@@ -222,6 +222,18 @@ describe('bash tests', () => {
         .expectOutput(mockCommandResponse)
         .execute()
     })
+
+    it('can pass newlines and tabs', () => {
+      const tabNewLineStr = `${testMessage}\t${testMessage}\n${testMessage}`
+      return runner()
+        .command('cygpath', tabNewLineStr)
+        .mockCommand('cygpath', 0, param => {
+          param.should.equal(tabNewLineStr)
+          return tabNewLineStr
+        })
+        .expectOutput(tabNewLineStr)
+        .execute()
+    })
   })
 
   describe('mock errors', () => {

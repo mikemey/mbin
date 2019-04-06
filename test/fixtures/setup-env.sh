@@ -29,9 +29,9 @@ function source_profiles () {
 }
 
 function send_to_node () {
-  local output="${1//$'\n'/\\n}"
+  local output="${1}"
   output_log "─────── send to node: ───────\n$output"
-  command printf "$output\n" 1>& "${NODE_CHANNEL_FD}"
+  command echo "$output" 1>& "${NODE_CHANNEL_FD}"
 }
 
 function read_from_node () {
@@ -43,8 +43,15 @@ function read_from_node () {
 }
 
 function send_command_result () {
-  local resultMsg="{\"type\":\"result\",\"output\":\"${1}\",\"exitCode\":${2}}"
+  local output="\"$(safe_json "$1")\""
+  local resultMsg="{\"type\":\"result\",\"output\":${output},\"exitCode\":${2}}"
   send_to_node "${resultMsg}"
+}
+
+function safe_json () {
+  local res="${1/$'\t'/\\t}"
+  res="${res/$'\n'/\\n}"
+  command echo "$res"
 }
 
 function invoke_mock_callback() {

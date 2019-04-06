@@ -39,11 +39,11 @@ const __staticFuncOpts = (commandName, exitCode, output) => {
 
 const __dynamicFuncOpts = (commandName, exitCode, retvalFunc) => {
   const originalName = commandName
-  const outputLine =
-    `  local params="" ${EOL}` +
+  const outputLine = `local params="" ${EOL}` +
     `  for p in "\${@}"; do ${EOL}` +
-    `    output_log "adding parameter: [$p]" ${EOL}` +
     `    if [[ "$params" != "" ]]; then params+=","; fi ${EOL}` +
+    `    p=\`safe_json "$p"\` ${EOL}` +
+    `    output_log "adding parameter: [$p]" ${EOL}` +
     `    params+="\\"$p\\"" ${EOL}` +
     `  done ${EOL}` +
     `  invoke_mock_callback "${commandName}" "$params"`

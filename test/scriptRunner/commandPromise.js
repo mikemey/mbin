@@ -84,7 +84,11 @@ const createCommandPromise = (promiseLog, mockMap, commands) => {
       }
     }
 
-    const sendBack = msg => { commandProcess.send(msg, err => err && promiseError(err)) }
+    const sendBack = msg => {
+      const escapedMsg = msg.replace('\t', '\\t').replace('\n', '\\n')
+      commandProcess.send(escapedMsg, err => err && promiseError(err))
+    }
+
     const safe = (unsafeFunc, name) => event => {
       promiseLog(`calling function: ${name}`)
       try { return unsafeFunc(event) } catch (err) {
