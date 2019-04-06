@@ -24,14 +24,14 @@ const safeCommandName = (originCommand, log) => {
 const toEscapedParameter = parameter => `"${parameter}"`
 
 const fixturesFilePath = file => {
-  const fullPath = `test/fixtures/${file}`
+  const fullPath = `${__dirname}/fixtures/${file}`
   if (fsextra.existsSync(fullPath)) {
     return fullPath
   }
   throw new Error(`file doesn't exist: ${fullPath}`)
 }
 
-const ScriptRunner = (optsOverride = {}) => {
+const Bocks = (optsOverride = {}) => {
   const options = Object.assign({}, DEFAULT_OPTIONS, optsOverride)
 
   const logMessage = options.verbose
@@ -132,4 +132,4 @@ const ScriptRunner = (optsOverride = {}) => {
   return data.self
 }
 
-module.exports = { ScriptRunner, DEFAULT_OPTIONS }
+module.exports = { Bocks, DEFAULT_OPTIONS }

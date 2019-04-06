@@ -1,10 +1,8 @@
 require('chai')
 
-const { ScriptRunner } = require('./scriptRunner')
+const { Bocks } = require('../bocks')
 
 describe('trim_str tests', () => {
-  const runner = () => ScriptRunner()
-
   const escape = v => v.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r')
 
   const inputStr = new Map()
@@ -35,7 +33,7 @@ describe('trim_str tests', () => {
     .set('\t  abc15 \t\n def \t \r\n ', 'abc15 \t\n def')
 
   inputStr.forEach((value, key) => {
-    it(`trims string '${escape(key)}' --> '${escape(value)}'`, () => runner()
+    it(`trims string '${escape(key)}' --> '${escape(value)}'`, () => Bocks()
       .command('trim_str', key)
       .expectOutput(value)
       .execute()

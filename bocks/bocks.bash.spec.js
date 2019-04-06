@@ -3,12 +3,12 @@ const should = chai.should()
 chai.use(require('chai-match'))
 const fsextra = require('fs-extra')
 
-const { ScriptRunner, DEFAULT_OPTIONS } = require('./scriptRunner')
+const { Bocks, DEFAULT_OPTIONS } = require('./index')
 
 describe('bash tests', () => {
   const testMessage = 'he llo  world!'
-  const runner = () => ScriptRunner()
-  const verboseRunner = () => ScriptRunner({ verbose: true })
+  const bocks = (opts = {}) => Bocks(opts)
+  const verboseBocks = () => bocks({ verbose: true })
 
   const shouldFail = underTest => shouldFailWith(underTest)
   const shouldFailWith = (underTest, expectedError) => {
@@ -32,19 +32,19 @@ describe('bash tests', () => {
   }
 
   describe('basics', () => {
-    it('uses bash version 5', () => runner()
+    it('uses bash version 5', () => bocks()
       .command('echo', `\${BASH_VERSION%%[^0-9]*}`)
       .expectOutput('5')
       .execute()
     )
 
-    it('runs user home bash profile/rc', () => runner()
+    it('runs user home bash profile/rc', () => bocks()
       .command('ll', __filename)
       .expectOutput(output => output.should.match(new RegExp(`^[-rwx]{10}.*${__filename}$`)))
       .execute()
     )
 
-    it('can execute scripts-under-tests', () => runner()
+    it('can execute scripts-under-tests', () => bocks()
       .command('timelog', testMessage)
       .expectOutput(output => output.should.match(new RegExp(`^\\[[0-9\\-: ]*]: ${testMessage}$`)))
       .execute()
@@ -58,7 +58,7 @@ describe('bash tests', () => {
     const fileContent = name => fsextra.readFileSync(name).toString()
     const fileHasShaBang = name => fileContent(name).should.match(/#!\/usr\/bin\/env bash/)
 
-    it('deletes test mock file after test', () => runner()
+    it('deletes test mock file after test', () => bocks()
       .command('echo', testMessage).mockEnvironment('abc', 'def')
       .expectOutput(() => fileExists(DEFAULT_OPTIONS.mockFile))
       .execute()
@@ -67,7 +67,7 @@ describe('bash tests', () => {
 
     it('deletes test mock files after failing output expectation', () => {
       return shouldFail(
-        runner().command('echo', testMessage).mockEnvironment('abc', 'def')
+        bocks().command('echo', testMessage).mockEnvironment('abc', 'def')
           .expectOutput(() => {
             fileExists(DEFAULT_OPTIONS.mockFile)
             should.fail(testMessage)
@@ -78,7 +78,7 @@ describe('bash tests', () => {
 
     it('deletes test mock files after failing mock command expectation', () => {
       return shouldFail(
-        runner().command('blab', testMessage).mockEnvironment('abc', 'def')
+        bocks().command('blab', testMessage).mockEnvironment('abc', 'def')
           .mockCommand('blab', 0, () => {
             fileExists(DEFAULT_OPTIONS.mockFile)
             should.fail(testMessage)
@@ -89,8 +89,8 @@ describe('bash tests', () => {
 
     it('test mock file not created when not necessary', () => {
       const testMockFile = 'mocks.file.test'
-      const runner = ScriptRunner({ mockFile: testMockFile })
-      return runner.command('echo', testMessage)
+      return bocks({ mockFile: testMockFile })
+        .command('echo', testMessage)
         .expectOutput(() => {
           fileDeleted(testMockFile)
           fileDeleted(DEFAULT_OPTIONS.mockFile)
@@ -100,8 +100,7 @@ describe('bash tests', () => {
 
     it('test mock file uses custom file', () => {
       const testMockFile = 'mocks.file.test'
-      const runner = ScriptRunner({ mockFile: testMockFile })
-      return runner.command('echo', testMessage).mockEnvironment('bla', 'blu')
+      return bocks({ mockFile: testMockFile }).command('echo', testMessage).mockEnvironment('bla', 'blu')
         .expectOutput(() => {
           fileExists(testMockFile)
           fileHasShaBang(testMockFile)
@@ -113,8 +112,7 @@ describe('bash tests', () => {
 
     it('keeps test mock file after test', () => {
       const testMock = 'someMockedCommand'
-      const runner = ScriptRunner({ keepMockFile: true })
-      return runner.command(testMock).mockCommand(testMock, 0).execute()
+      return bocks({ keepMockFile: true }).command(testMock).mockCommand(testMock, 0).execute()
         .finally(() => {
           fileExists(DEFAULT_OPTIONS.mockFile)
           fileHasShaBang(DEFAULT_OPTIONS.mockFile)
@@ -124,8 +122,7 @@ describe('bash tests', () => {
 
     it('bash log uses custom file', () => {
       const testLogFile = 'runner.log.test'
-      const runner = ScriptRunner({ logFile: testLogFile, verbose: true })
-      return runner.command('echo', testMessage).execute()
+      return bocks({ logFile: testLogFile, verbose: true }).command('echo', testMessage).execute()
         .then(() => fileExists(testLogFile))
         .finally(() => deleteFile(testLogFile))
     })
@@ -134,8 +131,7 @@ describe('bash tests', () => {
       const testLogFile = 'runner.silent.log.test'
       const testLog = 'hello'
       fsextra.outputFileSync(testLogFile, testLog)
-      const runner = ScriptRunner({ logFile: testLogFile })
-      return runner.command('echo', testMessage).execute()
+      return bocks({ logFile: testLogFile }).command('echo', testMessage).execute()
         .then(() => fileContent(testLogFile).should.equal(testLog))
         .finally(() => deleteFile(testLogFile))
     })
@@ -144,21 +140,21 @@ describe('bash tests', () => {
       const defaultLogFile = DEFAULT_OPTIONS.logFile
       const testLog = 'hello'
       fsextra.outputFileSync(defaultLogFile, testLog, { flag: 'a' })
-      return verboseRunner().command('echo', testMessage).execute()
+      return verboseBocks().command('echo', testMessage).execute()
         .then(() => fileContent(defaultLogFile).length.should.be.greaterThan(testLog.length))
         .finally(() => deleteFile(defaultLogFile))
     })
   })
 
   describe('static mocks', () => {
-    it('known command output', () => runner()
-      .command('test/fixtures/test-mock-exit-status.sh')
+    it('known command output', () => bocks()
+      .command(`${__dirname}/fixtures/test-mock-exit-status.sh`)
       .mockCommand('request_confirmation', 73)
       .expectOutput(`success 73`)
       .execute()
     )
 
-    it('unknown command + alias output', () => runner()
+    it('unknown command + alias output', () => bocks()
       .mockCommand('mock1', 45)
       .mockCommand('ll', 22)
       .command('mock1; res1=$?; ll; res2=$?; echo "$res1-$res2"')
@@ -166,28 +162,28 @@ describe('bash tests', () => {
       .execute()
     )
 
-    it('environment variables', () => runner()
+    it('environment variables', () => bocks()
       .mockEnvironment('HOME', testMessage)
       .command('echo "$HOME"')
       .expectOutput(testMessage)
       .execute()
     )
 
-    it('expect output', () => runner()
+    it('expect output', () => bocks()
       .command('cygpath')
       .mockCommand('cygpath', 0, testMessage)
       .expectOutput(testMessage)
       .execute()
     )
 
-    it('expect exit-code', () => runner()
-      .command('test/fixtures/test-command-exit-status.sh', 37)
+    it('expect exit-code', () => bocks()
+      .command(`${__dirname}/fixtures/test-command-exit-status.sh`, 37)
       .expectOutput('test-script output')
       .expectExitCode(37)
       .execute()
     )
 
-    it('can pass empty parameter', () => runner()
+    it('can pass empty parameter', () => bocks()
       .command('echo', '', 'xXx')
       .expectOutput(' xXx')
       .execute()
@@ -195,14 +191,14 @@ describe('bash tests', () => {
   })
 
   describe('dynamic mocks', () => {
-    it('expect output', () => runner()
+    it('expect output', () => bocks()
       .command('cygpath')
       .mockCommand('cygpath', 0, () => testMessage)
       .expectOutput(testMessage)
       .execute()
     )
 
-    it('expect exit-code', () => runner()
+    it('expect exit-code', () => bocks()
       .command('cygpath')
       .mockCommand('cygpath', 4)
       .expectExitCode(4)
@@ -211,7 +207,7 @@ describe('bash tests', () => {
 
     it('forwards mock parameters', () => {
       const mockCommandResponse = `abc=123=${testMessage}`
-      return runner()
+      return bocks()
         .command('cygpath', 'abc', 123, testMessage)
         .mockCommand('cygpath', 0, (str, num, msg) => {
           str.should.equal('abc')
@@ -225,7 +221,7 @@ describe('bash tests', () => {
 
     it('can pass newlines and tabs', () => {
       const tabNewLineStr = `${testMessage}\t${testMessage}\n${testMessage}`
-      return runner()
+      return bocks()
         .command('cygpath', tabNewLineStr)
         .mockCommand('cygpath', 0, param => {
           param.should.equal(tabNewLineStr)
@@ -238,7 +234,7 @@ describe('bash tests', () => {
 
   describe('mock errors', () => {
     it('deletes test mock file after failing test', () => {
-      return shouldFail(runner()
+      return shouldFail(bocks()
         .command('echo', testMessage)
         .expectOutput('')
         .execute()
@@ -248,7 +244,7 @@ describe('bash tests', () => {
     it('empty command', () => {
       const emptyCommand = '      '
       return shouldFailWith(
-        () => runner().command(emptyCommand),
+        () => bocks().command(emptyCommand),
         new Error(`can't mock command '${emptyCommand}'`)
       )
     })
@@ -256,7 +252,7 @@ describe('bash tests', () => {
     it('empty mock', () => {
       const emptyCommand = '      '
       return shouldFailWith(
-        () => runner().mockCommand(emptyCommand),
+        () => bocks().mockCommand(emptyCommand),
         new Error(`can't mock command '${emptyCommand}'`)
       )
     })
@@ -264,7 +260,7 @@ describe('bash tests', () => {
     it('command not found', () => {
       const unknownCommand = 'unknownCmd'
       return shouldFailWith(
-        runner().command(unknownCommand)
+        bocks().command(unknownCommand)
           .expectOutput(testMessage)
           .execute(),
         new Error(`expected 'bash: ${unknownCommand}: command not found' to equal '${testMessage}'`)
@@ -274,7 +270,7 @@ describe('bash tests', () => {
     it('mock is unused', () => {
       const unknownCommand = '_TEST_MOCK_'
       return shouldFailWith(
-        runner().command('cygpath')
+        bocks().command('cygpath')
           .mockCommand(unknownCommand, 0, () => 'UNKNOWN')
           .mockCommand('cygpath', 0, () => testMessage)
           .execute(),
@@ -285,7 +281,7 @@ describe('bash tests', () => {
     it('static mock is specified twice', () => {
       const commandName = '_test_static_twice'
       return shouldFailWith(
-        () => runner()
+        () => bocks()
           .mockCommand(commandName, 0, testMessage)
           .mockCommand(commandName, 0, testMessage),
         new Error(`command-mock defined twice: ${commandName}`)
@@ -295,7 +291,7 @@ describe('bash tests', () => {
     it('dynamic + static mock is specified twice', () => {
       const commandName = '_test_mixed_twice'
       return shouldFailWith(
-        () => runner()
+        () => bocks()
           .mockCommand(commandName, 0, testMessage)
           .mockCommand(commandName, 0, () => testMessage),
         new Error(`command-mock defined twice: ${commandName}`)
@@ -303,7 +299,7 @@ describe('bash tests', () => {
     })
 
     it('throws error when mock-command expectation failed', () => shouldFailWith(
-      runner().command('bla')
+      bocks().command('bla')
         .mockCommand('bla', 0, () => should.fail(testMessage))
         .execute(),
       new chai.AssertionError(testMessage))
@@ -312,7 +308,7 @@ describe('bash tests', () => {
     it('dynamic mock returns undefined', () => {
       const commandName = 'cygpath'
       return shouldFailWith(
-        runner()
+        bocks()
           .command(commandName)
           .mockCommand(commandName, 0, () => { })
           .execute(),
@@ -321,14 +317,14 @@ describe('bash tests', () => {
     })
 
     it('unexpected static output', () => shouldFailWith(
-      runner().command('echo', testMessage)
+      bocks().command('echo', testMessage)
         .expectOutput('5')
         .execute(),
       new Error(`expected '${testMessage}' to equal '5'`)
     ))
 
     it('unexpected static exit-code', () => shouldFailWith(
-      runner().command('test/fixtures/test-command-exit-status.sh', 0)
+      bocks().command(`${__dirname}/fixtures/test-command-exit-status.sh`, 0)
         .expectOutput('test-script output')
         .expectExitCode(1)
         .execute(),
@@ -336,14 +332,14 @@ describe('bash tests', () => {
     ))
 
     it('dynamic output function throws error', () => shouldFailWith(
-      runner().command('echo', testMessage)
+      bocks().command('echo', testMessage)
         .expectOutput(() => should.fail(testMessage))
         .execute(),
       new chai.AssertionError(testMessage)
     ))
 
     it('dynamic exit-code function throws error', () => shouldFailWith(
-      runner().command('test/fixtures/test-command-exit-status.sh', 0)
+      bocks().command(`${__dirname}/fixtures/test-command-exit-status.sh`, 0)
         .expectExitCode(() => should.fail(testMessage))
         .execute(),
       new chai.AssertionError(testMessage)
@@ -358,7 +354,7 @@ describe('bash tests', () => {
     prohibitedCommands.forEach(cmdName => {
       it(`throws error when mocking '${cmdName.replace(/\n/g, '\\n')}'`, () => {
         return shouldFailWith(
-          () => runner().mockCommand(cmdName, 0, testMessage),
+          () => bocks().mockCommand(cmdName, 0, testMessage),
           new Error(`can't mock command '${cmdName}'`)
         )
       })
@@ -366,7 +362,7 @@ describe('bash tests', () => {
 
     const scriptRunnerCommands = ['echo', 'printf', 'shift', 'eval', 'source', 'read']
     scriptRunnerCommands.forEach(cmdName => {
-      it(`dynamic mock can overwrite '${cmdName}' function`, () => runner()
+      it(`dynamic mock can overwrite '${cmdName}' function`, () => bocks()
         .command(cmdName, testMessage)
         .mockCommand(cmdName, 0, msg => `${msg}${testMessage}`)
         .expectOutput(`${testMessage}${testMessage}`)
@@ -374,7 +370,7 @@ describe('bash tests', () => {
       )
     })
 
-    it('static mock can overwrite export function', () => runner()
+    it('static mock can overwrite export function', () => bocks()
       .command('export', testMessage)
       .mockCommand('export', 0, testMessage)
       .expectOutput(testMessage)
@@ -382,7 +378,7 @@ describe('bash tests', () => {
     )
 
     it('can overwrite echo function when dynamic mock-command expectation failed', () => shouldFailWith(
-      runner().command('echo', 'fail')
+      bocks().command('echo', 'fail')
         .mockCommand('echo', 0, () => should.fail(testMessage))
         .execute(),
       new chai.AssertionError(testMessage))

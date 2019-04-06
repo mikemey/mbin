@@ -7,10 +7,11 @@
   },
   "scripts": {
     "lint": "standard",
-    "all-test": "mocha 'test/**/**.spec.js'",
-    "all-watch": "nodemon -x 'npm run all-test -s' --ignore '**.log'",
+    "bocks-test": "mocha 'bocks/**/**.spec.js'",
+    "shell-test": "mocha 'test/**/**.spec.js'",
+    "shell-watch": "nodemon -x 'npm run shell-test -s' --ignore '**.log'",
     "pretest": "npm install",
-    "test": "npm run lint -s && npm run all-test -s"
+    "test": "npm run lint -s && npm run bocks-test -s && npm run shell-test -s"
   },
   "repository": {
     "type": "git",
