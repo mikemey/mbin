@@ -1,5 +1,3 @@
-require('chai')
-
 const { Bocks } = require('../../bocks')
 
 describe('trim_str tests', () => {
