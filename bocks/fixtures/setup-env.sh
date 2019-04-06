@@ -49,8 +49,8 @@ function send_command_result () {
 }
 
 function safe_json () {
-  local res="${1/$'\t'/\\t}"
-  res="${res/$'\n'/\\n}"
+  local res="${1//$'\t'/\\t}"
+  res="${res//$'\n'/\\n}"
   command echo "$res"
 }
 

@@ -8,6 +8,7 @@
   "scripts": {
     "lint": "standard",
     "bocks-test": "mocha 'bocks/**/**.spec.js'",
+    "bocks-watch": "nodemon -x 'npm run bocks-test -s' --watch bocks --ignore '**.log'",
     "shell-test": "mocha 'test/**/**.spec.js'",
     "shell-watch": "nodemon -x 'npm run shell-test -s' --ignore '**.log'",
     "pretest": "npm install",

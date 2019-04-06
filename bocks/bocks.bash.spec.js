@@ -188,6 +188,12 @@ describe('bash tests', () => {
       .expectOutput(' xXx')
       .execute()
     )
+
+    it('can receive multiline output', () => bocks()
+      .command(`${__dirname}/fixtures/test-multiple-output-lines.sh`)
+      .expectOutput('\n hello\n\t world')
+      .execute()
+    )
   })
 
   describe('dynamic mocks', () => {
