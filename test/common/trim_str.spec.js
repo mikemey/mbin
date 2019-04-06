@@ -1,6 +1,6 @@
 require('chai')
 
-const { Bocks } = require('../bocks')
+const { Bocks } = require('../../bocks')
 
 describe('trim_str tests', () => {
   const escape = v => v.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r')
