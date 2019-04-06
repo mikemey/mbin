@@ -195,7 +195,7 @@ describe('bash tests', () => {
   })
 
   describe('dynamic mocks', () => {
-    it('expect ouptut', () => runner()
+    it('expect output', () => runner()
       .command('cygpath')
       .mockCommand('cygpath', 0, () => testMessage)
       .expectOutput(testMessage)
@@ -303,8 +303,8 @@ describe('bash tests', () => {
     })
 
     it('throws error when mock-command expectation failed', () => shouldFailWith(
-      runner().command('blabla')
-        .mockCommand('blabla', 0, () => should.fail(testMessage))
+      runner().command('bla')
+        .mockCommand('bla', 0, () => should.fail(testMessage))
         .execute(),
       new chai.AssertionError(testMessage))
     )
@@ -353,7 +353,7 @@ describe('bash tests', () => {
   describe('bash commands safety', () => {
     const prohibitedCommands = [
       '', '  ', ' \n ', 'command', '  invoke_mock_callback  ', 'output_log', 'source_profiles',
-      'send_to_node', 'read_from_node', 'send_command_result', 'local'
+      'send_to_node', 'read_from_node', 'send_command_result', 'local', 'safe_json'
     ]
     prohibitedCommands.forEach(cmdName => {
       it(`throws error when mocking '${cmdName.replace(/\n/g, '\\n')}'`, () => {

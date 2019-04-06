@@ -10,7 +10,7 @@ const DEFAULT_OPTIONS = {
   verbose: false
 }
 const FORBIDDEN_COMMANDS = ['', 'command', 'output_log', 'source_profiles', 'local',
-  'send_to_node', 'read_from_node', 'send_command_result', 'invoke_mock_callback']
+  'send_to_node', 'read_from_node', 'send_command_result', 'invoke_mock_callback', 'safe_json']
 
 const safeCommandName = (originCommand, log) => {
   const commandName = originCommand.trim ? originCommand.trim() : originCommand
