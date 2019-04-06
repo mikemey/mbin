@@ -8,7 +8,7 @@ fi
 
 find "$DIR" -type f | sort | while read infile; do
   extension=`echo "${infile##*.}" | awk '{print tolower($0)}'`
-  if [[ "$extension" == "mp4" || "$extension" == "mkv" || "$extension" == "avi" ]]; then
+  if [[ "$extension" =~ mp[34] || "$extension" == "mkv" || "$extension" == "avi" ]]; then
     echo "$infile"
     title=`ffmpeg -i "$infile" 2>&1 | grep "^\s\{4\}title"`
     if [[ -z "$title" ]]; then
