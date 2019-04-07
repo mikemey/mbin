@@ -31,6 +31,8 @@ const fixturesFilePath = file => {
   throw new Error(`file doesn't exist: ${fullPath}`)
 }
 
+const isRegex = str => Object.prototype.toString.call(str) === '[object RegExp]'
+
 const Bocks = (optsOverride = {}) => {
   const options = Object.assign({}, DEFAULT_OPTIONS, optsOverride)
 
@@ -121,6 +123,13 @@ const Bocks = (optsOverride = {}) => {
 
   const __ExpectationFunction = expectation => {
     if (expectation instanceof Function) { return expectation }
+    if (isRegex(expectation)) {
+      return output => {
+        if (!expectation.test(output)) {
+          throw new Error(`expected '${output}' to match ${expectation}`)
+        }
+      }
+    }
     return output => {
       if (output !== expectation) {
         throw new Error(`expected '${output}' to equal '${expectation}'`)

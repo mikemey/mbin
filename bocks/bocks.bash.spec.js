@@ -178,10 +178,24 @@ describe('bash tests', () => {
       .execute()
     )
 
+    it('expect regex output', () => bocks()
+      .command('cygpath')
+      .mockCommand('cygpath', 0, testMessage)
+      .expectOutput(/^he/)
+      .execute()
+    )
+
     it('expect exit-code', () => bocks()
       .command(fixtureFile('test-command-exit-status.sh'), 37)
       .expectOutput('test-script output')
       .expectExitCode(37)
+      .execute()
+    )
+
+    it('expect regex exit-code', () => bocks()
+      .command(fixtureFile('test-command-exit-status.sh'), 97)
+      .expectOutput('test-script output')
+      .expectExitCode(/^9/)
       .execute()
     )
 
@@ -331,12 +345,26 @@ describe('bash tests', () => {
       new Error(`expected '${testMessage}' to equal '5'`)
     ))
 
+    it('unexpected static regex output', () => shouldFailWith(
+      bocks().command('echo', testMessage)
+        .expectOutput(/ho/)
+        .execute(),
+      new Error(`expected '${testMessage}' to match /ho/`)
+    ))
+
     it('unexpected static exit-code', () => shouldFailWith(
       bocks().command(fixtureFile('test-command-exit-status.sh'), 0)
         .expectOutput('test-script output')
         .expectExitCode(1)
         .execute(),
       new Error(`expected '0' to equal '1'`)
+    ))
+
+    it('unexpected static regex exit-code', () => shouldFailWith(
+      bocks().command(fixtureFile('test-command-exit-status.sh'), 99)
+        .expectExitCode(/^1/)
+        .execute(),
+      new Error(`expected '99' to match /^1/`)
     ))
 
     it('dynamic output function throws error', () => shouldFailWith(
