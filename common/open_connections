@@ -13,10 +13,10 @@ function pname_missing () {
   exit
 }
 
-[ -z "$1" ] && pname_missing
+[[ -z "$1" ]] && pname_missing
 
-if [ "$1" == "-s" ]; then
-  [ -z "$2" ] && pname_missing
+if [[ "$1" == "-s" ]]; then
+  [[ -z "$2" ]] && pname_missing
   single_use="true"
   pname="$2"
 else
@@ -25,13 +25,13 @@ fi
 
 # check if sleep supports <1secs:
 sleep .1 2> /dev/null
-[ $? -eq 0 ] && delay=".5" || delay="1"
+[[ $? -eq 0 ]] && delay=".5" || delay="1"
 
-while [ true ]; do 
+while [[ true ]]; do
   res=`lsof -i tcp -n | grep "$pname" | grep -v "\->127.0.0.1" | wc -l`
   echo "connections matching '$pname': $res    "
 
-  [ ! -z "$single_use" ] && exit
+  [[ ! -z "$single_use" ]] && exit
   sleep $delay
   echo -e "\033[2A"
 done
