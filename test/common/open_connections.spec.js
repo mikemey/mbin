@@ -9,6 +9,7 @@ describe('open_connections tests', () => {
     const expectMissingProgramParameter = (...commands) => Bocks()
       .command(...commands)
       .expectOutput(/Missing program parameter/)
+      .expectExitCode(1)
       .execute()
 
     it('no parameters', () => expectMissingProgramParameter('open_connections'))

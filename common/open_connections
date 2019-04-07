@@ -5,6 +5,7 @@ function print_usage () {
   echo -e "\n usage: $(basename $0) [-s] p_name"
   echo -e "\nPrints number of open connections of p_name (used for grepping)"
   echo -e "\t -s  \t single check (runs indefinitely otherwise)"
+  exit 1
 }
 
 function pname_missing () {
