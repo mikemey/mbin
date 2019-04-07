@@ -32,7 +32,7 @@ function source_profiles () {
 function send_to_node () {
   local output="${1}"
   output_log "─────── send to node: ───────\n$output"
-  command echo "$output" 1>&${NODE_CHANNEL_FD}
+  command printf "%s\n" "$output" 1>&${NODE_CHANNEL_FD}
 }
 command export -f send_to_node
 
@@ -41,7 +41,7 @@ function read_from_node () {
   local message="${message%%\"}"
   message="${message##\"}"
   output_log "─────── received: ───────────\n[${message}]"
-  command echo "$message"
+  command printf "%s\n" "$message"
 }
 command export -f read_from_node
 
@@ -54,7 +54,7 @@ function send_command_result () {
 function safe_json () {
   local res="${1//$'\t'/\\t}"
   res="${res//$'\n'/\\n}"
-  command echo "$res"
+  command printf "%s\n" "$res"
 }
 command export -f safe_json
 

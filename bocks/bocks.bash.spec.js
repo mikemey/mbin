@@ -253,15 +253,29 @@ describe('bash tests', () => {
         .execute()
     })
 
-    it('can be called within backticks', () => bocks()
-      .command(fixtureFile('test-mock-backtick.sh'))
-      .mockCommand('lsof', 0, param => {
-        param.should.equal('bla')
-        return testMessage
-      })
-      .expectOutput(testMessage)
-      .execute()
-    )
+    it(`can pass parameter '-n'`, () => {
+      const dashParam = '-n'
+      return bocks()
+        .command(fixtureFile('test-mock-backtick.sh'), dashParam)
+        .mockCommand('lsof', 0, param => {
+          param.should.equal(dashParam)
+          return dashParam
+        })
+        .expectOutput(dashParam)
+        .execute()
+    })
+
+    it('can be called within backticks', () => {
+      const expectedParam = 'bla'
+      return bocks()
+        .command(fixtureFile('test-mock-backtick.sh'), expectedParam)
+        .mockCommand('lsof', 0, param => {
+          param.should.equal(expectedParam)
+          return testMessage
+        })
+        .expectOutput(testMessage)
+        .execute()
+    })
 
     it('can be called within braces', () => bocks()
       .command(fixtureFile('test-mock-braces.sh'))

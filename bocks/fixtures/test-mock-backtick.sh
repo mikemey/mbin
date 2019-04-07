@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-echo "`lsof bla`"
+printf "%s\n" "`lsof $1`"

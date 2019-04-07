@@ -98,17 +98,16 @@ const createCommandPromise = (promiseLog, mockMap, commands) => {
       commandProcess.send(escapedMsg, err => err && promiseError(err))
     }
 
-    const safe = (unsafeFunc, name) => event => {
-      promiseLog(`calling function: ${name}`)
+    const safe = unsafeFunc => event => {
       try { return unsafeFunc(event) } catch (err) {
         promiseError(err)
       }
     }
 
-    process.on('uncaughtException', safe(promiseError, 'uncaughtHandler'))
-    commandProcess.on('message', safe(processMessage(sendBack), 'processMessage'))
-    commandProcess.on('close', safe(processOnClose(promiseSuccess), 'processOnClose'))
-    commandProcess.on('error', safe(processError, 'processError'))
+    process.on('uncaughtException', safe(promiseError))
+    commandProcess.on('message', safe(processMessage(sendBack)))
+    commandProcess.on('close', safe(processOnClose(promiseSuccess)))
+    commandProcess.on('error', safe(processError))
   })
 }
 
