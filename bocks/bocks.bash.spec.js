@@ -252,6 +252,26 @@ describe('bash tests', () => {
         .expectOutput(tabNewLineStr)
         .execute()
     })
+
+    it('can be called within backticks', () => bocks()
+      .command(fixtureFile('test-mock-backtick.sh'))
+      .mockCommand('lsof', 0, param => {
+        param.should.equal('bla')
+        return testMessage
+      })
+      .expectOutput(testMessage)
+      .execute()
+    )
+
+    it('can be called within braces', () => bocks()
+      .command(fixtureFile('test-mock-braces.sh'))
+      .mockCommand('lsof', 0, param => {
+        param.should.equal('bla')
+        return testMessage
+      })
+      .expectOutput(testMessage)
+      .execute()
+    )
   })
 
   describe('mock errors', () => {

@@ -11,6 +11,7 @@ function output_log () {
     command printf "$1\n" >> "$logFile"
   fi
 }
+command export -f output_log
 
 function source_profiles () {
   local mockProfile="$1"
@@ -31,16 +32,18 @@ function source_profiles () {
 function send_to_node () {
   local output="${1}"
   output_log "─────── send to node: ───────\n$output"
-  command echo "$output" 1>& "${NODE_CHANNEL_FD}"
+  command echo "$output" 1>&${NODE_CHANNEL_FD}
 }
+command export -f send_to_node
 
 function read_from_node () {
-  command read -t 1 message <& "${NODE_CHANNEL_FD}"
+  command read -t 1 message <&${NODE_CHANNEL_FD}
   local message="${message%%\"}"
   message="${message##\"}"
   output_log "─────── received: ───────────\n[${message}]"
   command echo "$message"
 }
+command export -f read_from_node
 
 function send_command_result () {
   local output="\"$(safe_json "$1")\""
@@ -53,6 +56,7 @@ function safe_json () {
   res="${res//$'\n'/\\n}"
   command echo "$res"
 }
+command export -f safe_json
 
 function invoke_mock_callback() {
   output_log "start invoking mock callback..."
