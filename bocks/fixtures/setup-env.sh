@@ -68,6 +68,8 @@ function invoke_mock_callback() {
 }
 command export -f invoke_mock_callback
 
+command export logFile
+command export verbose
 output_log "\n=============[ $(date +%T) ]=============="
 output_log "mockfile [$mockFile]"
 source_profiles "$mockFile"
