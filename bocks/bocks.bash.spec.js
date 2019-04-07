@@ -178,6 +178,15 @@ describe('bash tests', () => {
       .execute()
     )
 
+    it('expect output with dash', () => {
+      const dashParam = '-n'
+      return bocks()
+        .command('cygpath')
+        .mockCommand('cygpath', 0, dashParam)
+        .expectOutput(dashParam)
+        .execute()
+    })
+
     it('expect regex output', () => bocks()
       .command('cygpath')
       .mockCommand('cygpath', 0, testMessage)

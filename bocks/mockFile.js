@@ -33,7 +33,7 @@ const createMockFile = mockFile => {
 }
 
 const __staticFuncOpts = (commandName, exitCode, output) => {
-  const outputLine = output ? `command echo "${output}"` : ''
+  const outputLine = output ? `command printf "%s\n" "${output}"` : ''
   return { output: __bashFunction(commandName, exitCode, outputLine) }
 }
 
