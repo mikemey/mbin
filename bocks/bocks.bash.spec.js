@@ -5,6 +5,8 @@ const fsextra = require('fs-extra')
 
 const { Bocks, DEFAULT_OPTIONS } = require('./index')
 
+const fixtureFile = name => `${__dirname}/fixtures/${name}`
+
 describe('bash tests', () => {
   const testMessage = 'he llo  world!'
   const bocks = (opts = {}) => Bocks(opts)
@@ -148,7 +150,7 @@ describe('bash tests', () => {
 
   describe('static mocks', () => {
     it('known command output', () => bocks()
-      .command(`${__dirname}/fixtures/test-mock-exit-status.sh`)
+      .command(fixtureFile('test-mock-exit-status.sh'))
       .mockCommand('request_confirmation', 73)
       .expectOutput(`success 73`)
       .execute()
@@ -177,7 +179,7 @@ describe('bash tests', () => {
     )
 
     it('expect exit-code', () => bocks()
-      .command(`${__dirname}/fixtures/test-command-exit-status.sh`, 37)
+      .command(fixtureFile('test-command-exit-status.sh'), 37)
       .expectOutput('test-script output')
       .expectExitCode(37)
       .execute()
@@ -190,7 +192,7 @@ describe('bash tests', () => {
     )
 
     it('can receive multiline output', () => bocks()
-      .command(`${__dirname}/fixtures/test-multiple-output-lines.sh`)
+      .command(fixtureFile('test-multiple-output-lines.sh'))
       .expectOutput('\n hello\n\t world')
       .execute()
     )
@@ -330,7 +332,7 @@ describe('bash tests', () => {
     ))
 
     it('unexpected static exit-code', () => shouldFailWith(
-      bocks().command(`${__dirname}/fixtures/test-command-exit-status.sh`, 0)
+      bocks().command(fixtureFile('test-command-exit-status.sh'), 0)
         .expectOutput('test-script output')
         .expectExitCode(1)
         .execute(),
@@ -345,7 +347,7 @@ describe('bash tests', () => {
     ))
 
     it('dynamic exit-code function throws error', () => shouldFailWith(
-      bocks().command(`${__dirname}/fixtures/test-command-exit-status.sh`, 0)
+      bocks().command(fixtureFile('test-command-exit-status.sh'), 0)
         .expectExitCode(() => should.fail(testMessage))
         .execute(),
       new chai.AssertionError(testMessage)
