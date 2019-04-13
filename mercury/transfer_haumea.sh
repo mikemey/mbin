@@ -28,13 +28,13 @@ IFS='|' read -r mode dir file label <<< "$@"
 
 while ! is_haumea_online; do
   timelog "server unreachable: $HAUMEA"
-  sleep 30
+  sleep 130
 done
 
 haumea_arg=`cygpath -u "$dir"`
 if [[ "$mode" != "multi" ]]; then
   tfile=`cygpath -u "$file"`
-  haumea_arg="${haumea_arg}${tfile}"
+  haumea_arg="${haumea_arg}/${tfile##/}"
 fi
 
 [[ -e "$haumea_arg" ]] || error_message "File/Directory not found: $haumea_arg"
