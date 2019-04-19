@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CONN_THRESHOLD=10
+CONN_THRESHOLD=5
 PNAME="node"
 
 result=`ssh -o ConnectTimeout=10 $MSMSSH /usr/bin/env bash -l << EOF
