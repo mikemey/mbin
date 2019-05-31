@@ -54,24 +54,21 @@ function check_options () {
     case "${PATH_ARGS[0]}" in
       "-d" )
         DRY_RUN=true
-        remove_first_path_arg
       ;;
       "-l" )
         COPY_SYMLINKS=true
-        remove_first_path_arg
       ;;
       "-p" )
         PRINT_ONLY=true
-        remove_first_path_arg
       ;;
       "-R" )
         USE_RELATIVE_PATHS=true
-        remove_first_path_arg
       ;;
       * )
         HAS_OPTION=false
       ;;
     esac
+    [[ $HAS_OPTION == true ]] && remove_first_path_arg
   done
 }
 
@@ -117,10 +114,10 @@ if [[ $PRINT_ONLY == true ]]; then
     --perms --chmod=Du=rwx,Dgo=rx,Fa=rw \
     --exclude=\"~*\" --exclude=\".*\" \
     ${SOURCES[@]%/} $TARGET"
-else
-  rsync --progress --partial -t -r \
-    ${USE_RELATIVE_PATHS:+-R} ${DRY_RUN:+-n} ${COPY_SYMLINKS:+-l} \
-    --perms --chmod=Du=rwx,Dgo=rx,Fa=rw \
-    --exclude="~*" --exclude=".*" \
-    "${SOURCES[@]%/}" "$TARGET"
+#else
+#  rsync --progress --partial -t -r \
+#    ${USE_RELATIVE_PATHS:+-R} ${DRY_RUN:+-n} ${COPY_SYMLINKS:+-l} \
+#    --perms --chmod=Du=rwx,Dgo=rx,Fa=rw \
+#    --exclude="~*" --exclude=".*" \
+#    "${SOURCES[@]%/}" "$TARGET"
 fi
