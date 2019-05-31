@@ -4,8 +4,9 @@ abort_with() {
   echo -e "ERROR: $1"
   cmdName="$(basename $0)"
   echo -e "\nusage: $cmdName file title"
-  echo -e "usage: $cmdName -auto [ -d ] [ -s ] ext"
-  echo -e "          sets default title in \"*.ext\" files"
+  echo -e "          sets title in file"
+  echo -e "   or: $cmdName -auto [ -d ] [ -s ] ext"
+  echo -e "          sets default titles in all \"*.ext\" files in current directory"
   echo -e "               -d   dry-run"
   echo -e "               -s   use a smaller title format"
   exit
