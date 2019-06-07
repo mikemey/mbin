@@ -21,14 +21,18 @@ def update_metadata(current_metadata):
 
 
 def notify(msg):
-    if os.path.exists(email_sent_filename):
-        return
     if isinstance(msg, Exception):
         print('error: {}'.format(msg))
-        mails.send('[tantalus] Server metadata check error', 'An error occurred:\n{}'.format(msg))
+        send_mail('[tantalus] Server metadata check error', 'An error occurred:\n{}'.format(msg))
     else:
         print('scheduler not running since: {}'.format(msg))
-        mails.send('[tantalus] Scheduler down', 'Last metadata: {}'.format(msg))
+        send_mail('[tantalus] Scheduler down', 'Last metadata: {}'.format(msg))
+
+
+def send_mail(title, body):
+    if os.path.exists(email_sent_filename):
+        return
+    mails.send(title, body)
     with open(email_sent_filename, 'w') as f:
         f.write('email sent.')
 
