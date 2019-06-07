@@ -4,8 +4,8 @@ import requests
 import mail_sender as mails
 
 url = 'https://{}/api/metadata/schedule'.format(os.environ['MSMSERVER'])
-schedule_data_filename = '{}/tantalus/schedule.ts'.format(os.environ['LOGDIR'])
-email_sent_filename = '{}/tantalus/email.sent'.format(os.environ['LOGDIR'])
+schedule_data_filename = '{}/tantalus/scheduler.ts'.format(os.environ['LOGDIR'])
+email_sent_filename = '{}/tantalus/scheduler.email.sent'.format(os.environ['LOGDIR'])
 
 
 def check_metadata(current_metadata):
