@@ -114,10 +114,10 @@ if [[ $PRINT_ONLY == true ]]; then
     --perms --chmod=Du=rwx,Dgo=rx,Fa=rw \
     --exclude=\"~*\" --exclude=\".*\" \
     ${SOURCES[@]%/} $TARGET"
-#else
-#  rsync --progress --partial -t -r \
-#    ${USE_RELATIVE_PATHS:+-R} ${DRY_RUN:+-n} ${COPY_SYMLINKS:+-l} \
-#    --perms --chmod=Du=rwx,Dgo=rx,Fa=rw \
-#    --exclude="~*" --exclude=".*" \
-#    "${SOURCES[@]%/}" "$TARGET"
+else
+  rsync --progress --partial -t -r \
+    ${USE_RELATIVE_PATHS:+-R} ${DRY_RUN:+-n} ${COPY_SYMLINKS:+-l} \
+    --perms --chmod=Du=rwx,Dgo=rx,Fa=rw \
+    --exclude="~*" --exclude=".*" \
+    "${SOURCES[@]%/}" "$TARGET"
 fi
