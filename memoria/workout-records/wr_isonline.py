@@ -6,7 +6,7 @@ import sys
 sys.path.append(os.environ['MBIN'])
 import mail_sender as mails
 
-url = 'https://{}/workout-records/api'.format(os.environ['MSMSERVER'])
+url = 'https://{}/workout-records/api/version'.format(os.environ['MSMSERVER'])
 version_fname = '{}/workout-records/is_online.ts'.format(os.environ['LOGDIR'])
 
 
