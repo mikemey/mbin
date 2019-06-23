@@ -29,7 +29,7 @@ def notify(tantalus_meta, wr_meta):
             report_date
         )
         print (report)
-        mails.send('[MSM report] service report', report, True)
+        mails.send('[msm-itc] service report', report, True)
 
 
 def get_metadata(url):
