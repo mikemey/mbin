@@ -1,6 +1,9 @@
 #!/usr/local/bin/python
 import os
 import requests
+import sys
+
+sys.path.append(os.environ['MBIN'])
 import mail_sender as mails
 
 url = 'https://{}/api/version'.format(os.environ['MSMSERVER'])
