@@ -6,7 +6,7 @@ import mail_sender as mails
 wr_murl = 'https://{}/workout-records/api/metadata'.format(os.environ['MSMSERVER'])
 tantalus_murl = 'https://{}/api/metadata/schedule'.format(os.environ['MSMSERVER'])
 
-report_template_file = 'msm_report_template.html'
+report_template_file = os.path.dirname(os.path.abspath(__file__)) + '/msm_report_template.html'
 
 
 def notify(tantalus_meta, wr_meta):
