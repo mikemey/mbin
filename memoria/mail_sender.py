@@ -7,10 +7,11 @@ def get_env(name):
     return os.environ[name]
 
 
-def send(email_subject, email_content):
+def send(email_subject, email_content, as_html=False):
     sender = get_env('MM_SENDER')
     destination = get_env('MM_DESTINATION')
-    msg = MIMEText(email_content)
+    email_type = 'html' if as_html else 'plain'
+    msg = MIMEText(email_content, email_type)
     msg['Subject'] = email_subject
     msg['From'] = sender
     msg['To'] = destination
