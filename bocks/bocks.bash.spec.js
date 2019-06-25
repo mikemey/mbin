@@ -219,6 +219,13 @@ describe('bash tests', () => {
       .expectOutput('\n hello\n\t world')
       .execute()
     )
+
+    it.only('can pass multiline mock response', () => bocks()
+      .command('echo `blab | wc -l`')
+      .mockCommand('blab', 0, 'bla\nblu')
+      .expectOutput('2')
+      .execute()
+    )
   })
 
   describe('dynamic mocks', () => {
@@ -262,7 +269,7 @@ describe('bash tests', () => {
         .execute()
     })
 
-    it(`can pass parameter '-n'`, () => {
+    it.only(`can pass parameter '-n'`, () => {
       const dashParam = '-n'
       return bocks()
         .command(fixtureFile('test-mock-backtick.sh'), dashParam)
@@ -293,6 +300,13 @@ describe('bash tests', () => {
         return testMessage
       })
       .expectOutput(testMessage)
+      .execute()
+    )
+
+    it.only('can pass multiline mock response', () => bocks()
+      .command('echo `blab | wc -l`')
+      .mockCommand('blab', 0, () => 'bla\nblu')
+      .expectOutput('2')
       .execute()
     )
   })

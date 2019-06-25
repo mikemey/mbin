@@ -46,7 +46,9 @@ const __dynamicFuncOpts = (commandName, exitCode, retvalFunc) => {
     `    output_log "adding parameter: [$p]" ${EOL}` +
     `    params+="\\"$p\\"" ${EOL}` +
     `  done ${EOL}` +
-    `  invoke_mock_callback "${commandName}" "$params"`
+//    `  invoke_mock_callback "${commandName}" "$params"`
+    `  local result=\`invoke_mock_callback "${commandName}" "$params"\` ${EOL}` +
+    `  command printf "$result\n" `
   const output = __bashFunction(commandName, exitCode, outputLine)
   return { retvalFunc, originalName, output }
 }

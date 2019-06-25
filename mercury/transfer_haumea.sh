@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+#add label for flat file transfer (ie do not transfer directory)
+
 function error_message () {
   echo
   echo "ERROR: $1"
