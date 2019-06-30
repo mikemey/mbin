@@ -82,6 +82,7 @@ if [[ "$download" = true ]]; then
   printf "\n"
   ffmpeg -v panic -stats -f concat -safe 0 -i "$filelist" -c copy "$combined_ts"
   check_exit_code "ffmpeg"
+  printf "\n"
 else
   printf "${FG_LIGHT_GREEN}- skipping downloading -${FG_DEFAULT}\n"
 fi
@@ -90,6 +91,7 @@ if [[ "$encode" = true ]]; then
   echo "start encoding: $(date +'%Y-%m-%d %H:%M')"
   HandBrakeCLI --preset-import-gui --preset="$enc_preset" -i "$combined_ts" -o "$outfile" 2> /dev/null
   check_exit_code "handbrake"
+  printf "\n"
 else
   printf "${FG_LIGHT_GREEN}- skipping encoding -${FG_DEFAULT}\n"
 fi
