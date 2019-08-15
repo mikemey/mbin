@@ -29,6 +29,7 @@ safelink "$USER_HOME/movies" "$PUBLIC/media/movies"
 safelink "$USER_HOME/bin" "$PUBLIC/bin"
 safelink "$USER_HOME/data" "$PUBLIC/data"
 safelink "$USER_HOME/logs" "$LOGDIR"
+safelink "$USER_HOME/public" "$PUBLIC"
 
 timelog "------ .bash_profile appendices"
 BRC="$USER_HOME/.bash_profile"
