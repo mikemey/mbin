@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+BACKUP_DIR="$PUBLIC/data/wrbak/"
+TMP_DIR="tmp"
+BAK_FILE="wr_db_$(date +"%Y%m%d_%H%M").gz"
+
+timelog "dumping remote db..."
+ssh $MSMSSH /usr/bin/env bash << EOF
+  cd "$TMP_DIR"
+  mongodump --quiet --db=workout-records --gzip --archive="$BAK_FILE"
+EOF
+
+timelog "transferring dump file..."
+rsync -q -P -r $MSMSSH:"~/$TMP_DIR/$BAK_FILE" "$BACKUP_DIR"
+
+timelog "cleanup..."
+ssh $MSMSSH /usr/bin/env bash << EOF
+  cd "$TMP_DIR"
+  rm "$BAK_FILE"
+EOF
+
+timelog "done"
