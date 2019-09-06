@@ -10,7 +10,7 @@ sys.path.append(os.environ['MBIN'])
 import mail_sender as mails
 
 url = 'https://tvthek.orf.at/search?q=vier+frauen'
-captured_fname = '{}/vfuet_captured.txt'.format(os.environ['LOGDIR'])
+captured_fname = '{}/vfuet/captured.txt'.format(os.environ['LOGDIR'])
 
 
 def request_current_episodes():
