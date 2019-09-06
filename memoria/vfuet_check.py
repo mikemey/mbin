@@ -1,9 +1,10 @@
 #!/usr/local/bin/python
 
 import os
+import re
 import sys
+
 import requests
-from pyquery import PyQuery
 
 sys.path.append(os.environ['MBIN'])
 import mail_sender as mails
@@ -15,9 +16,8 @@ captured_fname = '{}/vfuet_captured.txt'.format(os.environ['LOGDIR'])
 def request_current_episodes():
     resp = requests.get(url)
     resp.raise_for_status()
-    pq = PyQuery(resp.text)
-    tags = pq('article > a[title^="Vier Frauen und ein Todesfall"]')
-    return [PyQuery(anchor).attr('title') for anchor in tags]
+    result = re.findall('(Vier Frauen und ein Todesfall: [\\w\\s]*)', resp.text)
+    return set([title.strip() for title in result])
 
 
 def read_captured_episodes():
