@@ -52,5 +52,4 @@ try:
         add_captured_episodes(missing_episodes)
     print('done')
 except Exception as ex:
-    print('error: {}'.format(ex))
     notify(ex)
