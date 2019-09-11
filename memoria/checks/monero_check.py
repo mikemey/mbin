@@ -18,7 +18,6 @@ def request_version():
     location = location_of(url)
     while redirects > 0 and not location.endswith('zip'):
         redirects -= 1
-        print (redirects, location)
         location = location_of(location)
     if location:
         return location.rsplit('/', 1)[-1]
