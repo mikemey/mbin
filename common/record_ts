@@ -51,12 +51,12 @@ encode=true
 case "$1" in
   "-d" )
     encode=false
-    printf "${FG_LIGHT_GREEN}- download-only mode -${FG_DEFAULT}\n"
+    printf "${FG_LIGHT_GREEN}== download-only mode ==${FG_DEFAULT}\n"
     shift
   ;;
   "-e" )
     download=false
-    printf "${FG_LIGHT_GREEN}- encode-only mode -${FG_DEFAULT}\n"
+    printf "${FG_LIGHT_GREEN}== encode-only mode ==${FG_DEFAULT}\n"
     shift
   ;;
 esac
@@ -98,7 +98,7 @@ if [[ "$download" = true ]]; then
   check_exit_code "ffmpeg"
   printf "\n"
 else
-  printf "${FG_LIGHT_GREEN}- skipping downloading -${FG_DEFAULT}\n"
+  printf "${FG_LIGHT_GREEN}== skipping downloading ==${FG_DEFAULT}\n"
 fi
 
 if [[ "$encode" = true ]]; then
@@ -109,7 +109,7 @@ if [[ "$encode" = true ]]; then
   check_exit_code "handbrake"
   printf "\n"
 else
-  printf "${FG_LIGHT_GREEN}- skipping encoding -${FG_DEFAULT}\n"
+  printf "${FG_LIGHT_GREEN}== skipping encoding ==${FG_DEFAULT}\n"
 fi
 
 exit 0
