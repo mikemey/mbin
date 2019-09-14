@@ -47,10 +47,12 @@ encode=true
 case "$1" in
   "-d" )
     encode=false
+    printf "${FG_LIGHT_GREEN}- download-only mode -${FG_DEFAULT}\n"
     shift
   ;;
   "-e" )
     download=false
+    printf "${FG_LIGHT_GREEN}- encode-only mode -${FG_DEFAULT}\n"
     shift
   ;;
 esac
