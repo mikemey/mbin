@@ -22,6 +22,10 @@ function error_message () {
 }
 
 function check_file_exists () {
+  [[ -f "$1" ]] || error_message "$2 not found: $1"
+}
+
+function check_file_not_exist () {
   [[ -f "$1" ]] && error_message "$2 already exists: $1"
 }
 
@@ -72,12 +76,12 @@ if ! [[ "$pieces" =~ ^[0-9]+$ ]]; then
 fi
 
 check_param_exists "$outfile" "Output file"
-check_file_exists "$outfile" "Output file"
+check_file_not_exist "$outfile" "Output file"
 
 if [[ "$download" = true ]]; then
   mkdir -p "$out_dir/$ts_dir"
-  check_file_exists "$filelist" "File list"
-  check_file_exists "$combined_ts" "Combined TS file"
+  check_file_not_exist "$filelist" "File list"
+  check_file_not_exist "$combined_ts" "Combined TS file"
 
   for count in $(seq 0 $pieces); do
     url="${urlpattern/$replace/$count}"
@@ -98,6 +102,8 @@ else
 fi
 
 if [[ "$encode" = true ]]; then
+  check_file_exists "$filelist" "File list"
+  check_file_exists "$combined_ts" "Combined TS file"
   echo "start encoding: $(date +'%Y-%m-%d %H:%M')"
   HandBrakeCLI --preset-import-gui --preset="$enc_preset" -i "$combined_ts" -o "$outfile" 2> /dev/null
   check_exit_code "handbrake"
