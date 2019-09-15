@@ -33,7 +33,7 @@ while IFS=\; read link artist title; do
     fname="${artist} - ${title}"
     out_file="${fname}.mp3"
 
-    if [[ $(file_not_found "$out_file") ]]; then
+    if [[ $link && $(file_not_found "$out_file") ]]; then
       exec_cmd="ffmpeg -v panic -stats -i {} -metadata artist=\"${artist}\" -metadata title=\"${title}\" \"${out_file}\" </dev/null && rm {}"
       missing_files[missing_files_ix]="$fname;$exec_cmd;$link"
       let missing_files_ix=missing_files_ix+1
