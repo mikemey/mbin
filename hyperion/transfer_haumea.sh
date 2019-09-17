@@ -38,5 +38,9 @@ if [[ "$mode" != "multi" ]]; then
 fi
 
 [[ -e "$haumea_arg" ]] || error_message "File/Directory not found: $haumea_arg"
-haumea "$haumea_arg"
-exit 0
+
+excode=1
+while [[ $excode -ne 0 ]]; do
+  haumea "$haumea_arg"
+  excode=$?
+done
