@@ -29,7 +29,6 @@ def notify(tantalus_meta, wr_meta):
             wr_req_size, wr_congrats_count,
             report_date
         )
-        print (report)
         mails.send('[msm-itc] service report', report, True)
 
 
