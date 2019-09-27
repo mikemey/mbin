@@ -21,7 +21,7 @@ def notify(tantalus_meta, wr_meta):
         report_template = report_file.read()
         report_date = format_date(datetime.now())
 
-        wr_req_size = round(wr_meta['requestLogSize'] / 1024, 1)
+        wr_req_size = wr_meta['requestLogSize'] / 1024
         wr_congrats_count = wr_meta['congratsMessages']
         schedule_rundate = format_date(parser.parse(tantalus_meta['created']))
         report = report_template.format(
