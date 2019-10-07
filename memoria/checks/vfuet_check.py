@@ -16,7 +16,7 @@ captured_fname = '{}/vfuet/captured.txt'.format(os.environ['LOGDIR'])
 def request_current_episodes():
     resp = requests.get(url)
     resp.raise_for_status()
-    result = re.findall('(Vier Frauen und ein Todesfall: [\\w\\s]*)', resp.text)
+    result = re.findall('title="(Vier Frauen und ein Todesfall[^"]*)', resp.text)
     return set([title.strip() for title in result])
 
 
