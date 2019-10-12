@@ -43,6 +43,6 @@ fi
 
 excode=1
 while [[ $excode -ne 0 ]]; do
-  eval "$TX_CMD $tx_cmd_arg"
+  eval "$TX_CMD \"$tx_cmd_arg\""
   excode=$?
 done
