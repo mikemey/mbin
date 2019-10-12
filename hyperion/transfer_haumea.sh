@@ -13,34 +13,37 @@ function error_message () {
   exit 1
 }
 
-function is_haumea_online () {
-  ssh -q -o ConnectTimeout=3 "$HAUMEA" exit
-  if [[ $? -ne 0 ]]; then
-    false
-  else
-    true
-  fi
+function is_target_online () {
+  ssh -q -o ConnectTimeout=3 "$1" exit
+  [[ $? -eq 0 ]]
 }
 
 IFS='|' read -r mode dir file label <<< "$@"
-[[ "$label" != "" ]] && exit 0
-[[ ${HAUMEA} ]] || error_message "environment variable '\$HAUMEA' not set."
+TARGET=$HAUMEA
+TX_CMD="haumea"
+if [[ "$label" =~ mem* ]]; then
+  TARGET=$MEMORIA
+  TX_CMD="memoria -c"
+else
+  [[ "$label" != "" ]] && exit 0
+fi
 
-while ! is_haumea_online; do
-  timelog "server unreachable: $HAUMEA"
+[[ ${TARGET} ]] || error_message "target environment variable not set."
+while ! is_target_online $TARGET; do
+  timelog "server unreachable: $TARGET"
   sleep 130
 done
 
-haumea_arg=`cygpath -u "$dir"`
+tx_cmd_arg=`cygpath -u "$dir"`
 if [[ "$mode" != "multi" ]]; then
   tfile=`cygpath -u "$file"`
-  haumea_arg="${haumea_arg}/${tfile##/}"
+  tx_cmd_arg="${tx_cmd_arg}/${tfile##/}"
 fi
 
-[[ -e "$haumea_arg" ]] || error_message "File/Directory not found: $haumea_arg"
+[[ -e "$tx_cmd_arg" ]] || error_message "File/Directory not found: $tx_cmd_arg"
 
 excode=1
 while [[ $excode -ne 0 ]]; do
-  haumea "$haumea_arg"
+  eval "$TX_CMD $tx_cmd_arg"
   excode=$?
 done
