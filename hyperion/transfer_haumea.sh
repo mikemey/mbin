@@ -9,7 +9,6 @@ function error_message () {
   echo -e " dir \t directory (for both 'single' and 'multi' files)"
   echo -e " file \t file name (only for 'single' file)"
   echo -e " label \t if set, no files are transferred"
-  read
   exit 1
 }
 
