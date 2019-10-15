@@ -17,21 +17,40 @@ function is_target_online () {
   [[ $? -eq 0 ]]
 }
 
-IFS='|' read -r mode dir file label <<< "$@"
-TARGET=$HAUMEA
-TX_CMD="haumea"
-if [[ "$label" =~ mem* ]]; then
-  TARGET=$MEMORIA
-  TX_CMD="memoria -c"
-else
-  [[ "$label" != "" ]] && exit 0
-fi
+function send_command () {
+  cmd="$1"
+  args="$2"
+  target="$3"
+  [[ ${target} ]] || error_message "target environment variable not set."
+  while ! is_target_online $target; do
+    timelog "server unreachable: $target"
+    sleep 130
+  done
+  excode=1
+  while [[ $excode -ne 0 ]]; do
+    eval "$cmd \"$args\""
+    excode=$?
+  done
+}
 
-[[ ${TARGET} ]] || error_message "target environment variable not set."
-while ! is_target_online $TARGET; do
-  timelog "server unreachable: $TARGET"
-  sleep 130
-done
+IFS='|' read -r mode dir file label <<< "$@"
+SEND_TO_HAUMEA=false
+SEND_TO_MEMORIA=false
+
+case "$label" in
+  mem* )
+    SEND_TO_MEMORIA=true
+  ;;
+  "both" )
+    SEND_TO_HAUMEA=true
+    SEND_TO_MEMORIA=true
+  ;;
+  "skip" )
+  ;;
+  * )
+    SEND_TO_HAUMEA=true
+  ;;
+esac
 
 tx_cmd_arg=`cygpath -u "$dir"`
 if [[ "$mode" != "multi" ]]; then
@@ -41,8 +60,9 @@ fi
 
 [[ -e "$tx_cmd_arg" ]] || error_message "File/Directory not found: $tx_cmd_arg"
 
-excode=1
-while [[ $excode -ne 0 ]]; do
-  eval "$TX_CMD \"$tx_cmd_arg\""
-  excode=$?
-done
+if $SEND_TO_HAUMEA; then
+  send_command "haumea" "$tx_cmd_arg" "$HAUMEA"
+fi
+if $SEND_TO_MEMORIA; then
+  send_command "memoria -c" "$tx_cmd_arg" "$MEMORIA"
+fi
