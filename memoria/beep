@@ -9,14 +9,18 @@ function print_usage_exit () {
   exit
 }
 
-short_beep () {
+function short_beep () {
   /sbin/pic_raw 80
   sleep 1
 }
 
-long_beep () {
+function long_beep () {
   /sbin/pic_raw 81
   sleep 2
+}
+
+function user_log () {
+  [[ $SHLVL -le 2 ]] && echo "$1"
 }
 
 cmdlist="$*"
@@ -34,12 +38,15 @@ while [[ $cmdlist ]]; do
   
   case $action in
     "l" )
+      user_log "long beep"
       long_beep
     ;;
     "s" )
+      user_log "short beep"
       short_beep
     ;;
     [0-9]* )
+      user_log "pause $action secs"
       sleep $action
     ;;
     * )
