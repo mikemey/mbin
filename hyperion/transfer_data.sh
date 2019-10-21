@@ -30,6 +30,7 @@ function send_command () {
   while [[ $excode -ne 0 ]]; do
     eval "$cmd \"$args\""
     excode=$?
+    [[ $excode -ne 0 ]] && sleep 130
   done
 }
 
