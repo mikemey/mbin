@@ -20,7 +20,7 @@ function long_beep () {
 }
 
 function user_log () {
-  [[ $SHLVL -le 2 ]] && echo "$1"
+  [[ $SHLVL -le 2 ]] && printf "$1"
 }
 
 cmdlist="$*"
@@ -38,15 +38,15 @@ while [[ $cmdlist ]]; do
   
   case $action in
     "l" )
-      user_log "long beep"
+      user_log "long beep... "
       long_beep
     ;;
     "s" )
-      user_log "short beep"
+      user_log "short beep... "
       short_beep
     ;;
     [0-9]* )
-      user_log "pause $action secs"
+      user_log "pause $action secs... "
       sleep $action
     ;;
     * )
@@ -54,5 +54,6 @@ while [[ $cmdlist ]]; do
       print_usage_exit
     ;;
   esac
+  user_log "done\n"
 done
 
