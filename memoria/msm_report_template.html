@@ -1,23 +1,52 @@
 <html>
+<head>
+  <style type="text/css">
+    body {{
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+    }}
+    h3 {{
+      margin: 0.8em 0 0.4em 0;
+      font-size: 1em;
+    }}
+    p, hr {{
+      margin: 0.4em 0 0.6em 0;
+    }}
+    .not_today {{
+      color: red;
+    }}
+    .pull_right {{
+      float: right;
+    }}
+  </style>
+</head>
 <body>
 
-<h2><small>===</small> Service report <small>===</small></h2>
-
 <div>
-  <h3>Tantalus-scheduler:</h3>
-  <p>Latest run: <small>{}</small></p>
-  <p>Latest captured (ticker/graphs): <small>{}</small> / <small>{}</small></p>
+  <h3>Check logs:</h3>
+  <p>{}</p>
 </div>
 <hr>
 
 <div>
-  <h3>Workout Records:</h3>
-  <p>Request log file size: <small>{:.1f}</small> kb</p>
-  <p>Congratulation requests: <small>{}</small></p>
+  <h3>Tantalus scheduler:</h3>
+  <p>
+    Latest run: <small class="pull_right">{}</small><br />
+    Latest captured (ticker/graphs): <span class="pull_right">{} / {}</span>
+  </p>
 </div>
 <hr>
 
-<p>End of report: <small>{}</small></p>
+<div>
+  <h3>Workout records:</h3>
+  <p>
+    Request log file size: <span class="pull_right">{:.1f} <small>KB</small></span><br />
+    Congratulation requests: <span class="pull_right">{}</span>
+  </p>
+</div>
+<hr>
+
+<p>End of report: <small class="pull_right">{}</small></p>
 
 </body>
 </html>
