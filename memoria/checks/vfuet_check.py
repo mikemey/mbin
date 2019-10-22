@@ -36,6 +36,9 @@ def notify(msg):
     if isinstance(msg, Exception):
         print('error: {}'.format(msg))
         mails.send('[NEW] check error', 'An error occurred:\n{}'.format(msg))
+    elif msg is False:
+        print('no results')
+        mails.send('[VFueT] no results', 'notext')
     else:
         print('new episode: {}'.format(msg))
         mails.send('[NEW] {}'.format(msg), 'notext')
@@ -46,6 +49,8 @@ try:
     available_episodes = request_current_episodes()
     captured_episodes = read_captured_episodes()
 
+    if len(available_episodes) == 0:
+        notify(False)
     missing_episodes = [ep for ep in available_episodes if ep not in captured_episodes]
     if len(missing_episodes) > 0:
         notify(', '.join([ep for ep in missing_episodes]))
