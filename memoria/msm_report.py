@@ -1,8 +1,11 @@
 #!/usr/local/bin/python
-import os, requests
+import os
 from datetime import datetime
-from dateutil import parser
+
 import mail_sender as mails
+import requests
+from dateutil import parser
+from tzlocal import get_localzone
 
 wr_murl = 'https://{}/workout-records/api/metadata'.format(os.environ['MSMSERVER'])
 tantalus_murl = 'https://{}/api/metadata/schedule'.format(os.environ['MSMSERVER'])
@@ -58,10 +61,11 @@ try:
 
         wr_req_size = wr_metadata['requestLogSize'] / 1024
         wr_congrats_count = wr_metadata['congratsMessages']
-        schedule_rundate = format_date(parser.parse(tantalus_metadata['created']))
+        schedule_date = parser.parse(tantalus_metadata['created']).astimezone(get_localzone())
         report = report_template.format(
             check_logs,
-            schedule_rundate, tantalus_metadata['ticker']['count'], tantalus_metadata['graphs']['count'],
+            format_date(schedule_date),
+            tantalus_metadata['ticker']['count'], tantalus_metadata['graphs']['count'],
             wr_req_size, wr_congrats_count,
             report_date
         )
