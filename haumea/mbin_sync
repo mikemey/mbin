@@ -1,5 +1,20 @@
 #!/usr/bin/env bash
 
+function error_message () {
+  echo
+  echo "ERROR: $1"
+  echo -e "\n usage: $(basename $0) file"
+  echo -e "\nParameters:"
+  echo -e "\t file  \t file to watch"
+  exit 1
+}
+
+function check_program_available () {
+  [[ ! `command -v $1` ]] && error_message "command not available: $1"
+}
+
+check_program_available "fswatch"
+
 export file="$1"
 full_path="$(pwd)/$file"
 export mbin_rel="${full_path/*mbin\/}"
