@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+export file="$1"
+full_path="$(pwd)/$file"
+export mbin_rel="${full_path/*mbin\/}"
+
+[[ -e "$file" ]] || (echo "file not found: $file" && exit 1)
+
+function sync_file () {
+  printf "$(date '+%T') rsync [$file]..."
+  rsync "$file" $MEMORIA:~/bin/mbin/$mbin_rel
+  printf "done\n"
+}
+export -f sync_file
+
+fswatch -0 -o "$file" | xargs -0 -n 1 bash -c sync_file
