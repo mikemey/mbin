@@ -65,7 +65,6 @@ try:
             wr_req_size, wr_congrats_count,
             report_date
         )
-        print(report)
         mails.send('[msm-itc] Service report', report, True)
     print('done')
 except Exception as ex:
