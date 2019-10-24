@@ -28,5 +28,6 @@ function sync_file () {
 }
 export -f sync_file
 
+sync_file
 printf "watching $file...\n"
 fswatch -0 -o "$file" | xargs -0 -n 1 bash -c sync_file
