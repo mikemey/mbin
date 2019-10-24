@@ -23,12 +23,18 @@ checks = [
 ]
 
 report_template_file = os.path.dirname(os.path.abspath(__file__)) + '/msm_report_template.html'
-check_log_template = '{}: <small class="pull_right">{}</small><br />\n'
-check_log_yesterday_template = '<span class="not_today">{}: <small class="pull_right">{}</small></span><br />\n'
+date_line_template = '<span class="{}">{}: <small class="pull_right">{}</small></span><br />\n'
+today_class = ''
+not_today_class = 'not_today'
 
 
 def format_date(dt):
     return dt.strftime("%-I:%M %p  %Y-%m-%d")
+
+
+def format_date_line(title, dt):
+    date_indicator = today_class if dt.date() == datetime.today().date() else not_today_class
+    return date_line_template.format(date_indicator, title, format_date(dt))
 
 
 def get_metadata(url):
@@ -41,10 +47,7 @@ def get_check_logs():
     result_log = ''
     for check in checks:
         mod_date = datetime.fromtimestamp(os.path.getmtime(check[FILE_KEY]))
-        template = check_log_template \
-            if mod_date.date() == datetime.today().date() \
-            else check_log_yesterday_template
-        result_log += template.format(check[NAME_KEY], format_date(mod_date))
+        result_log += format_date_line(check[NAME_KEY], mod_date)
     return result_log
 
 
@@ -62,9 +65,11 @@ try:
         wr_req_size = wr_metadata['requestLogSize'] / 1024
         wr_congrats_count = wr_metadata['congratsMessages']
         schedule_date = parser.parse(tantalus_metadata['created']).astimezone(get_localzone())
+        schedule_line = format_date_line('Latest run', schedule_date)
+
         report = report_template.format(
             check_logs,
-            format_date(schedule_date),
+            schedule_line,
             tantalus_metadata['ticker']['count'], tantalus_metadata['graphs']['count'],
             wr_req_size, wr_congrats_count,
             report_date
