@@ -59,7 +59,7 @@ if [[ "$1" == "-auto" ]]; then
   input_files=()
   while read line; do
     input_files+=("$line")
-  done < <(find . -type f -name "*.${2}")
+  done < <(find . -type f -name "*.${2}" | sort)
 
   epDiv="S[0-9][0-9]E[0-9][0-9]"
   for infile in "${input_files[@]}"; do
