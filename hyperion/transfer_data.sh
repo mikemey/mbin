@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+unset HISTFILE
 
 function error_message () {
   echo
