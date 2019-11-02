@@ -9,7 +9,7 @@ sys.path.append(os.environ['MBIN'])
 import mail_sender as mails
 
 url = 'https://downloads.getmonero.org/cli/win64'
-captured_fname = '{}/monero/captured.txt'.format(os.environ['LOGDIR'])
+captured_fname = '{}/versions/monero.txt'.format(os.environ['LOGDIR'])
 max_redirects = 5
 
 
