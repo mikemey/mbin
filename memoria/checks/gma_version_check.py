@@ -16,7 +16,7 @@ captured_fname = '{}/versions/gma.txt'.format(os.environ['LOGDIR'])
 def request_current_version():
     resp = requests.get(url)
     resp.raise_for_status()
-    html = BeautifulSoup(resp.text, "html.parser")
+    html = BeautifulSoup(resp.text, 'html.parser')
     version_td = html.body.find('td', text='Version')
     if version_td is None:
         return None
