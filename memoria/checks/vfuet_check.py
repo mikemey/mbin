@@ -35,13 +35,13 @@ def add_captured_episodes(new_episodes):
 def notify(msg):
     if isinstance(msg, Exception):
         print('error: {}'.format(msg))
-        mails.send('[NEW] check error', 'An error occurred:\n{}'.format(msg))
+        mails.send('[VFueT] check error', 'An error occurred:\n{}'.format(msg))
     elif msg is False:
         print('no results')
         mails.send('[VFueT] no results', 'notext')
     else:
         print('new episode: {}'.format(msg))
-        mails.send('[NEW] {}'.format(msg), 'notext')
+        mails.send('[NEW VFueT]', msg)
 
 
 try:
