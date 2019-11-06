@@ -12,7 +12,7 @@ sys.path.append(os.environ['MBIN'])
 import mail_sender as mails
 
 url = 'https://bitcoin.org/en/bitcoin-core/'
-captured_fname = '{}/bitcoind.txt'.format(os.environ['CHECK_LOG_DIR'])
+captured_fname = sys.argv[1]
 find_text = "Bitcoin Core"
 
 

@@ -12,7 +12,7 @@ sys.path.append(os.environ['MBIN'])
 import mail_sender as mails
 
 url = 'https://electrum.org/panel-download.html'
-captured_fname = '{}/electrum.txt'.format(os.environ['CHECK_LOG_DIR'])
+captured_fname = sys.argv[1]
 find_text = "Latest release: "
 
 
