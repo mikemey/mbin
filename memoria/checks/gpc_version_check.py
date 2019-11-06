@@ -12,7 +12,7 @@ sys.path.append(os.environ['MBIN'])
 import mail_sender as mails
 
 url = 'https://github.com/googleads/googleads-consent-sdk-ios/releases'
-captured_fname = '{}/versions/gpc.txt'.format(os.environ['LOGDIR'])
+captured_fname = '{}/gpc.txt'.format(os.environ['CHECK_LOG_DIR'])
 
 
 def request_current_version():

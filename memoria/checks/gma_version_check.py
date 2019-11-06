@@ -12,7 +12,7 @@ sys.path.append(os.environ['MBIN'])
 import mail_sender as mails
 
 url = 'https://developers.google.com/admob/ios/download'
-captured_fname = '{}/versions/gma.txt'.format(os.environ['LOGDIR'])
+captured_fname = '{}/gma.txt'.format(os.environ['CHECK_LOG_DIR'])
 
 
 def request_current_version():

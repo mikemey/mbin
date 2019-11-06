@@ -10,7 +10,7 @@ import mail_sender as mails
 from check_file import CheckFile
 
 url = 'https://downloads.getmonero.org/cli/win64'
-captured_fname = '{}/versions/monero.txt'.format(os.environ['LOGDIR'])
+captured_fname = '{}/monero.txt'.format(os.environ['CHECK_LOG_DIR'])
 max_redirects = 5
 
 
