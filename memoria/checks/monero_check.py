@@ -7,6 +7,7 @@ import requests
 
 sys.path.append(os.environ['MBIN'])
 import mail_sender as mails
+from check_file import CheckFile
 
 url = 'https://downloads.getmonero.org/cli/win64'
 captured_fname = '{}/versions/monero.txt'.format(os.environ['LOGDIR'])
@@ -31,17 +32,6 @@ def location_of(request_url):
     return resp.headers.get('location')
 
 
-def read_captured_versions():
-    file_mode = 'r' if os.path.exists(captured_fname) else 'a+'
-    with open(captured_fname, file_mode) as fin:
-        return fin.readline()
-
-
-def add_captured_version(new_version):
-    with open(captured_fname, 'a') as f:
-        f.write('{}\n'.format(new_version))
-
-
 def notify(msg):
     if isinstance(msg, Exception):
         print('error: {}'.format(msg))
@@ -52,13 +42,14 @@ def notify(msg):
 
 
 try:
+    out_file = CheckFile(captured_fname)
     print('checking...')
     available_version = request_version()
-    captured_versions = read_captured_versions()
+    captured_versions = out_file.read_entries()
 
     if available_version not in captured_versions:
         notify(available_version)
-        add_captured_version(available_version)
+        out_file.write_entry(available_version)
     print('done')
 except Exception as ex:
     notify(ex)
