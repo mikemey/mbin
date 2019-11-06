@@ -1,10 +1,10 @@
 #!/usr/local/bin/python
 
 import os
-import re
 import sys
 
 import requests
+from bs4 import BeautifulSoup
 
 from check_file import CheckFile
 
@@ -18,8 +18,10 @@ captured_fname = '{}/vfuet/captured.txt'.format(os.environ['LOGDIR'])
 def request_current_episodes():
     resp = requests.get(url)
     resp.raise_for_status()
-    result = re.findall('title="(Vier Frauen und ein Todesfall[^"]*)', resp.text)
-    return set([title.strip() for title in result])
+    html = BeautifulSoup(resp.text, 'html.parser')
+    h5_titles = html.select('h5.teaser-title')
+    return [h5.text.strip() for h5 in h5_titles
+            if "Vier Frauen und ein Todesfall" in h5.text]
 
 
 def notify(msg):
