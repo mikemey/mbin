@@ -1,1 +1,1 @@
-bitcoind.exe -datadir="$BITCOIN_DIR"
+bitcoind -datadir="$BITCOIN_DIR"
