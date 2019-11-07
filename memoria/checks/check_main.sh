@@ -7,7 +7,7 @@ function run_check () {
   py_script="$1"
   check_file="$2"
   log_file="$3"
-  python3 $PY_CHECKS/$py_script "${CHECK_DIR}/${check_file}" | timelog >> "${CHECK_DIR}/${log_file}" 2>&1
+  python3 $PY_CHECKS/$py_script "${CHECK_DIR}/${check_file}" 2>&1 | timelog >> "${CHECK_DIR}/${log_file}" 2>&1
   echo "[${py_script}]: $?"
 }
 
