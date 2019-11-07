@@ -2,6 +2,7 @@
 
 import os
 import sys
+import traceback
 
 import requests
 from bs4 import BeautifulSoup
@@ -17,7 +18,7 @@ find_text = "Latest release: "
 
 
 def request_current_version():
-    resp = requests.get(url)
+    resp = requests.get(url, timeout=10)
     resp.raise_for_status()
     html = BeautifulSoup(resp.text, 'html.parser')
     version_header = html.find('h2')
@@ -51,4 +52,5 @@ try:
         out_file.write_entry(current_version)
     print('done')
 except Exception as ex:
+    traceback.print_exc(file=sys.stderr)
     notify(ex)

@@ -2,6 +2,7 @@
 
 import os
 import sys
+import traceback
 
 import requests
 
@@ -27,7 +28,7 @@ def request_version():
 
 
 def location_of(request_url):
-    resp = requests.options(request_url, allow_redirects=False)
+    resp = requests.options(request_url, allow_redirects=False, timeout=10)
     resp.raise_for_status()
     return resp.headers.get('location')
 
@@ -52,4 +53,5 @@ try:
         out_file.write_entry(available_version)
     print('done')
 except Exception as ex:
+    traceback.print_exc(file=sys.stderr)
     notify(ex)

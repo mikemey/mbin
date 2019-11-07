@@ -2,6 +2,7 @@
 
 import os
 import sys
+import traceback
 
 import requests
 from bs4 import BeautifulSoup
@@ -16,7 +17,7 @@ captured_fname = sys.argv[1]
 
 
 def request_current_episodes():
-    resp = requests.get(url)
+    resp = requests.get(url, timeout=10)
     resp.raise_for_status()
     html = BeautifulSoup(resp.text, 'html.parser')
     h5_titles = html.select('h5.teaser-title')
@@ -50,4 +51,5 @@ try:
         out_file.write_entries(missing_episodes)
     print('done')
 except Exception as ex:
+    traceback.print_exc(file=sys.stderr)
     notify(ex)
