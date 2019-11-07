@@ -22,12 +22,13 @@ export mbin_rel="${full_path/*mbin\/}"
 [[ -e "$file" ]] || (echo "file not found: $file" && exit 1)
 
 function sync_file () {
-  printf "$(date '+%T') rsync [$file]..."
+  [[ -z "$1" ]] && msg="sync [$file]" || msg="intial sync"
+  printf "$(date '+%T') $msg..."
   rsync "$file" $MEMORIA:~/bin/mbin/$mbin_rel
   printf "done\n"
 }
 export -f sync_file
 
-sync_file
+sync_file "initial sync"
 printf "watching $file...\n"
 fswatch -0 -o "$file" | xargs -0 -n 1 bash -c sync_file
