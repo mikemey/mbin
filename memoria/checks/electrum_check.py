@@ -39,6 +39,7 @@ def notify(msg):
         mails.send('[NEW electrum] {}'.format(msg), 'notext')
 
 
+exit_code = 0
 try:
     out_file = CheckFile(captured_fname)
     print('checking...')
@@ -47,6 +48,7 @@ try:
 
     if current_version is None:
         notify(False)
+        exit_code = 1
     elif current_version not in captured_versions:
         notify(current_version)
         out_file.write_entry(current_version)
@@ -54,3 +56,6 @@ try:
 except Exception as ex:
     traceback.print_exc(file=sys.stderr)
     notify(ex)
+    exit_code = 10
+
+exit(exit_code)

@@ -37,6 +37,7 @@ def notify(msg):
         mails.send('[NEW VFueT]', msg)
 
 
+exit_code = 0
 try:
     out_file = CheckFile(captured_fname)
     print('checking...')
@@ -45,6 +46,7 @@ try:
 
     if len(available_episodes) == 0:
         notify(False)
+        exit_code = 1
     missing_episodes = [ep for ep in available_episodes if ep not in captured_episodes]
     if len(missing_episodes) > 0:
         notify(', '.join([ep for ep in missing_episodes]))
@@ -53,3 +55,6 @@ try:
 except Exception as ex:
     traceback.print_exc(file=sys.stderr)
     notify(ex)
+    exit_code = 10
+
+exit(exit_code)

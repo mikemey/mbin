@@ -42,6 +42,7 @@ def notify(msg):
         mails.send('[MONERO] {}'.format(msg), 'notext')
 
 
+exit_code = 0
 try:
     out_file = CheckFile(captured_fname)
     print('checking...')
@@ -55,3 +56,6 @@ try:
 except Exception as ex:
     traceback.print_exc(file=sys.stderr)
     notify(ex)
+    exit_code = 10
+
+exit(exit_code)
