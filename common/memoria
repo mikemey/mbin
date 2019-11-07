@@ -3,19 +3,20 @@
 function print_usage () {
   echo -e "\n usage: $(basename $0) [ -h ] DIRECTION [OPTIONS] file"
   echo -e "\nssh to $MEMORIA when no arguments given."
-  echo -e "Parameters:"
-  echo -e "\t -h  \t show this help"
-  echo "DIRECTION"
-  echo -e "\t -c  \t send to current (default)"
-  echo -e "\t -s  \t send to series"
-  echo -e "\t -m  \t send to movies"
-  echo -e "\t -gs \t get series"
-  echo -e "\t -gm \t get movies"
-  echo "OPTIONS"
-  echo -e "\t -d  \t dry-run rsync command"
-  echo -e "\t -l  \t copy symlinks as symlinks"
-  echo -e "\t -p  \t only prints rsync command"
-  echo -e "\t -R  \t use relative path names"
+  echo -e "\nParameters:"
+  echo -e "   -h             show this help"
+  echo -e "\nDIRECTION"
+  echo -e "   -c             send to current (default)"
+  echo -e "   -s             send to series"
+  echo -e "   -m             send to movies"
+  echo -e "   -x TARGET_DIR  send to \$HOME/TARGET_DIR"
+  echo -e "   -gs            get series"
+  echo -e "   -gm            get movies"
+  echo -e "\nOPTIONS"
+  echo -e "   -d             dry-run rsync command"
+  echo -e "   -l             copy symlinks as symlinks"
+  echo -e "   -p             only prints rsync command"
+  echo -e "   -R             use relative path names"
 }
 
 function check_env () {
@@ -88,6 +89,18 @@ case "${PATH_ARGS[0]}" in
     SOURCES=( "${PATH_ARGS[@]}" )
     TARGET="$MEMORIA:$MEMORIA_MOV"
   ;;
+  "-x" )
+    remove_first_path_arg
+    TARGET_DIR="${PATH_ARGS[0]}"
+    if [[ "$TARGET_DIR" =~ -.* ]]; then
+      echo "TARGET_DIR invalid: $TARGET_DIR"
+      print_usage
+      exit
+    fi
+    check_options
+    SOURCES=( "${PATH_ARGS[@]}" )
+    TARGET="$MEMORIA:~/$TARGET_DIR"
+  ;;
   "-gs" )
     check_options
     SOURCES=( "$MEMORIA:$MEMORIA_SER/${PATH_ARGS[0]}" )
@@ -108,7 +121,7 @@ case "${PATH_ARGS[0]}" in
 esac
 
 echo "rsync ${SOURCES[@]%/} to $TARGET ${USE_RELATIVE_PATHS:+(using relative path names)}"
-if [[ $PRINT_ONLY == true ]]; then
+if [[ $PRINT_ONLY ]]; then
   echo "rsync --progress --partial -t -r \
     ${USE_RELATIVE_PATHS:+-R} ${DRY_RUN:+-n} ${COPY_SYMLINKS:+-l} \
     --perms --chmod=Du=rwx,Dgo=rx,Fa=rw \
