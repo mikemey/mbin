@@ -1,5 +1,7 @@
 #!/usr/local/bin/python
 import os
+import sys
+import traceback
 from datetime import datetime
 
 import mail_sender as mails
@@ -34,8 +36,12 @@ def format_date(dt):
 
 
 def format_date_line(title, dt):
-    date_indicator = today_class if dt.date() == datetime.today().date() else not_today_class
+    date_indicator = today_class if is_today(dt) else not_today_class
     return date_line_template.format(date_indicator, title, format_date(dt))
+
+
+def is_today(dt):
+    return dt.date() == datetime.today().date()
 
 
 def get_metadata(url):
@@ -78,5 +84,6 @@ try:
         mails.send('[msm-itc] Service report', report, True)
     print('done')
 except Exception as ex:
+    traceback.print_exc(file=sys.stderr)
     print('error: {}'.format(ex))
     mails.send('[MSM report] Server check error', 'An error occurred:\n{}'.format(ex))
