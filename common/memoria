@@ -19,6 +19,12 @@ function print_usage () {
   echo -e "   -R             use relative path names"
 }
 
+function error_exit () {
+  echo "$1"
+  print_usage
+  exit 1
+}
+
 function check_env () {
   if [[ ! ${!1} ]]; then
     echo "Environment variable '$1' not set!"
@@ -64,6 +70,9 @@ function check_options () {
       ;;
       "-R" )
         USE_RELATIVE_PATHS=true
+      ;;\
+      -* )
+        error_exit "OPTION invalid: ${PATH_ARGS[0]}"
       ;;
       * )
         HAS_OPTION=false
@@ -93,9 +102,7 @@ case "${PATH_ARGS[0]}" in
     remove_first_path_arg
     TARGET_DIR="${PATH_ARGS[0]}"
     if [[ "$TARGET_DIR" =~ -.* ]]; then
-      echo "TARGET_DIR invalid: $TARGET_DIR"
-      print_usage
-      exit
+      error_exit "TARGET_DIR invalid: $TARGET_DIR"
     fi
     check_options
     SOURCES=( "${PATH_ARGS[@]}" )
@@ -113,7 +120,7 @@ case "${PATH_ARGS[0]}" in
   ;;
   * )
     if [[ "${PATH_ARGS[0]}" != "-h" ]]; then
-      echo "illegal DIRECTION: ${PATH_ARGS[0]}"
+      error_exit "DIRECTION invalid: ${PATH_ARGS[0]}"
     fi
     print_usage
     exit
@@ -122,6 +129,7 @@ esac
 
 echo "rsync ${SOURCES[@]%/} to $TARGET ${USE_RELATIVE_PATHS:+(using relative path names)}"
 if [[ $PRINT_ONLY ]]; then
+  echo "==== PRINT ONLY ===="
   echo "rsync --progress --partial -t -r \
     ${USE_RELATIVE_PATHS:+-R} ${DRY_RUN:+-n} ${COPY_SYMLINKS:+-l} \
     --perms --chmod=Du=rwx,Dgo=rx,Fa=rw \
