@@ -7,9 +7,10 @@ import traceback
 import requests
 from bs4 import BeautifulSoup
 
+from check_file import CheckFile
+
 sys.path.append(os.environ['MBIN'])
 import mail_sender as mails
-from check_file import CheckFile
 
 url = 'https://web.getmonero.org/downloads/'
 captured_fname = sys.argv[1]
