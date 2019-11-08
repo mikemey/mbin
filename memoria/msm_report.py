@@ -65,7 +65,7 @@ try:
     check_logs = get_check_logs()
 
     print('sending report...')
-    with open(report_template_file, 'r') as report_file:
+    with open(report_template_file, 'r', encoding='utf-8') as report_file:
         report_template = report_file.read()
         report_date = format_date(datetime.now())
 
