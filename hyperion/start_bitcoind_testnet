@@ -1,0 +1,1 @@
+bitcoind -datadir="${BITCOIN_DIR}-testnet"

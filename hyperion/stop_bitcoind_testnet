@@ -1,0 +1,1 @@
+bitcoin-cli -datadir="${BITCOIN_DIR}-testnet" stop
