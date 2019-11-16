@@ -11,7 +11,7 @@ class CheckFile:
     def write_entries(self, new_entries):
         with open(self.file, 'a', encoding='utf-8') as f:
             for entry in new_entries:
-                f.write('{}\n'.format(entry))
+                f.write(u'{}\n'.format(entry))
 
     def read_entries(self):
         file_mode = 'r' if os.path.exists(self.file) else 'a+'

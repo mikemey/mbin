@@ -27,13 +27,13 @@ def request_current_episodes():
 
 def notify(msg):
     if isinstance(msg, Exception):
-        print('error: {}'.format(msg))
-        mails.send('[VFueT] check error', 'An error occurred:\n{}'.format(msg))
+        print(u'error: {}'.format(msg))
+        mails.send('[VFueT] check error', u'An error occurred:\n{}'.format(msg))
     elif msg is False:
         print('no results')
         mails.send('[VFueT] no results', 'notext')
     else:
-        print('new episode: {}'.format(msg))
+        print(u'new episode: {}'.format(msg))
         mails.send('[NEW VFueT]', msg)
 
 

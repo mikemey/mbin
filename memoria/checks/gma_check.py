@@ -28,14 +28,14 @@ def request_current_version():
 
 def notify(msg):
     if isinstance(msg, Exception):
-        print('error: {}'.format(msg))
-        mails.send('[GMA] check error', 'An error occurred:\n{}'.format(msg))
+        print(u'error: {}'.format(msg))
+        mails.send('[GMA] check error', u'An error occurred:\n{}'.format(msg))
     elif msg is False:
         print('no results')
         mails.send('[GMA] no results', 'notext')
     else:
-        print('new version: {}'.format(msg))
-        mails.send('[NEW GMA] {}'.format(msg), 'notext')
+        print(u'new version: {}'.format(msg))
+        mails.send(u'[NEW GMA] {}'.format(msg), 'notext')
 
 
 exit_code = 0
