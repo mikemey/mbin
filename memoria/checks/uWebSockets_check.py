@@ -9,8 +9,8 @@ from bs4 import BeautifulSoup
 
 from check_file import CheckFile
 
-# sys.path.append(os.environ['MBIN'])
-# import mail_sender as mails
+sys.path.append(os.environ['MBIN'])
+import mail_sender as mails
 
 url = 'https://github.com/uNetworking/uWebSockets.js/releases'
 captured_fname = sys.argv[1]
@@ -29,13 +29,13 @@ def request_current_version():
 def notify(msg):
     if isinstance(msg, Exception):
         print(u'error: {}'.format(msg))
-        # mails.send('[uWebSockets] check error', u'An error occurred:\n{}'.format(msg))
+        mails.send('[uWebSockets] check error', u'An error occurred:\n{}'.format(msg))
     elif msg is False:
         print('no results')
-        # mails.send('[uWebSockets] no results', 'notext')
+        mails.send('[uWebSockets] no results', 'notext')
     else:
         print(u'new version: {}'.format(msg))
-        # mails.send(u'[NEW uWebSockets] {}'.format(msg), 'notext')
+        mails.send(u'[NEW uWebSockets] {}'.format(msg), 'notext')
 
 
 exit_code = 0
