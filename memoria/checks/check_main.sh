@@ -17,10 +17,10 @@ function run_check () {
 function run_github_check () {
   identity="$1"
   url="$2"
-  script="${PY_CHECKS}/github_check.py"
+  script="github_check.py"
   check_file="${CHECK_DIR}/${identity}.txt"
   log_file="${CHECK_DIR}/${identity}.log"
-  OUTPUT="$(python3 ${script} "$identity" "$url" "$check_file" 2>&1)"
+  OUTPUT="$(python3 ${PY_CHECKS}/${script} "$identity" "$url" "$check_file" 2>&1)"
   script_status="$?"
   echo "$OUTPUT" | timelog >> "${log_file}" 2>&1
   [[ $script_status -eq 0 ]] && msg="OK" || msg="error $script_status"
