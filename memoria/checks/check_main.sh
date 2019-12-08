@@ -14,12 +14,26 @@ function run_check () {
   echo "[${py_script}]: ${msg}"
 }
 
+function run_github_check () {
+  identity="$1"
+  url="$2"
+  script="${PY_CHECKS}/github_check.py"
+  check_file="${CHECK_DIR}/${identity}.txt"
+  log_file="${CHECK_DIR}/${identity}.log"
+  OUTPUT="$(python3 ${script} "$identity" "$url" "$check_file" 2>&1)"
+  script_status="$?"
+  echo "$OUTPUT" | timelog >> "${log_file}" 2>&1
+  [[ $script_status -eq 0 ]] && msg="OK" || msg="error $script_status"
+  echo "[${script} ${identity}]: ${msg}"
+}
+
 echo "starting checks..."
 run_check "vfuet_check.py" "vfuet.txt" "vfuet.log"
 run_check "monero_check.py" "monero.txt" "monero.log"
 run_check "gma_check.py" "gma.txt" "gma.log"
-run_check "gpc_check.py" "gpc.txt" "gpc.log"
 run_check "electrum_check.py" "electrum.txt" "electrum.log"
-run_check "bitcoind_check.py" "bitcoind.txt" "bitcoind.log"
-run_check "uWebSockets_check.py" "uWebSockets.txt" "uWebSockets.log"
+run_github_check "bitcoind" "https://github.com/bitcoin/bitcoin/releases"
+run_github_check "geth" "https://github.com/ethereum/go-ethereum/releases"
+run_github_check "uWebSockets" "https://github.com/uNetworking/uWebSockets.js/releases"
+run_github_check "gpc" "https://github.com/googleads/googleads-consent-sdk-ios/releases"
 echo "done"
