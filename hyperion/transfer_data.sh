@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 unset HISTFILE
 
+log_file=`cygpath -u "${2}"`
+
 function error_message () {
   echo
-  echo "ERROR: $1"
-  echo -e "\n usage: $(basename $0) metadata-string"
-  echo -e "\nMetadata string format: \"kind|dir|file|label\""
-  echo -e " kind \t type: 'single' or 'multi'"
+  echo "ERROR: $1" >> "$log_file"
+  echo -e "\n usage: $(basename $0) metadata-string log-file"
+  echo -e "\nMetadata string format: \"label|dir|file\""
+  echo -e " label \t if set, no files are transferred"
   echo -e " dir \t directory (for both 'single' and 'multi' files)"
   echo -e " file \t file name (only for 'single' file)"
-  echo -e " label \t if set, no files are transferred"
+  echo -e "\log-file \t Log file location (windows path)"
   exit 1
 }
 
@@ -35,7 +37,10 @@ function send_command () {
   done
 }
 
-IFS='|' read -r mode dir file label <<< "$@"
+IFS='|' read -r label name dir <<< "${1}"
+win_path=`sed -r 's/:([^\\])/:\/\1/g' <<< "${dir}/${name}"`
+file=`cygpath -u "$win_path"`
+
 SEND_TO_HAUMEA=false
 SEND_TO_MEMORIA=false
 
@@ -54,17 +59,11 @@ case "$label" in
   ;;
 esac
 
-tx_cmd_arg=`cygpath -u "$dir"`
-if [[ "$mode" != "multi" ]]; then
-  tfile=`cygpath -u "$file"`
-  tx_cmd_arg="${tx_cmd_arg}/${tfile##/}"
-fi
-
-[[ -e "$tx_cmd_arg" ]] || error_message "File/Directory not found: $tx_cmd_arg"
+[[ -e "$file" ]] || error_message "File/Directory not found: $file"
 
 if $SEND_TO_HAUMEA; then
-  send_command "haumea" "$tx_cmd_arg" "$HAUMEA"
+  send_command "haumea" "$file" "$HAUMEA"
 fi
 if $SEND_TO_MEMORIA; then
-  send_command "memoria -c" "$tx_cmd_arg" "$MEMORIA"
+  send_command "memoria -c" "$file" "$MEMORIA"
 fi
