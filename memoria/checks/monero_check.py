@@ -52,7 +52,7 @@ try:
     if current_version is None:
         notify(False)
         exit_code = 1
-    if current_version not in captured_versions:
+    elif current_version not in captured_versions:
         notify(current_version)
         out_file.write_entry(current_version)
     print('done')
