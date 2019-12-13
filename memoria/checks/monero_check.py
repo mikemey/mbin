@@ -14,20 +14,20 @@ import mail_sender as mails
 
 url = 'https://web.getmonero.org/downloads/'
 captured_fname = sys.argv[1]
-find_text = "Current Version: "
+find_text = "Current Version:"
 
 
 def request_version():
     resp = requests.get(url, timeout=10)
     resp.raise_for_status()
     html = BeautifulSoup(resp.text, 'html.parser')
-    cli_anchor = html.find(href='//downloads.getmonero.org/cli/win64')
-    if not cli_anchor:
+    cli_info_block = html.find_all('div', class_="info-block")
+    if not cli_info_block or len(cli_info_block) < 4:
         return None
-    version_p = cli_anchor.parent.find_next_sibling('p')
-    if not version_p or not version_p.text.startswith(find_text):
+    version_i = cli_info_block[3].find('i', text=find_text)
+    if not version_i:
         return None
-    return version_p.text[len(find_text):]
+    return version_i.parent.text[len(find_text) + 1:]
 
 
 def notify(msg):
