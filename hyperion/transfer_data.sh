@@ -37,7 +37,7 @@ function send_command () {
   done
 }
 
-IFS='|' read -r label name dir <<< "${1}"
+IFS='|' read -r label dir name <<< "${1}"
 win_path=`sed -r 's/:([^\\])/:\/\1/g' <<< "${dir}/${name}"`
 file=`cygpath -u "$win_path"`
 
