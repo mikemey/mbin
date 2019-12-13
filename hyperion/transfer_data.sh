@@ -26,7 +26,6 @@ log_file=`cygpath -u "${2}"`
     args="$2"
     target="$3"
     [[ ${target} ]] || error_message "target environment variable not set."
-	timelog "start transfer [${args} -> ${target}]"
 	while ! is_target_online ${target}; do
       timelog "server unreachable: $target"
       sleep 130
@@ -65,11 +64,8 @@ log_file=`cygpath -u "${2}"`
 
   [[ -e "$file" ]] || error_message "File/Directory not found: $file"
 
-  if $SEND_TO_HAUMEA; then
-    send_command "haumea" "$file" "$HAUMEA"
-  fi
-  if $SEND_TO_MEMORIA; then
-    send_command "memoria -c" "$file" "$MEMORIA"
-  fi
-  timelog "transfer complete."
+  ($SEND_TO_HAUMEA || $SEND_TO_MEMORIA) && timelog "start transfer [$file]"
+  $SEND_TO_HAUMEA  && send_command "haumea" "$file" "$HAUMEA"
+  $SEND_TO_MEMORIA && send_command "memoria -c" "$file" "$MEMORIA"
+  ($SEND_TO_HAUMEA || $SEND_TO_MEMORIA) && timelog "transfer complete."
 } >> ${log_file} 2>&1
