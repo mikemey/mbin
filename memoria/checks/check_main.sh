@@ -8,10 +8,9 @@ function run_check () {
   check_file="${CHECK_DIR}/${2}"
   log_file="${CHECK_DIR}/${3}"
   OUTPUT="$(python3 $PY_CHECKS/$py_script "${check_file}" "${log_file}" 2>&1)"
-  script_status="$?"
+  message=`status_message $?`
   echo "$OUTPUT" | timelog >> "${log_file}" 2>&1
-  [[ $script_status -eq 0 ]] && msg="OK" || msg="error $script_status"
-  echo "[${py_script}]: ${msg}"
+  echo "[${py_script}]: ${message}"
 }
 
 function run_github_check () {
@@ -21,10 +20,20 @@ function run_github_check () {
   check_file="${CHECK_DIR}/${identity}.txt"
   log_file="${CHECK_DIR}/${identity}.log"
   OUTPUT="$(python3 ${PY_CHECKS}/${script} "$identity" "$url" "$check_file" 2>&1)"
-  script_status="$?"
+  message=`status_message $?`
   echo "$OUTPUT" | timelog >> "${log_file}" 2>&1
-  [[ $script_status -eq 0 ]] && msg="OK" || msg="error $script_status"
-  echo "[${script} ${identity}]: ${msg}"
+  echo "[${script} ${identity}]: ${message}"
+}
+
+function status_message () {
+  case ${1} in
+    0 )
+      echo "OK";;
+    1 )
+      echo "no result";;
+    * )
+      echo "error ${1}";;
+  esac
 }
 
 echo "starting checks..."
