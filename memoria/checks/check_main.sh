@@ -5,11 +5,11 @@ export CHECK_DIR="$LOGDIR/checks"
 
 function run_check () {
   py_script="$1"
-  check_file="$2"
-  log_file="$3"
-  OUTPUT="$(python3 $PY_CHECKS/$py_script "${CHECK_DIR}/${check_file}" 2>&1)"
+  check_file="${CHECK_DIR}/${2}"
+  log_file="${CHECK_DIR}/${3}"
+  OUTPUT="$(python3 $PY_CHECKS/$py_script "${check_file}" "${log_file}" 2>&1)"
   script_status="$?"
-  echo "$OUTPUT" | timelog >> "${CHECK_DIR}/${log_file}" 2>&1
+  echo "$OUTPUT" | timelog >> "${log_file}" 2>&1
   [[ $script_status -eq 0 ]] && msg="OK" || msg="error $script_status"
   echo "[${py_script}]: ${msg}"
 }

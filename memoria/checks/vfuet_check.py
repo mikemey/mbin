@@ -3,6 +3,7 @@
 import os
 import sys
 import traceback
+from datetime import date, datetime
 
 import requests
 from bs4 import BeautifulSoup
@@ -14,6 +15,7 @@ import mail_sender as mails
 
 url = 'https://tvthek.orf.at/search?q=vier+frauen'
 captured_fname = sys.argv[1]
+log_fname = sys.argv[2]
 
 
 def request_current_episodes():
@@ -31,7 +33,9 @@ def notify(msg):
         mails.send('[VFueT] check error', u'An error occurred:\n{}'.format(msg))
     elif msg is False:
         print('no results')
-        mails.send('[VFueT] no results', 'notext')
+        log_file_time = datetime.fromtimestamp(os.path.getmtime(log_fname))
+        if date.today().weekday() == 6 and log_file_time.weekday() != 6:
+            mails.send('[VFueT] no results', 'notext')
     else:
         print(u'new episode: {}'.format(msg))
         mails.send('[NEW VFueT]', msg)
