@@ -43,14 +43,14 @@ try:
     out_file = CheckFile(captured_fname)
     print('checking...')
     replies_count = request_current_version()
-    captured_count = out_file.read_entries()
+    captured_counts = out_file.read_entries()
 
     if replies_count is None:
         notify(False)
         exit_code = 1
-    elif captured_count != replies_count:
-        notify(captured_count)
-        out_file.write_entry(captured_count)
+    elif replies_count not in captured_counts:
+        notify(replies_count)
+        out_file.write_entry(replies_count)
     print('done')
 except Exception as ex:
     traceback.print_exc(file=sys.stderr)
