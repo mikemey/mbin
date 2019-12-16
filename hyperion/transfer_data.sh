@@ -26,17 +26,18 @@ log_file=`cygpath -u "${2}"`
     args="$2"
     target="$3"
     [[ ${target} ]] || error_message "target environment variable not set."
-	while ! is_target_online ${target}; do
-      timelog "server unreachable: $target"
+	  while ! is_target_online ${target}; do
+      timelog "server unreachable: $target, waiting..."
       sleep 130
     done
     excode=1
     while [[ ${excode} -ne 0 ]]; do
-	  eval "$cmd \"$args\""
+	    eval "$cmd \"$args\""
       excode=$?
       if [[ ${excode} -ne 0 ]]; then
-	    timelog "rsync exit code: $excode, waiting..."
-		sleep 130
+	      timelog "rsync exit code: $excode, waiting..."
+		    sleep 130
+      fi
     done
   }
 
