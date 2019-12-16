@@ -48,7 +48,7 @@ try:
     if replies_count is None:
         notify(False)
         exit_code = 1
-    elif replies_count not in captured_counts:
+    elif str(replies_count) not in captured_counts:
         notify(replies_count)
         out_file.write_entry(replies_count)
     print('done')
