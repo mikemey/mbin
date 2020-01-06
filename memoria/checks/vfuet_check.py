@@ -37,7 +37,7 @@ def notify(msg):
         if date.today().weekday() == 6 and log_file_time.weekday() != 6:
             mails.send('[VFueT] no results', 'notext')
     else:
-        print(u'new episode: {}'.format(msg))
+        print(u'new episode: {}'.format(msg).encode('utf-8'))
         mails.send('[NEW VFueT]', msg)
 
 
