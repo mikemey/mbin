@@ -1,5 +1,3 @@
-#### michael's scripts
-
 __WARNINGS:__
 
 1. Here be dragons!
