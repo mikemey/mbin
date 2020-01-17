@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 function formatLog () {
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')]: $*"
+  echo -e "[$(date '+%Y-%m-%d %H:%M:%S')]: $*"
 }
 
 
