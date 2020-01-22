@@ -3,13 +3,14 @@ unset HISTFILE
 
 function error_message () {
   echo
-  echo "ERROR: $1" >> "$log_file"
-  echo -e "\n usage: $(basename $0) metadata-string log-file"
+  echo "ERROR: $1"
+  echo -e "\n usage: $(basename $0) metadata-string"
   echo -e "\nMetadata string format: \"label|dir|file\""
-  echo -e " label \t if set, no files are transferred"
+  echo -e " label \t 'mem*', 'both' or 'skip', otherwise transfer to haumea"
   echo -e " dir \t directory (for both 'single' and 'multi' files)"
   echo -e " file \t file name (only for 'single' file)"
-  echo -e "\log-file \t Log file location (windows path)"
+  
+  read -n 1 -s -r -p "press any key..."
   exit 1
 }
 
