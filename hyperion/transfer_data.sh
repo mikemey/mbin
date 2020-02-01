@@ -26,7 +26,7 @@ function send_command () {
   [[ ${target} ]] || error_message "target environment variable not set."
   while ! is_target_online ${target}; do
     timelog "server unreachable: $target, waiting..."
-    sleep 130
+    sleep 30
   done
   excode=1
   while [[ ${excode} -ne 0 ]]; do
@@ -34,7 +34,7 @@ function send_command () {
     excode=$?
     if [[ ${excode} -ne 0 ]]; then
       timelog "rsync exit code: $excode, waiting..."
-      sleep 130
+      sleep 30
     fi
   done
 }
