@@ -16,7 +16,7 @@ def send(email_subject, email_content, as_html=False):
     msg['From'] = sender
     msg['To'] = destination
 
-    conn = SMTP(get_env('MM_SMTP_SERVER'))
+    conn = SMTP(get_env('MM_SMTP_SERVER'), get_env('MM_SMTP_SERVER_PORT'))
     conn.set_debuglevel(False)
     conn.starttls()
     conn.login(get_env('MM_USERNAME'), get_env('MM_PASSWORD'))
