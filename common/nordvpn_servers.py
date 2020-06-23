@@ -40,7 +40,7 @@ def print_server_urls():
     try:
         for server in request_server():
             open_ports = check_open_ports(server[KW_HOST])
-            print(f'IP: {server[KW_IP]}\tHost: {server[KW_HOST]} - load: {server[KW_LOAD]} - ports:{open_ports}')
+            print(f'IP: {server[KW_IP]:15} Host: {server[KW_HOST]:18} - load: {server[KW_LOAD]:2} - ports:{open_ports}')
         print('done')
     except Exception:
         traceback.print_exc(file=sys.stderr)
