@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 
-import sys
+import socket
 import traceback
 
 import requests
+import sys
 
 nordvpn_server_url = 'https://nordvpn.com/wp-admin/admin-ajax.php?action=servers_recommendations&filters={"%"22servers_groups"%"22:[15]}'
 KW_IP = 'station'
 KW_HOST = 'hostname'
 KW_LOAD = 'load'
+PORTS_LIST = [80, 443, 1080]
 
 
 def request_server():
@@ -21,14 +23,26 @@ def request_server():
     }, resp.json())
 
 
+def check_open_ports(server):
+    results = ''
+    for port in PORTS_LIST:
+        results += f' [{port} '
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(2)
+        result = sock.connect_ex((server, port))
+        sock.close()
+        results += ' ok]' if result == 0 else 'T/O]'
+    return results
+
+
 def print_server_urls():
     exit_code = 0
     try:
-        servers = request_server()
-        for server in servers:
-            print('IP: {} \t Host: {} \t load: {}'.format(server[KW_IP], server[KW_HOST], server[KW_LOAD]))
+        for server in request_server():
+            open_ports = check_open_ports(server[KW_HOST])
+            print(f'IP: {server[KW_IP]}\tHost: {server[KW_HOST]} - load: {server[KW_LOAD]} - ports:{open_ports}')
         print('done')
-    except Exception as ex:
+    except Exception:
         traceback.print_exc(file=sys.stderr)
         exit_code = 10
     exit(exit_code)
