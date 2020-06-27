@@ -10,7 +10,7 @@ nordvpn_server_url = 'https://nordvpn.com/wp-admin/admin-ajax.php?action=servers
 KW_IP = 'station'
 KW_HOST = 'hostname'
 KW_LOAD = 'load'
-PORTS_LIST = [80, 443, 1080]
+PORTS_LIST = [80, 1080]
 
 
 def request_server():
