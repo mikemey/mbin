@@ -23,7 +23,7 @@ def request_current_version(github_url):
     return version_divs[0].text.strip()
 
 
-def notify(identity, msg):
+def notify(identity, msg, github_url = None):
     if isinstance(msg, Exception):
         print(u'error: {}'.format(msg))
         mails.send(u'[{}] check error'.format(identity), u'An error occurred:\n{}'.format(msg))
@@ -32,7 +32,7 @@ def notify(identity, msg):
         mails.send(u'[{}] no results'.format(identity), 'notext')
     else:
         print(u'new version: {}'.format(msg))
-        mails.send(u'[NEW {}] {}'.format(identity, msg), 'notext')
+        mails.send(u'[NEW {}] {}'.format(identity, msg), u'URL: {}'.format(github_url))
 
 
 def check_github(identity, url, captured_fname):
@@ -47,7 +47,7 @@ def check_github(identity, url, captured_fname):
             notify(identity, False)
             exit_code = 1
         elif current_version not in captured_versions:
-            notify(identity, current_version)
+            notify(identity, current_version, url)
             out_file.write_entry(current_version)
         print('done')
     except Exception as ex:

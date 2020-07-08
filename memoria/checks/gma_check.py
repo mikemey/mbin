@@ -35,7 +35,7 @@ def notify(msg):
         mails.send('[GMA] no results', 'notext')
     else:
         print(u'new version: {}'.format(msg))
-        mails.send(u'[NEW GMA] {}'.format(msg), 'notext')
+        mails.send(u'[NEW GMA] {}'.format(msg), u'URL: {}'.format(url))
 
 
 exit_code = 0

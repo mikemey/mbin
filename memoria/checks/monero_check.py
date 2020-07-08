@@ -39,7 +39,7 @@ def notify(msg):
         mails.send('[MONERO] no results', 'notext')
     else:
         print(u'new version: {}'.format(msg))
-        mails.send(u'[MONERO] {}'.format(msg), 'notext')
+        mails.send(u'[MONERO] {}'.format(msg), u'URL: {}'.format(url))
 
 
 exit_code = 0

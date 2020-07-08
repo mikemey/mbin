@@ -36,7 +36,7 @@ def notify(msg):
         mails.send('[electrum] no results', 'notext')
     else:
         print(u'new version: {}'.format(msg))
-        mails.send(u'[NEW electrum] {}'.format(msg), 'notext')
+        mails.send(u'[NEW electrum] {}'.format(msg), u'URL: {}'.format(url))
 
 
 exit_code = 0
