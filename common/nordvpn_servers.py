@@ -4,9 +4,11 @@ import socket
 import traceback
 
 import requests
-import sys
 
-nordvpn_server_url = 'https://nordvpn.com/wp-admin/admin-ajax.php?action=servers_recommendations&filters={%22country_id%22:228,%22servers_technologies%22:[7]}'
+nordvpn_server_urls = [
+    'https://nordvpn.com/wp-admin/admin-ajax.php?action=servers_recommendations&filters={%22servers_technologies%22:[7]}',
+    'https://nordvpn.com/wp-admin/admin-ajax.php?action=servers_recommendations&filters={%22country_id%22:228,%22servers_technologies%22:[7]}'
+]
 KW_IP = 'station'
 KW_HOST = 'hostname'
 KW_LOAD = 'load'
@@ -14,13 +16,18 @@ PORTS_LIST = [80, 1080]
 
 
 def request_server():
-    resp = requests.get(nordvpn_server_url, timeout=10)
+    all_servers = [server for url in nordvpn_server_urls for server in single_req(url)]
+    return sorted(all_servers, key=lambda s: s[KW_LOAD])
+
+
+def single_req(url):
+    resp = requests.get(url, timeout=10)
     resp.raise_for_status()
-    return map(lambda server_details: {
+    return list(map(lambda server_details: {
         KW_IP: server_details[KW_IP],
         KW_HOST: server_details[KW_HOST],
         KW_LOAD: server_details[KW_LOAD]
-    }, resp.json())
+    }, resp.json()))
 
 
 def check_open_ports(server):
