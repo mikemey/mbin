@@ -6,7 +6,7 @@ import traceback
 import requests
 import sys
 
-nordvpn_server_url = 'https://nordvpn.com/wp-admin/admin-ajax.php?action=servers_recommendations&filters={%22servers_technologies%22:[7]}'
+nordvpn_server_url = 'https://nordvpn.com/wp-admin/admin-ajax.php?action=servers_recommendations&filters={%22country_id%22:228,%22servers_technologies%22:[7]}'
 KW_IP = 'station'
 KW_HOST = 'hostname'
 KW_LOAD = 'load'
