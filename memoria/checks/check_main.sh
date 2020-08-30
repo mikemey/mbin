@@ -37,7 +37,7 @@ function status_message () {
 }
 
 echo "starting checks..."
-run_check "vfuet_check.py" "vfuet.txt" "vfuet.log"
+#run_check "vfuet_check.py" "vfuet.txt" "vfuet.log"
 run_check "monero_check.py" "monero.txt" "monero.log"
 run_check "gma_check.py" "gma.txt" "gma.log"
 run_check "electrum_check.py" "electrum.txt" "electrum.log"
