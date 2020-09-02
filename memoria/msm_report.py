@@ -2,7 +2,7 @@
 from os import environ, path, listdir
 import sys
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import mail_sender as mails
 import requests
@@ -41,12 +41,12 @@ def format_date(dt):
 
 
 def format_date_line(title, dt):
-    date_indicator = today_class if is_today(dt) else not_today_class
+    date_indicator = today_class if within_a_day(dt) else not_today_class
     return date_line_template.format(date_indicator, title, format_date(dt))
 
 
-def is_today(dt):
-    return dt.date() == datetime.today().date()
+def within_a_day(dt):
+    return datetime.now() - dt < timedelta(days=1)
 
 
 def get_metadata(url):
