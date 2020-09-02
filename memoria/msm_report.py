@@ -22,7 +22,6 @@ checks = [
     {FILE_KEY: log_dir + '/checks/monero.log', NAME_KEY: 'Monero'},
     {FILE_KEY: log_dir + '/tantalus/is_online.log', NAME_KEY: 'Tantalus online'},
     {FILE_KEY: log_dir + '/tantalus/scheduler.check.log', NAME_KEY: 'Tantalus scheduler'},
-    {FILE_KEY: log_dir + '/checks/vfuet.log', NAME_KEY: 'VFueT'},
     {FILE_KEY: log_dir + '/workout-records/is_online.log', NAME_KEY: 'Workout records'},
     {FILE_KEY: log_dir + '/restart_setup.log', NAME_KEY: 'Qnap'}
 ]
