@@ -24,10 +24,11 @@ def request_current_version(github_url):
     return title_divs[0].text.strip(), version_anchor[0].text.strip()
 
 
+# keep '{}'.format(var) variant for python3.5 compatibility
 def check_github(identity, url, captured_fname):
     def send_mail(title, body):
-        print(f'{title}... ', end='')
-        mails.send(f'[{identity}] {title}', f'URL: {url}\n{body}')
+        print('{}... '.format(title), end='')
+        mails.send(u'[{}] {}'.format(identity, title), u'URL: {}\n{}'.format(url, body))
 
     exit_code = 0
     try:
@@ -40,12 +41,12 @@ def check_github(identity, url, captured_fname):
             title, version = title_version
             out_file = CheckFile(captured_fname)
             if version not in out_file.read_entries():
-                send_mail(f'New: {title} [{version}]', '')
+                send_mail(u'New: {} [{}]'.format(title, version), '')
                 out_file.write_entry(version)
         print('done')
     except Exception as ex:
         traceback.print_exc(file=sys.stderr)
-        send_mail(f'check error: {ex}', f'An error occurred:\n{ex}')
+        send_mail('check error', u'An error occurred:\n{}'.format(ex))
         exit_code = 10
     exit(exit_code)
 
