@@ -17,42 +17,35 @@ def request_current_version(github_url):
     resp = requests.get(github_url, timeout=10)
     resp.raise_for_status()
     html = BeautifulSoup(resp.text, 'html.parser')
-    version_divs = html.select('div.f1')
-    if not version_divs:
+    title_divs = html.select('div.f1')
+    version_anchor = html.select('a[title]')
+    if not (title_divs and version_anchor):
         return None
-    return version_divs[0].text.strip()
-
-
-def notify(identity, msg, github_url = None):
-    if isinstance(msg, Exception):
-        print(u'error: {}'.format(msg))
-        mails.send(u'[{}] check error'.format(identity), u'An error occurred:\n{}'.format(msg))
-    elif msg is False:
-        print('no results')
-        mails.send(u'[{}] no results'.format(identity), 'notext')
-    else:
-        print(u'new version: {}'.format(msg))
-        mails.send(u'[NEW {}] {}'.format(identity, msg), u'URL: {}'.format(github_url))
+    return title_divs[0].text.strip(), version_anchor[0].text.strip()
 
 
 def check_github(identity, url, captured_fname):
+    def send_mail(title, body):
+        print(f'{title}... ', end='')
+        mails.send(f'[{identity}] {title}', f'URL: {url}\n{body}')
+
     exit_code = 0
     try:
-        out_file = CheckFile(captured_fname)
-        print('checking...')
-        current_version = request_current_version(url)
-        captured_versions = out_file.read_entries()
-
-        if current_version is None:
-            notify(identity, False)
+        print('checking... ', end='')
+        title_version = request_current_version(url)
+        if title_version is None:
+            send_mail('no results', '')
             exit_code = 1
-        elif current_version not in captured_versions:
-            notify(identity, current_version, url)
-            out_file.write_entry(current_version)
+        else:
+            title, version = title_version
+            out_file = CheckFile(captured_fname)
+            if version not in out_file.read_entries():
+                send_mail(f'New: {title} [{version}]', '')
+                out_file.write_entry(version)
         print('done')
     except Exception as ex:
         traceback.print_exc(file=sys.stderr)
-        notify(identity, ex)
+        send_mail(f'check error: {ex}', f'An error occurred:\n{ex}')
         exit_code = 10
     exit(exit_code)
 
