@@ -47,7 +47,7 @@ def format_date_line(title, dt):
 
 
 def within_a_day(dt):
-    return datetime.now() - dt < timedelta(days=1)
+    return datetime.now() - dt.replace(tzinfo=None) < timedelta(days=1)
 
 
 def get_metadata(url):
