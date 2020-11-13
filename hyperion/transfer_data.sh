@@ -64,6 +64,6 @@ esac
 [[ -e "$file" ]] || error_message "File/Directory not found: $file"
 
 ($SEND_TO_HAUMEA || $SEND_TO_MEMORIA) && timelog "${FG_GREEN}start transfer [$file]${FG_DEFAULT}"
-$SEND_TO_HAUMEA  && send_command "haumea" "$file" "$HAUMEA"
 $SEND_TO_MEMORIA && send_command "memoria -c" "$file" "$MEMORIA"
+$SEND_TO_HAUMEA  && send_command "haumea" "$file" "$HAUMEA"
 ($SEND_TO_HAUMEA || $SEND_TO_MEMORIA) && timelog "${FG_GREEN}transfer complete.${FG_DEFAULT}"
