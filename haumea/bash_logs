@@ -1,1 +1,0 @@
-export PROMPT_COMMAND='if [ "$(id -u)" -ne 0 ]; then echo "[$(pwd) $(date "+%Y-%m-%d %H:%M:%S")] $(history 1 | sed "s/^ *[0-9]* *//")" >> ~/.bash_logs/bash_history_$(date "+%Y-%m-%d").log; fi'
