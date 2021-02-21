@@ -3,6 +3,8 @@
 import os
 import sys
 import traceback
+from datetime import datetime
+from os import path
 
 import requests
 
@@ -11,13 +13,18 @@ from check_file import CheckFile
 sys.path.append(os.environ['MBIN'])
 import mail_sender as mails
 
-url = 'https://{}/arb/api/opportunity'.format(os.environ['MSMSERVER'])
+PRICE_UPDATE_TIME_LIMIT_SECONDS = 50
+
+opp_url = 'https://{}/arb/api/opportunity'.format(os.environ['MSMSERVER'])
+health_url = 'https://{}/arb/api/health'.format(os.environ['MSMSERVER'])
+report_template_file = path.join(path.dirname(path.abspath(__file__)), 'arb_check_template.html')
+
 captured_fname = sys.argv[1]
 log_cat = 'ARB'
 
 
 def request_opportunities():
-    resp = requests.get(url, timeout=10)
+    resp = requests.get(opp_url, timeout=10)
     resp.raise_for_status()
     return ['{}: {} -> {}'.format(res['cd'], res['be'], res['se']) for res in resp.json()]
 
@@ -34,10 +41,76 @@ def notify(msg):
         mails.send('[{}] New trades'.format(log_cat), msg)
 
 
+def format_date(dt):
+    return dt.strftime('%Y-%m-%d %H:%M:%S')
+
+
+def run_health_check():
+    resp = requests.get(health_url, timeout=10)
+    resp.raise_for_status()
+    result = resp.json()
+
+    messages = []
+    check_adapters(result['adapters'], messages)
+    check_exchanges(result['exchanges'], messages)
+
+    if len(messages):
+        send_status_mail(messages)
+
+
+def check_adapters(adapters, messages):
+    now_ts = datetime.now().timestamp()
+
+    for adapter in adapters:
+        name = adapter['name']
+        put = adapter['priceUpdateTime'] / 1000
+        ex_status = adapter['exchangeStatus']
+        bal_status = adapter['balanceStatus']
+
+        if (now_ts - put) > PRICE_UPDATE_TIME_LIMIT_SECONDS:
+            dt = format_date(datetime.fromtimestamp(put))
+            messages.append('Adapter [{}] Price update fail: {}'.format(name, dt))
+        if status_failed(ex_status):
+            messages.append('Adapter [{}] Exchange status fail: {}'.format(name, ex_status))
+        if status_failed(bal_status):
+            messages.append('Adapter [{}] Balance status fail: {}'.format(name, bal_status))
+
+
+def check_exchanges(exchanges, messages):
+    for exchange in exchanges:
+        name = exchange['type']
+        balance = exchange['balance']
+        order = exchange['order']
+
+        if status_failed(balance):
+            messages.append('Sandbox [{}] Balance request fail: {}'.format(name, balance))
+        if status_failed(order):
+            messages.append('Sandbox [{}] Order request fail: {}'.format(name, order))
+
+
+def status_failed(status):
+    return status != 'ok'
+
+
+def send_status_mail(messages):
+    error_messages = '<br>'.join(messages)
+    report_date = format_date(datetime.now())
+
+    with open(report_template_file, 'r', encoding='utf-8') as report_file:
+        report_template = report_file.read()
+
+        report = report_template.format(
+            error_messages,
+            report_date
+        )
+        mails.send('[{}] status report'.format(log_cat), report, True)
+
+
 exit_code = 0
 try:
-    out_file = CheckFile(captured_fname)
     print('checking...')
+    out_file = CheckFile(captured_fname)
+    run_health_check()
     opportunities = request_opportunities()
     captured_opps = out_file.read_entries()
 
