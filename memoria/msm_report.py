@@ -18,7 +18,6 @@ FILE_KEY = 'file'
 DIR_KEY = 'dir'
 NAME_KEY = 'name'
 checks = [
-    {FILE_KEY: log_dir + '/coinfloor/oo.count', NAME_KEY: 'Coinfloor'},
     {FILE_KEY: log_dir + '/checks/bitcoind.log', NAME_KEY: 'Bitcoin'},
     {FILE_KEY: log_dir + '/checks/monero.log', NAME_KEY: 'Monero'},
     {FILE_KEY: log_dir + '/tantalus/is_online.log', NAME_KEY: 'Tantalus online'},
