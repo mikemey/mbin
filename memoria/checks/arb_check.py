@@ -13,7 +13,7 @@ from check_file import CheckFile
 sys.path.append(os.environ['MBIN'])
 import mail_sender as mails
 
-PRICE_UPDATE_TIME_LIMIT_SECONDS = 50
+PRICE_UPDATE_TIME_LIMIT_SECONDS = 60
 
 opp_url = 'https://{}/arb/api/opportunity'.format(os.environ['MSMSERVER'])
 health_url = 'https://{}/arb/api/health'.format(os.environ['MSMSERVER'])
@@ -50,16 +50,22 @@ def run_health_check():
     resp.raise_for_status()
     result = resp.json()
 
+    expected_adapter_count = int(os.environ['MSM_ARB_ADAPTERS_COUNT'])
+    expected_sandbox_count = int(os.environ['MSM_ARB_SANDBOX_COUNT'])
+
     messages = []
-    check_adapters(result['adapters'], messages)
-    check_exchanges(result['exchanges'], messages)
+    check_adapters(result['adapters'], messages, expected_adapter_count)
+    check_exchanges(result['exchanges'], messages, expected_sandbox_count)
 
     if len(messages):
         send_status_mail(messages)
 
 
-def check_adapters(adapters, messages):
+def check_adapters(adapters, messages, expected_count):
     now_ts = datetime.now().timestamp()
+
+    if len(adapters) != expected_count:
+        messages.append('Adapter count different. Expected: {}, actual: {}'.format(expected_count, len(adapters)))
 
     for adapter in adapters:
         name = adapter['name']
@@ -76,7 +82,10 @@ def check_adapters(adapters, messages):
             messages.append('Adapter [{}] Balance status fail: {}'.format(name, bal_status))
 
 
-def check_exchanges(exchanges, messages):
+def check_exchanges(exchanges, messages, expected_count):
+    if len(exchanges) != expected_count:
+        messages.append('Sandbox count different. Expected: {}, actual: {}'.format(expected_count, len(exchanges)))
+
     for exchange in exchanges:
         name = exchange['type']
         balance = exchange['balance']
@@ -93,6 +102,7 @@ def status_failed(status):
 
 
 def send_status_mail(messages):
+    print('status error(s): ' + '. '.join(messages))
     error_messages = '<br>'.join(messages)
     report_date = format_date(datetime.now())
 
