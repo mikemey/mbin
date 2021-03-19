@@ -101,7 +101,7 @@ case "${PATH_ARGS[0]}" in
   "-x" )
     remove_first_path_arg
     TARGET_DIR="${PATH_ARGS[0]}"
-    if [[ "$TARGET_DIR" =~ -.* ]]; then
+    if [[ "$TARGET_DIR" =~ ^-.* ]]; then
       error_exit "TARGET_DIR invalid: $TARGET_DIR"
     fi
     check_options
