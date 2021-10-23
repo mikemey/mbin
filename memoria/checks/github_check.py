@@ -17,8 +17,9 @@ def request_current_version(github_url):
     resp = requests.get(github_url, timeout=10)
     resp.raise_for_status()
     html = BeautifulSoup(resp.text, 'html.parser')
-    title_divs = html.select('div.f1')
-    version_anchor = html.select('a[title]')
+    title_divs = html.select('div.flex-1 h1')
+    version_anchor = html.select('span.wb-break-all')
+
     if not (title_divs and version_anchor):
         return None
     return title_divs[0].text.strip(), version_anchor[0].text.strip()
