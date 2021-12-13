@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+SUFFIX="A"
+
+function print_usage () {
+  echo -e "\n usage: $(basename $0) [ -u ] SOURCE"
+  echo -e "\nRename SOURCE with suffixed '${SUFFIX}'"
+  echo -e "\nParameters:"
+  echo -e "   -u          remove '${SUFFIX}' suffix"
+  echo -e "   SOURCE      SOURCE to rename"
+}
+
+function error_exit () {
+  echo "$1"
+  print_usage
+  exit 1
+}
+
+UNMARK=false
+SOURCE="$1"
+case "$1" in
+  "-u" )
+    UNMARK=true
+    SOURCE="$2"
+  ;;
+  -h )
+    print_usage
+    exit
+  ;;
+  -* )
+    error_exit "invalid option: ${1}"
+  ;;
+esac
+
+[[ ! -e "${SOURCE}" ]] && error_exit "source does not exist:" ${SOURCE}
+
+SOURCE=`basename "${SOURCE}"`
+TARGET="${SOURCE}${SUFFIX}"
+
+if [[ "$UNMARK" == true ]]; then
+  [[ "${SOURCE:(-1)}" != "$SUFFIX" ]] && \
+    error_exit "source needs to end with suffix '${SUFFIX}': ${SOURCE}"
+  TARGET="${SOURCE%$SUFFIX}"
+fi
+
+echo "mv" ${SOURCE} "==>" ${TARGET}
+mv "${SOURCE}" "${TARGET}"
