@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 from bs4 import BeautifulSoup
 
-from check_file import run_generic_check
+from check_utils import run_generic_check
 
 url = 'https://www.openoffice.org/download/index.html'
 find_text = "Released: "

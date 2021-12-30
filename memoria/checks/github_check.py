@@ -4,7 +4,7 @@ import sys
 
 from bs4 import BeautifulSoup
 
-from check_file import run_generic_check
+from check_utils import run_generic_check
 
 
 def extract_version_from(html: BeautifulSoup):

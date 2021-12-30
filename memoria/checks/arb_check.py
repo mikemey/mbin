@@ -8,7 +8,7 @@ from os import path
 
 import requests
 
-from check_file import CheckFile
+from check_utils import CheckFile
 
 sys.path.append(os.environ['MBIN'])
 import mail_sender as mails

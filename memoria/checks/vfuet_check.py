@@ -8,7 +8,7 @@ from datetime import date, datetime
 import requests
 from bs4 import BeautifulSoup
 
-from check_file import CheckFile
+from check_utils import CheckFile
 
 sys.path.append(os.environ['MBIN'])
 import mail_sender as mails
