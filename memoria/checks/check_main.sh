@@ -19,7 +19,7 @@ function run_github_check () {
   script="github_check.py"
   check_file="${CHECK_DIR}/${identity}.txt"
   log_file="${CHECK_DIR}/${identity}.log"
-  OUTPUT="$(python3 ${PY_CHECKS}/${script} "$identity" "$url" "$check_file" 2>&1)"
+  OUTPUT="$(python3 ${PY_CHECKS}/${script} "$check_file" "$identity" "$url" 2>&1)"
   message=`status_message $?`
   echo "$OUTPUT" | timelog >> "${log_file}" 2>&1
   echo "[${script} ${identity}]: ${message}"
