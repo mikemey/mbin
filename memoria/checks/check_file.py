@@ -2,6 +2,9 @@ import os
 import sys
 import traceback
 
+import requests
+from bs4 import BeautifulSoup
+
 sys.path.append(os.environ['MBIN'])
 import mail_sender as mails
 
@@ -24,9 +27,15 @@ class CheckFile:
             return [line.strip() for line in fin.readlines()]
 
 
-def run_generic_check(qualifier, url, request_version):
+def run_generic_check(qualifier, url, extract_version_from):
     check_file_name = sys.argv[1]
     exit_code = 0
+
+    def request_version():
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+        html = BeautifulSoup(resp.text, 'html.parser')
+        return extract_version_from(html)
 
     def send_mail(title, body):
         print(title)
