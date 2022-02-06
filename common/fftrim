@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+function echo() {
+  command echo -e "${1}"
+}
+
+function print_usage () {
+  echo "\n usage: $(basename $0) infile [ from | to ] time_position"
+  echo "\nTrim infile from/to specified time_position"
+  echo "   from | to    cuts file from/to time_position"
+  echo "   time_position  position in file, must be a time duration specification"
+}
+
+function quit_with() {
+  if [[ -n ${1} ]]; then
+    echo "ERROR: $1"
+  fi
+  print_usage
+  exit 1
+}
+
+function trim_file() {
+  src_file="${1}"
+  bak_file="${src_file}.bak"
+  mv "$src_file" "$bak_file"
+  ffmpeg -v error -stats -i "$bak_file" -c copy ${2} ${3} "$src_file"
+  if [[ $? == 0 ]]; then
+    rm "$bak_file"
+    echo "done"
+  else
+    echo "restoring from backup: $bak_file"
+    mv "$bak_file" "$src_file"
+  fi
+}
+
+infile="${1}"
+from_to="${2}"
+position="${3}"
+
+[[ -z ${infile} ]] && quit_with "parameter 'infile' missing"
+[[ ! -f ${infile} ]] && quit_with "'infile' not found"
+[[ ! ${from_to} =~ ^(from|to)$ ]] && quit_with "parameter 'from' or 'to' missing"
+[[ -z ${position} ]] && quit_with "parameter 'position' missing"
+
+echo "Trimming file \"${infile}\" ${from_to} position ${position}"
+
+ff_param=`[[ ${from_to} == 'from' ]] && echo "-ss" || echo "-to"`
+trim_file "${1}" "${ff_param}" "${position}"
