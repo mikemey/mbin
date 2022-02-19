@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
 
 function print_usage () {
-  echo -e "\n usage: $(basename $0) [ -h ] DIRECTION [OPTIONS] file"
+  echo -e "\n usage: $(basename $0) [OPTIONS] DIRECTION file"
   echo -e "\nssh to $MEMORIA when no arguments given."
-  echo -e "\nParameters:"
-  echo -e "   -h             show this help"
-  echo -e "\nDIRECTION"
-  echo -e "   -c             send to current (default)"
-  echo -e "   -s             send to series"
-  echo -e "   -m             send to movies"
-  echo -e "   -x TARGET_DIR  send to \$HOME/TARGET_DIR"
-  echo -e "   -gs            get series"
-  echo -e "   -gm            get movies"
   echo -e "\nOPTIONS"
   echo -e "   -d             dry-run rsync command"
   echo -e "   -l             copy symlinks as symlinks"
   echo -e "   -p             only prints rsync command"
   echo -e "   -R             use relative path names"
+  echo -e "   -h             show this help"
+  echo -e "\nDIRECTION"
+  echo -e "   -c             send to current (default)"
+  echo -e "   -s             send to series"
+  echo -e "   -m             send to movies"
+  echo -e "   -x target_dir  send to \$HOME/target_dir"
+  echo -e "   -g             get from \$HOME/"
+  echo -e "   -gs            get series"
+  echo -e "   -gm            get movies"
 }
 
 function error_exit () {
-  echo "$1"
+  echo "ERROR: $1"
   print_usage
   exit 1
 }
@@ -54,8 +54,13 @@ function remove_first_path_arg () {
   PATH_ARGS=( "${PATH_ARGS[@]:1}" )
 }
 
-function check_options () {
-  remove_first_path_arg # remove DIRECTION parameter
+function check_empty() {
+  if [[ -z "$1" ]]; then
+    error_exit "$2"
+  fi
+}
+
+function read_options () {
   HAS_OPTION=true
   while [[ $HAS_OPTION == true ]]; do
     case "${PATH_ARGS[0]}" in
@@ -71,9 +76,6 @@ function check_options () {
       "-R" )
         USE_RELATIVE_PATHS=true
       ;;\
-      -* )
-        error_exit "OPTION invalid: ${PATH_ARGS[0]}"
-      ;;
       * )
         HAS_OPTION=false
       ;;
@@ -82,50 +84,59 @@ function check_options () {
   done
 }
 
-case "${PATH_ARGS[0]}" in
-  "-c" )
-    check_options
-    SOURCES=( "${PATH_ARGS[@]}" )
-    TARGET="$MEMORIA:$MEMORIA_CUR"
-  ;;
-  "-s" )
-    check_options
-    SOURCES=( "${PATH_ARGS[@]}" )
-    TARGET="$MEMORIA:$MEMORIA_SER"
-  ;;
-  "-m" )
-    check_options
-    SOURCES=( "${PATH_ARGS[@]}" )
-    TARGET="$MEMORIA:$MEMORIA_MOV"
-  ;;
-  "-x" )
-    remove_first_path_arg
-    TARGET_DIR="${PATH_ARGS[0]}"
-    if [[ "$TARGET_DIR" =~ ^-.* ]]; then
-      error_exit "TARGET_DIR invalid: $TARGET_DIR"
-    fi
-    check_options
-    SOURCES=( "${PATH_ARGS[@]}" )
-    TARGET="$MEMORIA:~/$TARGET_DIR"
-  ;;
-  "-gs" )
-    check_options
-    SOURCES=( "$MEMORIA:$MEMORIA_SER/${PATH_ARGS[0]}" )
-    TARGET="."
-  ;;
-  "-gm" )
-    check_options
-    SOURCES=( "$MEMORIA:$MEMORIA_MOV/${PATH_ARGS[0]}" )
-    TARGET="."
-  ;;
-  * )
-    if [[ "${PATH_ARGS[0]}" != "-h" ]]; then
-      error_exit "DIRECTION invalid: ${PATH_ARGS[0]}"
-    fi
-    print_usage
-    exit
-  ;;
-esac
+function read_direction() {
+  direction="${PATH_ARGS[0]}"
+  remove_first_path_arg
+  case $direction in
+    "-c" )
+      SOURCES=( "${PATH_ARGS[@]}" )
+      TARGET="$MEMORIA:$MEMORIA_CUR"
+    ;;
+    "-s" )
+      SOURCES=( "${PATH_ARGS[@]}" )
+      TARGET="$MEMORIA:$MEMORIA_SER"
+    ;;
+    "-m" )
+      SOURCES=( "${PATH_ARGS[@]}" )
+      TARGET="$MEMORIA:$MEMORIA_MOV"
+    ;;
+    "-x" )
+      target_dir=${PATH_ARGS[0]}
+      remove_first_path_arg
+      SOURCES=( "${PATH_ARGS[@]}" )
+      TARGET="$MEMORIA:~/$target_dir"
+    ;;
+    "-g" )
+      src_dir=${PATH_ARGS[0]}
+      check_empty "${src_dir}" "empty file parameter"
+      SOURCES=( "$MEMORIA:~/$src_dir" )
+      TARGET="."
+    ;;
+    "-gs" )
+      src_dir=${PATH_ARGS[0]}
+      check_empty "${src_dir}" "empty file parameter"
+      SOURCES=( "$MEMORIA:$MEMORIA_SER/${src_dir}" )
+      TARGET="."
+    ;;
+    "-gm" )
+      src_dir=${PATH_ARGS[0]}
+      check_empty "${src_dir}" "empty file parameter"
+      SOURCES=( "$MEMORIA:$MEMORIA_MOV/${src_dir}" )
+      TARGET="."
+    ;;
+    * )
+      if [[ "${PATH_ARGS[0]}" != "-h" ]]; then
+        error_exit "direction invalid: ${PATH_ARGS[0]}"
+      fi
+      print_usage
+      exit
+    ;;
+  esac
+}
+
+read_options
+read_direction
+check_empty "$SOURCES" "empty file parameter"
 
 echo "rsync ${SOURCES[@]%/} to $TARGET ${USE_RELATIVE_PATHS:+(using relative path names)}"
 if [[ $PRINT_ONLY ]]; then
