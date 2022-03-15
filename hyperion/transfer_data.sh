@@ -62,6 +62,7 @@ case "$label" in
 esac
 
 [[ -e "$file" ]] || error_message "File/Directory not found: $file"
+[[ "$file" == "/" ]] && error_message "parameters not recognized: $1"
 
 ($SEND_TO_HAUMEA || $SEND_TO_MEMORIA) && timelog "${FG_GREEN}start transfer [$file]${FG_DEFAULT}"
 $SEND_TO_MEMORIA && send_command "memoria -c" "$file" "$MEMORIA"
