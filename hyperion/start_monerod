@@ -1,1 +1,1 @@
-monerod.exe --config-file="$MONERO_DIR\monerod.conf"
+monerod.exe --config-file="${MONERO_DIR}\monerod.conf"
