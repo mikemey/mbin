@@ -3,7 +3,7 @@ unset HISTFILE
 
 function error_message () {
   echo
-  echo "ERROR: $1"
+  echo -e "ERROR: $1"
   echo -e "\n usage: $(basename $0) metadata-string"
   echo -e "\nMetadata string format: \"label|dir|file\""
   echo -e " label \t 'mem*', 'both' or 'skip', otherwise transfer to haumea"
@@ -40,8 +40,10 @@ function send_command () {
 }
 
 IFS='|' read -r label dir name <<< "${1}"
-win_path=`sed -r 's/:([^\\])/:\/\1/g' <<< "${dir}/${name}"`
-file=`cygpath -u "$win_path"`
+file="${dir}/${name}"
+
+timelog "WIN file reference: [${file//\\/\\\\}]"
+file=`cygpath -u "$file"`
 
 SEND_TO_HAUMEA=false
 SEND_TO_MEMORIA=false
@@ -61,10 +63,10 @@ case "$label" in
   ;;
 esac
 
-[[ -e "$file" ]] || error_message "File/Directory not found: $file"
+[[ -e "$file" ]] || error_message "File/Directory not found: $file, \nparameter: $1"
 [[ "$file" == "/" ]] && error_message "parameters not recognized: $1"
 
-($SEND_TO_HAUMEA || $SEND_TO_MEMORIA) && timelog "${FG_GREEN}start transfer [$file]${FG_DEFAULT}"
+($SEND_TO_HAUMEA || $SEND_TO_MEMORIA) && timelog "${FG_GREEN}start transfer:${FG_DEFAULT} [$file] - label: [$label]"
 $SEND_TO_MEMORIA && send_command "memoria -c" "$file" "$MEMORIA"
 $SEND_TO_HAUMEA  && send_command "haumea" "$file" "$HAUMEA"
 ($SEND_TO_HAUMEA || $SEND_TO_MEMORIA) && timelog "${FG_GREEN}transfer complete.${FG_DEFAULT}"
