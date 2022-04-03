@@ -19,14 +19,13 @@ PRICE_UPPER_LIMIT = 45000
 QUALIFIER = 'EVs'
 SITE_URL = 'https://ev-database.org'
 CURRENT_DATE = time()
-url = SITE_URL + '/compare/newest-upcoming-electric-vehicle'
 
 
 def send_mail(title, body):
     print(title)
     mails.send(
         u'[{}] {}'.format(QUALIFIER, title),
-        u'URL: {}\n{}'.format(url, body),
+        u'URL: {}\n{}'.format(SITE_URL, body),
         True
     )
 
@@ -37,6 +36,7 @@ class _Car:
             num = re.sub('\D', '', data.select_one(selector).text)
             return int(num) if num else default
 
+        self.data = data
         car_anchor = data.select_one('h2 a')
         car_range = extract_number('.erange_real')
         price = max(extract_number('.country_de'), extract_number('.country_nl'))
@@ -47,11 +47,13 @@ class _Car:
         self.reach = car_range
         self.price = price
         self.date = date
+        self.not_current_flag = data.select_one('.not-current')
 
     def within_criteria(self):
         return self.reach and self.reach >= RANGE_LOWER_LIMIT and \
                self.price and self.price < PRICE_UPPER_LIMIT and \
-               self.date and self.date < CURRENT_DATE
+               self.date and self.date < CURRENT_DATE and \
+               self.not_current_flag is None
 
     def as_html(self):
         price_fmt = '€{:,}'.format(self.price).replace('.', '')
@@ -68,7 +70,7 @@ def create_body_from(cars):
 
 
 def request_cars():
-    resp = requests.get(url, timeout=10)
+    resp = requests.get(SITE_URL, timeout=10)
     resp.raise_for_status()
     html = BeautifulSoup(resp.text, 'html.parser')
     return extract_version_from(html)
