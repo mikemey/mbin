@@ -1,1 +1,1 @@
-bitcoind -datadir="${BITCOIN_DIR}-testnet"
+bitcoind -datadir="${BITCOIN_DIR}-testnet" $@
