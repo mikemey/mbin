@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+CUR_DIR=`pwd`
+
+find . -type d -name ".git" -print0 | while read -d $'\0' git_dir; do
+  repo_dir="${git_dir//.git/}"
+  echo -e "${FG_GREEN}============== ${FG_LIGHT_GREEN}$repo_dir${FG_DEFAULT}"
+  cd "$repo_dir"
+  git pull
+  cd "$CUR_DIR"
+done
+
