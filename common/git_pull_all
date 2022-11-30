@@ -2,11 +2,32 @@
 
 CUR_DIR=`pwd`
 
-find . -type d -name ".git" -print0 | while read -d $'\0' git_dir; do
-  repo_dir="${git_dir//.git/}"
-  echo -e "${FG_GREEN}============== ${FG_LIGHT_GREEN}$repo_dir${FG_DEFAULT}"
-  cd "$repo_dir"
-  git pull
-  cd "$CUR_DIR"
-done
+BUSY="${FG_LIGHT_YELLOW}"
+DONE="${FG_GREEN}"
+ERROR="${FG_RED}"
+UPDATE="${FG_LIGHT_GREEN}"
+UNCHANGED="${FG_DEFAULT}"
 
+function log() {
+  printf "\r${2}>>> ${1}${FG_DEFAULT}"
+}
+
+while read git_dir; do
+  repo_dir="${git_dir//.git/}"
+  log "$repo_dir" $BUSY
+  cd "$repo_dir"
+  resp=$(git pull 2>&1)
+  if [[ $? == 0 ]]; then
+    [[ $resp =~ "Already up to date" ]] \
+      && m="${UNCHANGED}<<< up-to-date" \
+      || m="${UPDATE}<<< update"
+
+    log "$repo_dir $m\n" $DONE
+  else
+    log "$repo_dir\n" $ERROR
+    printf "${ERROR}%s\n" "$resp"
+  fi
+  cd "$CUR_DIR"
+done <<< "$(find . -type d -name ".git" | sort)"
+
+printf "\n"
