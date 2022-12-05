@@ -14,7 +14,7 @@ function log() {
 
 while read git_dir; do
   repo_dir="${git_dir//.git/}"
-  log "$repo_dir" $BUSY
+  log "$repo_dir ... " $BUSY
   cd "$repo_dir"
   resp=$(git pull 2>&1)
   if [[ $? == 0 ]]; then
