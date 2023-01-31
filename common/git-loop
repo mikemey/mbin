@@ -1,10 +1,41 @@
 #!/usr/bin/env bash
 
+function print_usage () {
+  echo -e "\n usage: $(basename $0) [OPTIONS] command"
+  echo -e "\nexecute 'command' in all git-managed sub-directories"
+  echo -e "\nOPTIONS"
+  echo -e "   -x             stop processing immediately when 'command' returns an error-code"
+  echo -e "   -h             show this help"
+}
+
+EXIT_ON_ERROR=false
+
+HAS_OPTION=true
+while [[ $HAS_OPTION == true ]]; do
+ case "$1" in
+   "-h" )
+     print_usage
+     exit
+   ;;
+   "-x" )
+     EXIT_ON_ERROR=true
+     shift
+   ;;
+   * )
+     HAS_OPTION=false
+  esac
+done
+
 for dir in *
   do if [ -d $dir ] && [ -d "$dir/.git" ]
     then 
       cd $dir
-      printf "`$@` $FG_GREEN<-- $dir$FG_DEFAULT\n"
+      printf "\n${FG_LIGHT_GREEN}==== ${dir} ====${FG_DEFAULT}\n"
+      $@
+      ret_val=$?
       cd ..
+      if [[ $EXIT_ON_ERROR == true && $ret_val != 0 ]]; then
+        exit
+      fi
   fi
 done
