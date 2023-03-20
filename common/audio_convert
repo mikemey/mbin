@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+input="$1"
+output="$2"
+audio_codec="ac3"
+maximum_bitrate="640"
+
+if [[ -z "$input" ]]; then
+  echo "Input parameter required!"
+  exit
+fi
+
+if [[ -z "$output" ]]; then
+  echo "Output parameter required!"
+  exit
+fi
+
+function extract_audio_bitrate() {
+  local audio_line=$(ffmpeg -i "$input" 2>&1 | grep "Audio.*kb/s")
+  audio_line="${audio_line% kb/s*}"
+  audio_line="${audio_line##* }"
+  echo ${audio_line}
+}
+
+function list_subtitle_tracks() {
+  echo "Available subtitles:"
+  ffmpeg -i "$input" 2>&1 | grep "Stream.*Subtitle"
+}
+
+bitrate=$(extract_audio_bitrate)
+
+if [[ -z "${bitrate}" ]]; then
+  echo "could not extract audio bitrate"
+  exit
+fi
+if [[ $bitrate -gt $maximum_bitrate ]]; then
+  msg="Bitrate $bitrate exceeds maximum of $maximum_bitrate, reset to maximum?"
+  request_confirmation "$msg"
+  if [[ $? != 0 ]]; then
+    echo -e "abort."
+    exit
+  fi
+  bitrate=$maximum_bitrate
+fi
+
+bitrate="${bitrate}k"
+
+list_subtitle_tracks
+read -p "subtitle track (start with 0, leave empty for all tracks): " sub_ix
+echo ""
+
+msg="re-encode audio ${audio_codec}, bitrate: ${bitrate}, subtitle: ${sub_ix:-all}?"
+if $(request_confirmation "${msg}"); then
+  echo ""
+  ffmpeg -i "${input}" -stats -v 0 -c:v copy -c:a "${audio_codec}" -b:a "${bitrate}" \
+         -map 0:v:0 -map 0:a:0 -map 0:s:${sub_ix} \
+         "${output}"
+else
+  echo -e "\nabort."
+fi
