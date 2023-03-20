@@ -3,6 +3,6 @@ IFS=
 read -p "$1 [Y/n] " -s -n 1 answer
 echo
 if [[ $answer =~ ^[Yy]$ ]] || [[ $answer = "" ]]; then
-  exit 1
+  exit 0
 fi
-exit 0
+exit 1

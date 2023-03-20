@@ -81,7 +81,7 @@ for miss in "${missing_files[@]}"; do
 done
 
 request_confirmation "continue?"
-if [[ $? == 0 ]]; then
+if [[ $? != 0 ]]; then
   echo "abort."
   exit
 fi
