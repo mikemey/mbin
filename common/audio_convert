@@ -1,19 +1,39 @@
 #!/usr/bin/env bash
 
+default_audio_codec="ac3"
+default_maximum_bitrate="640"
+audio_codec=$default_audio_codec
+maximum_bitrate=$default_maximum_bitrate
+
+function print_usage () {
+  if [[ ! -z $1 ]]; then
+    echo -e "\n error: $1"
+  fi
+  echo -e "\n usage: $(basename $0) [-h] [-c codec] [-m max_bitrate] input_file output_file"
+  echo -e "\nconverts audio-codec of input_file"
+  echo -e "\nOptions:"
+  echo -e "   -c codec        use audio codec (default: $default_audio_codec)"
+  echo -e "   -m max_bitrate  maximum bitrate (default: $default_maximum_bitrate)"
+  echo -e "   -h              show this help"
+  exit
+}
+
+while getopts ":c:m:h" option; do
+  case $option in
+    h) print_usage;;
+    c) audio_codec="$OPTARG";;
+    m) maximum_bitrate="$OPTARG";;
+    ?) print_usage "Invalid option: -$OPTARG";;
+  esac
+done
+
+shift $((OPTIND-1))
+
 input="$1"
 output="$2"
-audio_codec="ac3"
-maximum_bitrate="640"
 
-if [[ -z "$input" ]]; then
-  echo "Input parameter required!"
-  exit
-fi
-
-if [[ -z "$output" ]]; then
-  echo "Output parameter required!"
-  exit
-fi
+[[ -z "$input" ]] && print_usage "Input parameter required!"
+[[ -z "$output" ]] && print_usage "Output parameter required!"
 
 function extract_audio_bitrate() {
   local audio_line=$(ffmpeg -i "$input" 2>&1 | grep "Audio.*kb/s")
@@ -47,7 +67,6 @@ bitrate="${bitrate}k"
 
 list_subtitle_tracks
 read -p "subtitle track (start with 0, leave empty for all tracks): " sub_ix
-echo ""
 
 msg="re-encode audio ${audio_codec}, bitrate: ${bitrate}, subtitle: ${sub_ix:-all}?"
 if $(request_confirmation "${msg}"); then
