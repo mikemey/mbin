@@ -12,10 +12,6 @@ abort_with() {
   exit
 }
 
-COL_GREEN="\033[92m"
-COL_RED="\033[91m"
-COL_DEFAULT="\033[39m"
-
 replace_title() {
   origin_file="$1"
   tmp_file="$origin_file.old"
@@ -41,7 +37,7 @@ replace_title() {
 }
 
 dry_run_message() {
-  echo -e "================= ${COL_RED} DRY-RUN ${COL_DEFAULT} ================="
+  echo -e "================= ${FG_LIGHT_RED} DRY-RUN ${FG_DEFAULT} ================="
 }
 
 if [[ "$1" == "-auto" ]]; then
@@ -72,7 +68,7 @@ if [[ "$1" == "-auto" ]]; then
       title="${serName//./ } ${title}"
     fi
 
-    echo -e "$infile <${COL_GREEN}${title}${COL_DEFAULT}>"
+    echo -e "$infile <${FG_GREEN}${title}${FG_DEFAULT}>"
     if [[ -z $DRYRUN ]]; then
        replace_title "$infile" "$title"
     fi
