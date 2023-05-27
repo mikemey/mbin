@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 from check_utils import run_generic_check
 
-url = 'https://electrum.org/panel-download.html'
+url = 'https://electrum.org/#download'
 find_text = "Latest release: "
 
 
