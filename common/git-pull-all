@@ -12,22 +12,32 @@ function log() {
   printf "\r${2}>>> ${1}${FG_DEFAULT}"
 }
 
-while read git_dir; do
-  repo_dir="${git_dir//.git/}"
-  log "$repo_dir ... " $BUSY
+function pull_repo_dir() {
+  local repo_dir="${1}"
+  log "$repo_dir ... \n" $BUSY
   cd "$repo_dir"
-  resp=$(git pull 2>&1)
-  if [[ $? == 0 ]]; then
-    [[ $resp =~ "Already up to date" ]] \
-      && m="${UNCHANGED}<<< up-to-date" \
-      || m="${UPDATE}<<< update"
 
-    log "$repo_dir $m\n" $DONE
+  local resp
+  resp=$(git pull 2>&1)
+  local retval="$?"
+  if [[ $retval == 0 ]]; then
+    local msg
+    [[ $resp =~ "Already up to date" ]] \
+      && msg="${UNCHANGED}<<< up-to-date" \
+      || msg="${UPDATE}<<< update"
+
+    log "$repo_dir $msg\n" $DONE
   else
     log "$repo_dir\n" $ERROR
     printf "${ERROR}%s\n" "$resp"
   fi
   cd "$CUR_DIR"
+}
+
+while read git_dir; do
+  repo_dir="${git_dir//.git/}"
+  pull_repo_dir "$repo_dir" &
 done <<< "$(find . -type d -name ".git" | sort)"
 
+wait
 printf "\n"
