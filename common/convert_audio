@@ -36,10 +36,8 @@ output="$2"
 [[ -z "$output" ]] && print_usage "Output parameter required!"
 
 function extract_audio_bitrate() {
-  local audio_line=$(ffmpeg -i "$input" 2>&1 | grep "Audio.*kb/s")
-  audio_line="${audio_line% kb/s*}"
-  audio_line="${audio_line##* }"
-  echo ${audio_line}
+  local audio_line=$(ffmpeg -i "$input" 2>&1 | awk '/Stream.*Audio/ { found=1 } found && /BPS/ { print $3; exit }')
+  echo $(($audio_line / 1000))
 }
 
 function list_subtitle_tracks() {
