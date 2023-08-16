@@ -144,12 +144,12 @@ if [[ $PRINT_ONLY ]]; then
   echo "rsync --progress --partial -t -r \
     ${USE_RELATIVE_PATHS:+-R} ${DRY_RUN:+-n} ${COPY_SYMLINKS:+-l} \
     --perms --chmod=Du=rwx,Dgo=rx,Fa=rw \
-    --exclude=\"~*\" --exclude=\".*\" \
+    --exclude=\"~*\" --exclude=\".*\" --prune-empty-dirs \
     ${SOURCES[@]%/} $TARGET"
 else
   rsync --progress --partial -t -r \
     ${USE_RELATIVE_PATHS:+-R} ${DRY_RUN:+-n} ${COPY_SYMLINKS:+-l} \
     --perms --chmod=Du=rwx,Dgo=rx,Fa=rw \
-    --exclude="~*" --exclude=".*" \
+    --exclude="~*" --exclude=".*" --prune-empty-dirs \
     "${SOURCES[@]%/}" "$TARGET"
 fi
