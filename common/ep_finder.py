@@ -41,7 +41,6 @@ def query_episodes(id):
             print('------ Season', ep.season, '---------')
             curr_season = ep.season
         ep_name = BeautifulSoup(ep.name, 'html.parser').text
-        ep_name = ep_name.replace(' ', '.')
         print(f'S{ep.season:02}E{ep.episode:02}: "{ep_name}"')
 
 # query_episode_id('season_name')
