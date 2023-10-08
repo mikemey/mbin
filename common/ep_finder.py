@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+
+from argparse import ArgumentParser
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -25,7 +28,7 @@ class Episode:
         self.name = name
 
 
-def query_episodes(id):
+def query_episodes(id, replace_dots=True):
     url = episodes_url.format(id)
     resp = requests.get(url, timeout=10)
     resp.raise_for_status()
@@ -41,7 +44,25 @@ def query_episodes(id):
             print('------ Season', ep.season, '---------')
             curr_season = ep.season
         ep_name = BeautifulSoup(ep.name, 'html.parser').text
+        if replace_dots:
+            ep_name = ep_name.replace(' ', '.')
         print(f'S{ep.season:02}E{ep.episode:02}: "{ep_name}"')
 
-# query_episode_id('season_name')
-# query_episodes(season_id)
+
+def create_arg_parser():
+    p = ArgumentParser(description='Search episode-id from name or episodes from episode-id.')
+    group = p.add_mutually_exclusive_group(required=True)
+    group.add_argument('-n', '--name', help='search episode-id by NAME')
+    group.add_argument('-i', '--id', type=int, help='search episodes by ID')
+    p.add_argument('-d', '--dot', action='store_true', help='replace spaces with dots in output')
+    return p
+
+
+if __name__ == '__main__':
+    parser = create_arg_parser()
+    args = parser.parse_args()
+
+    if args.id:
+        query_episodes(args.id, args.dot)
+    else:
+        query_episode_id(args.name)
