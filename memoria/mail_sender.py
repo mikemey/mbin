@@ -1,6 +1,7 @@
 import os
-from smtplib import SMTP
+import ssl
 from email.mime.text import MIMEText
+from smtplib import SMTP_SSL
 
 
 def get_env(name):
@@ -16,9 +17,8 @@ def send(email_subject, email_content, as_html=False):
     msg['From'] = sender
     msg['To'] = destination
 
-    conn = SMTP(get_env('MM_SMTP_SERVER'), get_env('MM_SMTP_SERVER_PORT'))
-    conn.set_debuglevel(False)
-    conn.starttls()
-    conn.login(get_env('MM_USERNAME'), get_env('MM_PASSWORD'))
-    conn.sendmail(sender, destination, msg.as_string())
-    conn.close()
+    context = ssl.create_default_context()
+    with SMTP_SSL(get_env('MM_SMTP_SERVER'), int(get_env('MM_SMTP_SERVER_PORT')), context=context) as server:
+        server.set_debuglevel(False)
+        server.login(get_env('MM_USERNAME'), get_env('MM_PASSWORD'))
+        server.sendmail(sender, destination, msg.as_string())
