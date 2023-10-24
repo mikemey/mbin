@@ -1,0 +1,23 @@
+# add lines to /etc/config/crontab
+
+#------------------------------------------------------------------------------
+#====                     TANTALUS                         ====================
+#------------------------------------------------------------------------------
+1 11 * * * source /share/MD0_DATA/Public/bin/.custom_profile; $MBIN/tantalus/tantalus_backup >> $LOGDIR/tantalus/backup.log 2>&1
+10,28,50 8-20 * * * source /share/MD0_DATA/Public/bin/.custom_profile; python3 $MBIN/tantalus/tantalus_isonline.py 2>&1 | timelog >> $LOGDIR/tantalus/is_online.log 2>&1
+13,49 8-20 * * * source /share/MD0_DATA/Public/bin/.custom_profile; python3 $MBIN/tantalus/tantalus_schedule_check.py 2>&1 | timelog >> $LOGDIR/tantalus/scheduler.check.log 2>&1
+#------------------------------------------------------------------------------
+#====                     WORKOUT-RECORDS                  ====================
+#------------------------------------------------------------------------------
+10 11 * * * source /share/MD0_DATA/Public/bin/.custom_profile; $MBIN/workout-records/wr_backup >> $LOGDIR/workout-records/backup.log 2>&1
+14,29,51 8-20 * * * source /share/MD0_DATA/Public/bin/.custom_profile; python3 $MBIN/workout-records/wr_isonline.py 2>&1 | timelog >> $LOGDIR/workout-records/is_online.log 2>&1
+#------------------------------------------------------------------------------
+#====                     OTHER STUFF                      ====================
+#------------------------------------------------------------------------------
+# 15 18 * * * source /share/MD0_DATA/Public/bin/.custom_profile; $MBIN/moving_boxes_backup >> $LOGDIR/moving-boxes-backup.log 2>&1
+25 * * * * source /share/MD0_DATA/Public/bin/.custom_profile; $MBIN/msm_node_connections >> $LOGDIR/msm-connections.log 2>&1
+30 8-20 * * * source /share/MD0_DATA/Public/bin/.custom_profile; [[ $RANDOM -lt 700 ]] && python3 $MBIN/msm_report.py 2>&1 | timelog >> $LOGDIR/msm-report.log 2>&1
+17 8-20/2 * * * source /share/MD0_DATA/Public/bin/.custom_profile; $MBIN/checks/check_main.sh 2>&1 | timelog >> $LOGDIR/checks.log 2>&1
+#------------------------------------------------------------------------------
+#====               qnap will reorder these jobs           ====================
+#------------------------------------------------------------------------------
