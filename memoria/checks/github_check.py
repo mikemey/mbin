@@ -8,7 +8,7 @@ from check_utils import run_generic_check
 
 
 def extract_version_from(html: BeautifulSoup):
-    version_anchor = html.select('span.wb-break-all')
+    version_anchor = html.select('span.ml-1')
 
     if version_anchor is None:
         return None
