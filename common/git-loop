@@ -24,17 +24,28 @@ do
 done
 
 ret_val=0
+working_dir=$(pwd)
+params="${@:$OPTIND}"
+
+function execute_parameters {
+  if [ -f "$working_dir/$params" ]; then
+    bash "$working_dir/$params"
+  else
+    eval "$params"
+  fi
+  ret_val=$?
+}
+
 for dir in *
   do if [ -d "$dir/.git" ]
-    then 
+    then
       cd $dir
       current_branch=$(git rev-parse --abbrev-ref HEAD)
       if [ -e $branch ] || [[ "$current_branch" =~ "$branch" ]]; then
           printf "\n${FG_GREEN}==== ${FG_LIGHT_GREEN}${dir} ${FG_LIGHT_YELLOW}[$current_branch]${FG_DEFAULT}\n"
-          eval "${@:$OPTIND}"
-          ret_val=$?
+          execute_parameters
       fi
-      cd ..
+      cd "$working_dir"
       if [[ $EXIT_ON_ERROR == true && $ret_val != 0 ]]; then
         exit
       fi
