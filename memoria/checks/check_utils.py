@@ -34,7 +34,7 @@ def request_version(url, extract_version_from):
     return extract_version_from(html)
 
 
-def __send_mail__(qualifier, url, title, body, dry_run):
+def send_mail(qualifier, url, title, body, dry_run=False):
     mail_subject = u'[{}] {}'.format(qualifier, title)
     mail_body = u'URL: {}\n{}'.format(url, body)
     if dry_run:
@@ -49,25 +49,25 @@ def run_generic_check(qualifier, url, extract_version_from, dry_run=False):
     check_file_name = sys.argv[1]
     exit_code = 0
 
-    def send_mail(title, body):
-        __send_mail__(qualifier, url, title, body, dry_run)
+    def __send_mail(title, body):
+        send_mail(qualifier, url, title, body, dry_run)
 
     try:
         print('checking...')
         version = request_version(url, extract_version_from)
 
         if version is None:
-            send_mail('no results', '')
+            __send_mail('no results', '')
             exit_code = 1
         else:
             out_file = CheckFile(check_file_name)
             if version not in out_file.read_entries():
-                send_mail(u'new version: {}'.format(version), '')
+                __send_mail(u'new version: {}'.format(version), '')
                 out_file.write_entry(version)
         print('done')
     except Exception as ex:
         traceback.print_exc(file=sys.stderr)
-        send_mail('check error', u'An error occurred:\n{}'.format(ex))
+        __send_mail('check error', u'An error occurred:\n{}'.format(ex))
         exit_code = 2
 
     exit(exit_code)
