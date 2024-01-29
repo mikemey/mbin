@@ -27,23 +27,34 @@ class CheckFile:
             return [line.strip() for line in fin.readlines()]
 
 
-def run_generic_check(qualifier, url, extract_version_from):
+def request_version(url, extract_version_from):
+    resp = requests.get(url, timeout=10)
+    resp.raise_for_status()
+    html = BeautifulSoup(resp.text, 'html.parser')
+    return extract_version_from(html)
+
+
+def __send_mail__(qualifier, url, title, body, dry_run):
+    mail_subject = u'[{}] {}'.format(qualifier, title)
+    mail_body = u'URL: {}\n{}'.format(url, body)
+    if dry_run:
+        print('Subject:', mail_subject)
+        print('Content:', mail_body)
+    else:
+        print(title)
+        mails.send(mail_subject, mail_body)
+
+
+def run_generic_check(qualifier, url, extract_version_from, dry_run=False):
     check_file_name = sys.argv[1]
     exit_code = 0
 
-    def request_version():
-        resp = requests.get(url, timeout=10)
-        resp.raise_for_status()
-        html = BeautifulSoup(resp.text, 'html.parser')
-        return extract_version_from(html)
-
     def send_mail(title, body):
-        print(title)
-        mails.send(u'[{}] {}'.format(qualifier, title), u'URL: {}\n{}'.format(url, body))
+        __send_mail__(qualifier, url, title, body, dry_run)
 
     try:
         print('checking...')
-        version = request_version()
+        version = request_version(url, extract_version_from)
 
         if version is None:
             send_mail('no results', '')

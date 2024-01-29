@@ -5,10 +5,9 @@ import sys
 import traceback
 from time import time
 
-import requests
 from bs4 import BeautifulSoup
 
-from check_utils import CheckFile
+from check_utils import CheckFile, request_version
 
 sys.path.append(os.environ['MBIN'])
 import mail_sender as mails
@@ -70,10 +69,7 @@ def create_body_from(cars):
 
 
 def request_cars():
-    resp = requests.get(SITE_URL, timeout=10)
-    resp.raise_for_status()
-    html = BeautifulSoup(resp.text, 'html.parser')
-    return extract_version_from(html)
+    return request_version(SITE_URL, extract_version_from)
 
 
 def extract_version_from(html: BeautifulSoup):
