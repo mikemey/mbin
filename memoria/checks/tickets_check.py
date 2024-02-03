@@ -7,7 +7,6 @@ from bs4 import BeautifulSoup
 from check_utils import request_version, send_mail, CheckFile
 
 url = 'https://shop.sksturm.at/sturm-graz-shop/heimspiele.htm'
-find_text = "Latest release: "
 
 
 def request_tickets():
