@@ -24,7 +24,7 @@ class TicketAnnouncement:
         headline = ticket_html.select_one('span[class^=Smaller]').text
         self.headline = headline.replace('Puntigamer ', '')
 
-    def getId(self):
+    def get_id(self):
         return self.date + self.headline
 
 
@@ -33,7 +33,7 @@ def __send_mail(title, body):
 
 
 def create_body_from(tickets):
-    lines = map(lambda t: f'- {t.date}\n\t{t.headline}', tickets)
+    lines = map(lambda t: '- {}\n\t{}'.format(t.date, t.headline), tickets)
     return "\n".join(lines)
 
 
@@ -50,10 +50,10 @@ def run_check():
         else:
             out_file = CheckFile(check_file_name)
             stored_tickets = out_file.read_entries()
-            new_tickets = [t for t in tickets if t.getId() not in stored_tickets]
+            new_tickets = [t for t in tickets if t.get_id() not in stored_tickets]
             if len(new_tickets) > 0:
                 __send_mail('New tickets', create_body_from(new_tickets))
-                out_file.write_entries([t.getId() for t in new_tickets])
+                out_file.write_entries([t.get_id() for t in new_tickets])
         print('done')
     except Exception as ex:
         traceback.print_exc(file=sys.stderr)
