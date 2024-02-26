@@ -1,12 +1,16 @@
 import os
+import platform
 import sys
 import traceback
 
 import requests
 from bs4 import BeautifulSoup
 
-sys.path.append(os.environ['MBIN'])
-import mail_sender as mails
+DRY_RUN = True
+if platform.uname().node == 'Memoria':
+    DRY_RUN = False
+    sys.path.append(os.environ['MBIN'])
+    import mail_sender as mails
 
 
 class CheckFile:
@@ -34,10 +38,10 @@ def request_version(url, extract_version_from):
     return extract_version_from(html)
 
 
-def send_mail(qualifier, url, title, body, dry_run=False):
+def send_mail(qualifier, url, title, body):
     mail_subject = u'[{}] {}'.format(qualifier, title)
     mail_body = u'URL: {}\n{}'.format(url, body)
-    if dry_run:
+    if DRY_RUN:
         print('Subject:', mail_subject)
         print('Content:', mail_body)
     else:
@@ -45,12 +49,12 @@ def send_mail(qualifier, url, title, body, dry_run=False):
         mails.send(mail_subject, mail_body)
 
 
-def run_generic_check(qualifier, url, extract_version_from, dry_run=False):
+def run_generic_check(qualifier, url, extract_version_from):
     check_file_name = sys.argv[1]
     exit_code = 0
 
     def __send_mail(title, body):
-        send_mail(qualifier, url, title, body, dry_run)
+        send_mail(qualifier, url, title, body)
 
     try:
         print('checking...')
