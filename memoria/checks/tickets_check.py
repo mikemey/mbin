@@ -20,8 +20,8 @@ def extract_tickets_from(html: BeautifulSoup):
 
 class TicketAnnouncement:
     def __init__(self, ticket_html):
-        self.date = ticket_html.select_one('.date').text
-        headline = ticket_html.select_one('span[class^=Smaller]').text
+        self.date = ticket_html.select_one('span.date').text
+        headline = ticket_html.select_one('h4 a.col:nth-child(1)').text
         self.headline = headline.replace('Puntigamer ', '')
 
     def get_id(self):
