@@ -41,8 +41,8 @@ for dir in *
     then
       cd $dir
       current_branch=$(git rev-parse --abbrev-ref HEAD)
-      if [ -e $branch ] || [[ "$current_branch" =~ "$branch" ]]; then
-          printf "\n${FG_GREEN}==== ${FG_LIGHT_GREEN}${dir} ${FG_LIGHT_YELLOW}[$current_branch]${FG_DEFAULT}\n"
+      if [ -e $branch ] || [[ ${current_branch} =~ ${branch} ]]; then
+          printf "\n${FG_GREEN}==== ${FG_LIGHT_GREEN}${dir} ${FG_LIGHT_YELLOW}[${current_branch}]${FG_DEFAULT}\n"
           execute_parameters
       fi
       cd "$working_dir"
