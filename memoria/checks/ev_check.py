@@ -3,7 +3,6 @@ import os
 import re
 import sys
 import traceback
-from time import time
 
 from bs4 import BeautifulSoup
 
@@ -17,7 +16,6 @@ PRICE_UPPER_LIMIT = 45000
 
 QUALIFIER = 'EVs'
 SITE_URL = 'https://ev-database.org'
-CURRENT_DATE = time()
 
 
 def send_mail(title, body):
@@ -35,24 +33,17 @@ class _Car:
             num = re.sub('\D', '', data.select_one(selector).text)
             return int(num) if num else default
 
-        self.data = data
         car_anchor = data.select_one('h2 a')
-        car_range = extract_number('.erange_real')
-        price = max(extract_number('.country_de'), extract_number('.country_nl'))
-        date = extract_number('.date_from')
-
         self.model = car_anchor.text.strip()
         self.link = car_anchor.attrs['href']
-        self.reach = car_range
-        self.price = price
-        self.date = date
+        self.reach = extract_number('.erange_real')
+        self.price = max(extract_number('.country_de'), extract_number('.country_nl'))
         self.not_current_flag = data.select_one('.not-current')
 
     def within_criteria(self):
         return self.reach and self.reach >= RANGE_LOWER_LIMIT and \
-               self.price and self.price < PRICE_UPPER_LIMIT and \
-               self.date and self.date < CURRENT_DATE and \
-               self.not_current_flag is None
+            self.price and self.price < PRICE_UPPER_LIMIT and \
+            self.not_current_flag is None
 
     def as_html(self):
         price_fmt = '€{:,}'.format(self.price).replace('.', '')
@@ -73,7 +64,7 @@ def request_cars():
 
 
 def extract_version_from(html: BeautifulSoup):
-    car_data = html.select('.data-wrapper')
+    car_data = html.select('.item-data')
     return [c for c in [_Car(data) for data in car_data] if c.within_criteria()]
 
 
@@ -90,11 +81,11 @@ def run_check():
         else:
             out_file = CheckFile(check_file_name)
             stored_cars = out_file.read_entries()
-            new_cars = [car for car in cars if car.model not in stored_cars]
+            new_cars = [car for car in cars if car.link not in stored_cars]
             if len(new_cars) > 0:
                 title = u'{} new entr{}'.format(len(new_cars), 'ies' if len(new_cars) > 1 else 'y')
                 send_mail(title, create_body_from(new_cars))
-                car_models = [car.model for car in new_cars]
+                car_models = [car.link for car in new_cars]
                 out_file.write_entries(car_models)
         print('done')
     except Exception as ex:
