@@ -1,0 +1,9 @@
+[user]
+	name = Michael Mayer
+	email = <edit email address>
+[pull]
+	ff = only
+[init]
+	defaultBranch = main
+[push]
+	default = current
