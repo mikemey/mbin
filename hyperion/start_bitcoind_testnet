@@ -15,6 +15,6 @@ while [[ "$should_restart" == "1" ]]; do
   should_restart=$(lock_exists)
   while [[ "$(lock_exists)" == "1" ]]; do
     echo "waiting for lock deletion..."
-    sleep 5
+    sleep 10
   done
 done
