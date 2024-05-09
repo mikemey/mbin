@@ -1,1 +1,20 @@
-monerod.exe --config-file="${MONERO_DIR}\monerod.conf" $@
+#!/usr/bin/env bash
+
+if [[ -z "${CHAINS_BACKUP_LOCK}" ]]; then
+  echo "please provide variable CHAINS_BACKUP_LOCK"
+  exit 1
+fi
+
+function lock_exists () {
+  [[ -f "${CHAINS_BACKUP_LOCK}" ]] && echo "1" || echo "0"
+}
+
+should_restart="1"
+while [[ "$should_restart" == "1" ]]; do
+  monerod.exe --config-file="${MONERO_DIR}\monerod.conf" $@
+  should_restart=$(lock_exists)
+  while [[ "$(lock_exists)" == "1" ]]; do
+    echo "waiting for lock deletion..."
+    sleep 5
+  done
+done

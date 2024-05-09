@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+function print_usage () {
+  if [[ ! -z $1 ]]; then
+    echo -e "\n error: $1"
+  fi
+  echo -e "\nusage: $(basename $0) [-h] backup-directory process-identifier"
+  echo -e "\nbackup from 'backup-directory' to '$CHAINS_BACKUP' (defined with variable CHAINS_BACKUP)"
+  echo -e "process-identifier must be either 'bitcoind' or 'monerod'"
+  echo -e "\nOptions:"
+  echo -e "   -h              show this help"
+  exit
+}
+
+while getopts ":h" option; do
+  case $option in
+    h) print_usage;;
+    ?) print_usage "Invalid option: -$OPTARG";;
+  esac
+done
+
+[[ -z "${1}" ]] && print_usage "backup-directory parameter required"
+[[ -z "${2}" ]] && print_usage "process-identifier parameter required"
+[[ -z "${CHAINS_BACKUP}" ]] && print_usage "please provide variable CHAINS_BACKUP"
+[[ -z "${CHAINS_BACKUP_LOCK}" ]] && print_usage "please provide variable CHAINS_BACKUP_LOCK"
+
+SOURCE=`cygpath ${1}`
+PROCESS_IDENTIFIER="${2}"
+TARGET=`cygpath ${CHAINS_BACKUP}`
+LOCK_FILE=`cygpath ${CHAINS_BACKUP_LOCK}`
+
+case $PROCESS_IDENTIFIER in
+  "bitcoind" | "monerod") STOP_COMMAND="stop_${PROCESS_IDENTIFIER}";;
+  *) print_usage "Invalid process-identifier: $PROCESS_IDENTIFIER";;
+esac
+
+function main () {
+  check_lock_not_there
+  create_lock
+  kill_process
+  wait_for_process_shutdown
+  run_backup
+  delete_lock
+}
+
+function check_lock_not_there () {
+  [[ -f "${LOCK_FILE}" ]] && print_usage "lock file found, current backup in progress?"
+}
+
+function create_lock () {
+  touch "${LOCK_FILE}"
+}
+
+function kill_process () {
+  echo "send stop command to $PROCESS_IDENTIFIER"
+  eval "${STOP_COMMAND}"
+}
+
+function wait_for_process_shutdown () {
+  while [[ `pgrep $PROCESS_IDENTIFIER` ]]; do
+    echo "waiting for process shutdown..."
+    sleep 3
+  done
+}
+
+function run_backup () {
+  rsync --progress --partial -t -r \
+      --perms --chmod=Du=rwx,Dgo=rx,Fa=rw \
+      --exclude="~*" --exclude=".*" --prune-empty-dirs \
+      "${SOURCE}" "${TARGET}"
+}
+
+function delete_lock () {
+  rm "${LOCK_FILE}"
+}
+
+main
