@@ -41,13 +41,16 @@ function main () {
   wait_for_process_shutdown
   run_backup
   delete_lock
+  echo "Done"
 }
 
 function check_lock_not_there () {
+  echo "checking lock file..."
   [[ -f "${LOCK_FILE}" ]] && print_usage "lock file found, current backup in progress?"
 }
 
 function create_lock () {
+  echo "create lock file..."
   touch "${LOCK_FILE}"
 }
 
@@ -64,12 +67,14 @@ function wait_for_process_shutdown () {
 }
 
 function run_backup () {
+  echo "start backup..."
   rsync --progress --partial -a \
       --exclude="~*" --exclude=".*" --prune-empty-dirs \
       "${SOURCE}" "${TARGET}"
 }
 
 function delete_lock () {
+  echo "delete lock file..."
   rm "${LOCK_FILE}"
 }
 
