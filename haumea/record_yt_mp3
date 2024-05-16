@@ -63,6 +63,6 @@ fi
 for ((i = 0; i < ${#missing_files[@]}; i++)); do
   IFS=';' read fname exec_cmd link <<< "${missing_files[$i]}"
   echo "downloading [${fname}] ..."
-  youtube-dl -x -q -o "${tmp_file}" --exec "${exec_cmd}" "${link}"
+  yt-dlp -x -q -o "${tmp_file}" --exec "${exec_cmd}" "${link}"
   check_exit_code "youtube-dl ${link}"
 done
