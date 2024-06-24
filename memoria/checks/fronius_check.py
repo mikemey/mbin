@@ -9,7 +9,7 @@ find_text = "Latest release: "
 
 
 def extract_version_from(html: BeautifulSoup):
-    version = html.find_all('span', class_='title')[2]
+    version = html.find_all('span', class_='title')[3]
     return version.text
 
 
