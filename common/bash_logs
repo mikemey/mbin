@@ -7,4 +7,4 @@ function log_history () {
    echo "$category $prev_cmd" >> ~/.bash_logs/bash_history_$(date "+%Y-%m-%d").log
  fi
 }
-export PROMPT_COMMAND='$(log_history)'
+export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }$(log_history)"
