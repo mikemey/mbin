@@ -3,6 +3,7 @@
 	email = <edit email address>
 [pull]
 	ff = only
+	default = current
 [init]
 	defaultBranch = main
 [push]
