@@ -34,6 +34,7 @@ report_template_file = path.dirname(path.abspath(__file__)) + '/msm_report_templ
 date_line_template = '<span class="{}">{}: <small class="pull_right">{}</small></span><br />\n'
 today_class = ''
 not_today_class = 'not_today'
+backup_size_threshold=20000
 
 
 def format_date(dt):
@@ -67,8 +68,16 @@ def get_backup_dates():
     result_log = ''
     for backup in backups:
         directory = backup[DIR_KEY]
-        bak_files = [f for f in listdir(directory) if path.isfile(path.join(directory, f))]
-        bak_dates = map(lambda bf: path.getmtime(path.join(directory, bf)), bak_files)
+        bak_files = [
+            path.join(directory, f)
+            for f in listdir(directory)
+            if path.isfile(path.join(directory, f))
+        ]
+        bak_dates = [
+            path.getmtime(bf)
+            for bf in bak_files
+            if path.getsize(bf) > backup_size_threshold
+        ]
         latest_date = datetime.fromtimestamp(max(bak_dates))
         result_log += format_date_line(backup[NAME_KEY], latest_date)
     return result_log
