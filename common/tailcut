@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+set -e
+
+lines="500"
+tmp_file="123.xyz"
+
+function print_usage () {
+  if [[ ! -z $1 ]]; then
+    echo -e "\n error: $1"
+  fi
+  echo -e "\n usage: $(basename $0) [-h] [-n lines] file"
+  echo -e "\ncuts file to last n lines"
+  echo -e "\nOptions:"
+  echo -e "   -h              show this help"
+  echo -e "   -n lines        number of lines to cut down to (default: $lines)"
+  exit
+}
+
+while getopts ":n:h" option; do
+  case $option in
+    h) print_usage;;
+    n) lines="$OPTARG";;
+    ?) print_usage "Invalid option: -$OPTARG";;
+  esac
+done
+
+shift $((OPTIND-1))
+input_file="$1"
+
+[[ -z "$input_file" ]] && print_usage "File parameter required!"
+[[ ! -f "$input_file" ]] && print_usage "Not a file: ${input_file}"
+
+tail -n ${lines} "${input_file}" > ${tmp_file}
+mv ${tmp_file} "${input_file}"
