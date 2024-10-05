@@ -12,7 +12,7 @@ sys.path.append(os.environ['MBIN'])
 import mail_sender as mails
 
 RANGE_LOWER_LIMIT = 350
-PRICE_UPPER_LIMIT = 45000
+PRICE_UPPER_LIMIT = 40000
 
 QUALIFIER = 'EVs'
 SITE_URL = 'https://ev-database.org'
