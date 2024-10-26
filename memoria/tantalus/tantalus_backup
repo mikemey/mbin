@@ -7,7 +7,7 @@ BAK_FILE="tantalus_db_$(date +"%Y%m%d_%H%M").gz"
 timelog "dumping remote db..."
 ssh $MSMSSH /usr/bin/env bash << EOF
   cd "$TMP_DIR"
-  mongodump --quiet --db=tantalus --excludeCollection=sessions --gzip --archive="$BAK_FILE"
+  mongodump --quiet --db=tantalus --excludeCollection=sessions --numParallelCollections=1 --gzip --archive="$BAK_FILE"
 EOF
 
 timelog "transferring dump file..."
