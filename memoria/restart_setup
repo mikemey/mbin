@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+#  HOW-TO: add script in autorun.sh:
+#
+#  mount -t ext2 /dev/mtdblock5 /tmp/config
+#  vi /tmp/config/autorun.sh
+#  umount /tmp/config
+
 function check_env () {
   if [[ ! ${!1} ]]; then
     timelog "Environment variable '$1' not set!"
