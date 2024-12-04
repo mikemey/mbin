@@ -11,10 +11,10 @@ function lock_exists () {
 
 should_restart="1"
 while [[ "$should_restart" == "1" ]]; do
-  bitcoind -datadir="$BITCOIN_DIR" $@
-  should_restart=$(lock_exists)
   while [[ "$(lock_exists)" == "1" ]]; do
     echo "waiting for lock deletion..."
     sleep 10
   done
+  bitcoind -datadir="$BITCOIN_DIR" $@
+  should_restart=$(lock_exists)
 done

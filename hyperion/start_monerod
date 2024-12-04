@@ -11,10 +11,10 @@ function lock_exists () {
 
 should_restart="1"
 while [[ "$should_restart" == "1" ]]; do
-  monerod.exe --config-file="${MONERO_DIR}\monerod.conf" $@
-  should_restart=$(lock_exists)
   while [[ "$(lock_exists)" == "1" ]]; do
     echo "waiting for lock deletion..."
     sleep 10
   done
+  monerod.exe --config-file="${MONERO_DIR}\monerod.conf" $@
+  should_restart=$(lock_exists)
 done
