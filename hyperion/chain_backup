@@ -69,7 +69,8 @@ function wait_for_process_shutdown () {
 function run_backup () {
   echo "start backup..."
   rsync --progress --partial -a \
-      --exclude="~*" --exclude=".*" --prune-empty-dirs \
+      --exclude="~*" --exclude=".*" \
+      --delete --prune-empty-dirs \
       "${SOURCE}" "${TARGET}"
 }
 
