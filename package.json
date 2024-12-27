@@ -2,15 +2,14 @@
   "name": "mbin-tests",
   "version": "1.0.0",
   "description": "tests for mbin scripts",
-  "engines": {
-    "node": "11"
-  },
   "scripts": {
     "lint": "standard",
     "bocks-test": "mocha 'bocks/**/**.spec.js'",
     "bocks-watch": "nodemon -x 'npm run bocks-test -s' --watch bocks --ignore '**.log'",
     "shell-test": "mocha 'test/**/**.spec.js'",
     "shell-watch": "nodemon -x 'npm run shell-test -s' --ignore '**.log'",
+    "numbers-test": "mocha 'sedna/**/**.spec.js'",
+    "numbers-watch": "nodemon -x 'npm run numbers-test -s' --watch sedna --ignore '**.log'",
     "pretest": "npm install",
     "test": "npm run lint -s && npm run bocks-test -s && npm run shell-test -s"
   },
@@ -21,24 +20,24 @@
   "author": "mikemey",
   "license": "MIT",
   "bugs": {},
-  "dependencies": {},
+  "dependencies": {
+    "readline": "^1.3.0"
+  },
   "standard": {
     "env": [
       "mocha"
     ]
   },
   "devDependencies": {
-    "chai": "^4.2.0",
+    "chai": "^5.1.2",
     "chai-match": "^1.1.1",
-    "chai-string": "^1.5.0",
     "child-process": "^1.0.2",
-    "eslint": "^5.16.0",
-    "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-mocha": "^5.3.0",
-    "eslint-plugin-standard": "^4.0.0",
-    "fs-extra": "^7.0.1",
-    "mocha": "^6.1.4",
-    "nodemon": "^1.18.11",
-    "standard": "^12.0.1"
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-mocha": "^10.5.0",
+    "eslint-plugin-standard": "^5.0.0",
+    "fs-extra": "^11.2.0",
+    "mocha": "^10.8.2",
+    "nodemon": "^3.1.7",
+    "standard": "^17.1.2"
   }
 }
