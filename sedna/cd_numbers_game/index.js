@@ -119,6 +119,15 @@ const generateExpressions = (a, b, target) => {
 
   const createExpressionWith = (a, b, op) => createExpression(a, b, op, target)
 
+  const createAddition = (exprA, exprB) => {
+    const resultA = expressionResult(exprA)
+    const resultB = expressionResult(exprB)
+
+    const larger = resultA > resultB ? exprA : exprB
+    const smaller = resultA > resultB ? exprB : exprA
+
+    expressions.push(createExpressionWith(larger, smaller, '+'))
+  }
   const createSubtraction = (exprA, exprB) => {
     const resultA = expressionResult(exprA)
     const resultB = expressionResult(exprB)
@@ -131,7 +140,9 @@ const generateExpressions = (a, b, target) => {
     const resultA = expressionResult(exprA)
     const resultB = expressionResult(exprB)
     if (resultA !== 1 && resultB !== 1) {
-      expressions.push(createExpressionWith(exprA, exprB, '*'))
+      const larger = resultA > resultB ? exprA : exprB
+      const smaller = resultA > resultB ? exprB : exprA
+      expressions.push(createExpressionWith(larger, smaller, '*'))
     }
   }
 
@@ -143,7 +154,7 @@ const generateExpressions = (a, b, target) => {
     }
   }
 
-  expressions.push(createExpressionWith(a, b, '+'))
+  createAddition(a, b)
   createSubtraction(a, b)
   createSubtraction(b, a)
   createMultiplication(a, b)
