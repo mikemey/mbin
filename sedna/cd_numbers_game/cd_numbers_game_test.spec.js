@@ -11,6 +11,7 @@ describe('expression formatter', () => {
       '-'
     ),
     expectedResult: -9,
+    expectedWeight: 5,
     expectedFormat: '1 + 2 - 3 - (4 + 5)'
   }, {
     expression: createExpression(
@@ -19,24 +20,29 @@ describe('expression formatter', () => {
       '/'
     ),
     expectedResult: 2,
+    expectedWeight: 6,
     expectedFormat: '(1 + 3) * 3 / (14 - (4 + 4))'
   }, {
     expression: createExpression(25, createExpression(9, createExpression(3, 5, '*'), '+'), '-'),
     expectedResult: 1,
+    expectedWeight: 4,
     expectedFormat: '25 - (9 + 3 * 5)'
   }, {
     expression: createExpression(25, createExpression(9, 3, '+'), '-'),
     expectedResult: 13,
+    expectedWeight: 3,
     expectedFormat: '25 - (9 + 3)'
   }, {
     expression: createExpression(createExpression(25, 9, '-'), 3, '+'),
     expectedResult: 19,
+    expectedWeight: 3,
     expectedFormat: '25 - 9 + 3'
   }]
 
   testData.forEach(data =>
     it(`formatted is ${data.expectedFormat}`, () => {
       data.expression.getResult().should.equal(data.expectedResult)
+      data.expression.getWeight().should.equal(data.expectedWeight)
       data.expression.formatted.should.equal(data.expectedFormat)
     })
   )
@@ -48,7 +54,7 @@ describe('numbers solver', () => {
       '(75 - 3) * (6 + 3 - 1)',
       '(75 - 3) * (1 + 1 + 6)',
       '(75 - 3) * (3 + 6 - 1)',
-      '(75 / 3 - 1) * 6 * (3 + 1)'
+      '(75 / 3 - 1) * 6 * (1 + 3)'
     ]
   }, {
     numbers: [5, 2, 3, 10, 6, 4], target: 609, expected: ['(5 + 2) * (3 + 6 * (10 + 4))']
@@ -77,4 +83,23 @@ describe('numbers solver', () => {
       })
     })
   )
+
+  it('best results are sorted by weight', () => {
+    const results = solveNumbersGame([25, 75, 100, 3, 9, 5], 601)
+
+    results.bestResults
+      .map(expression => `w: ${expression.getWeight()} - ${expression.formatted} = ${expression.getResult()}`)
+      .should.deep.equal([
+      'w: 5 - 5 * (25 + 100 - 3) - 9 = 601',
+      'w: 5 - 5 * (100 + 25 - 3) - 9 = 601',
+      'w: 6 - 25 * (100 - 75) - 9 - 3 * 5 = 601',
+      'w: 6 - 25 * (100 - 75) - (9 + 3 * 5) = 601',
+      'w: 3 - 100 * (9 - 3) = 600',
+      'w: 3 - 75 * (3 + 5) = 600',
+      'w: 4 - (25 + 75) * (9 - 3) = 600',
+      'w: 4 - 25 + 75 + 100 * 5 = 600',
+      'w: 4 - 3 * (100 + 25 + 75) = 600',
+      'w: 4 - 100 + 5 * (25 + 75) = 600'
+    ])
+  })
 })

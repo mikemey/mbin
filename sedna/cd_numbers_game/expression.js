@@ -14,8 +14,8 @@ const evaluateResult = (left, right, op) => {
 }
 
 const createExpression = (a, b, op, target) => {
-  const resultFrom = operand => typeof operand === 'object' ? operand.getResult() : operand
-  const weightFrom = operand => typeof operand === 'object' ? operand.weight : 1
+  const resultFrom = operand => operand.getResult ? operand.getResult() : operand
+  const weightFrom = operand => operand.getWeight ? operand.getWeight() : 1
 
   const result = evaluateResult(resultFrom(a), resultFrom(b), op)
   const difference = Math.abs(target - result)
@@ -29,7 +29,7 @@ const createExpression = (a, b, op, target) => {
     if (difference !== otherExpression.getDifference()) {
       return difference - otherExpression.getDifference()
     }
-    return weight - otherExpression.weight
+    return weight - otherExpression.getWeight()
   }
 
   const formatExpression = (addBraces = false) => {
