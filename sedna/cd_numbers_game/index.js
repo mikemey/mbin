@@ -63,7 +63,7 @@ const solveNumbersGame = (numbers, target) => {
         const expressionsForPair = generateExpressions(nums[i], nums[j], target)
 
         for (const expression of expressionsForPair) {
-          if (evaluateExpression(expression) !== null) {
+          if (expression.getResult() !== null) {
             if (!alreadyProcessed(expression)) {
               recorder.updateBestResults(expression)
             }
@@ -178,21 +178,83 @@ const generateExpressions = (a, b, target) => {
   return expressions
 }
 
+const evaluateResult = (left, right, op) => {
+  switch (op) {
+    case  '+':
+      return left + right
+    case  '-':
+      return left - right
+    case  '*':
+      return left * right
+    case  '/':
+      return left / right
+    default:
+      return null
+  }
+}
+
 const createExpression = (a, b, op, target) => {
   const weightFrom = operand => typeof operand === 'object' ? operand.weight : 1
+  const resultFrom = operand => typeof operand === 'object' ? operand.getResult() : operand
+
   const weight = weightFrom(a) + weightFrom(b)
+  const result = evaluateResult(resultFrom(a), resultFrom(b), op)
+  const difference = Math.abs(target - result)
 
-  let difference = Infinity
-  let result = null
+  // const setResult = res => {
+  //   if (res) {
+  //     difference = Math.abs(target - res)
+  //   }
+  //   result = res
+  // }
 
-  const setResult = res => {
-    if (res) {
-      difference = Math.abs(target - res)
-    }
-    result = res
+  // const evaluateExpression = (expression) => {
+  //   if (expression.getResult()) {
+  //     return expression.getResult()
+  //   }
+  //   const { a, b, op } = expression
+  //
+  //   const left = typeof a === 'object' ? a.getResult() : a
+  //   const right = typeof b === 'object' ? b.getResult() : b
+  //
+  //   expression.setResult((() => {
+  //     switch (op) {
+  //       case  '+':
+  //         return left + right
+  //       case  '-':
+  //         return left - right
+  //       case  '*':
+  //         return left * right
+  //       case  '/':
+  //         return right !== 0 && left % right === 0 ? left / right : null
+  //       default:
+  //         return null
+  //     }
+  //   })())
+  //   return expression.getResult()
+  // }
+
+  const getResult = () => {
+    // if (result === null) {
+    //   const left = typeof a === 'object' ? a.getResult() : a
+    //   const right = typeof b === 'object' ? b.getResult() : b
+    //   result = (() => {
+    //     switch (op) {
+    //       case  '+':
+    //         return left + right
+    //       case  '-':
+    //         return left - right
+    //       case  '*':
+    //         return left * right
+    //       case  '/':
+    //         return right !== 0 && left % right === 0 ? left / right : null
+    //       default:
+    //         return null
+    //     }
+    //   })()
+    // }
+    return result
   }
-
-  const getResult = () => { return result}
   const getDifference = () => { return difference }
 
   const compareTo = (otherExpression) => {
@@ -226,11 +288,20 @@ const createExpression = (a, b, op, target) => {
 
   const formatted = formatExpression()
 
-  return { a, b, op, formatted, weight, setResult, getResult, getDifference, compareTo, formatExpression }
+  // const formatExpression = expr => {
+  //   if (typeof expr === 'number') {
+  //     return expr.toString()
+  //   }
+  //   return expr.formatted
+  // }
+  //
+  // const formatted = `(${formatExpression(a)} ${op} ${formatExpression(b)})`
+
+  return { a, b, op, formatted, weight, getResult, getDifference, compareTo, formatExpression }
 }
 
 if (require.main === module) {
   main()
 }
 
-module.exports = { createExpression, solveNumbersGame, printExpression }
+module.exports = { createExpression, evaluateExpression, solveNumbersGame, printExpression }
