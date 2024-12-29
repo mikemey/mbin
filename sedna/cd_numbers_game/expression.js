@@ -41,7 +41,10 @@ const createExpression = (a, b, op, target) => {
       const needsBraces = () => {
         if (op === '+') { return false }
         if (op === '-') {
-          return subExpression.op === '+' && isRightOperand
+          if (isRightOperand) {
+            return subExpression.op === '+' || subExpression.op === '-'
+          }
+          return false
         }
         return subExpression.op === '+' || subExpression.op === '-'
       }

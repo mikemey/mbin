@@ -37,6 +37,15 @@ describe('expression formatter', () => {
     expectedResult: 19,
     expectedWeight: 3,
     expectedFormat: '25 - 9 + 3'
+  }, {
+    expression: createExpression(
+      createExpression(100, createExpression(9, 3, '-'), '*'),
+      createExpression(5, createExpression(75, 25, '/'), '-'),
+      '-'
+    ),
+    expectedResult: 598,
+    expectedWeight: 6,
+    expectedFormat: '100 * (9 - 3) - (5 - 75 / 25)'
   }]
 
   testData.forEach(data =>
@@ -52,20 +61,22 @@ describe('numbers solver', () => {
   const testData = [{
     numbers: [75, 1, 3, 1, 3, 6], target: 576, expected: [
       '(75 - 3) * (6 + 3 - 1)',
-      '(75 - 3) * (1 + 1 + 6)',
-      '(75 - 3) * (3 + 6 - 1)',
-      '(75 / 3 - 1) * 6 * (1 + 3)'
+      '(75 - 3) * (6 + 1 + 1)',
+      '(75 - 3) * (6 - 1 + 3)',
+      '(75 / 3 - 1) * 6 * (3 + 1)'
     ]
   }, {
-    numbers: [5, 2, 3, 10, 6, 4], target: 609, expected: ['(5 + 2) * (3 + 6 * (10 + 4))']
+    numbers: [5, 2, 3, 10, 6, 4], target: 609, expected: ['((10 + 4) * 6 + 3) * (5 + 2)']
   }, {
-    numbers: [75, 25, 7, 10, 3, 7], target: 834, expected: ['10 * (75 - 7) + 7 * (25 - 3)']
+    numbers: [75, 25, 7, 10, 3, 7], target: 834, expected: ['(75 - 7) * 10 + (25 - 3) * 7']
   }, {
-    numbers: [50, 100, 9, 1, 9, 3], target: 727, expected: ['3 * (100 + 9) + 50 * (9 - 1)']
+    numbers: [50, 100, 9, 1, 9, 3], target: 727, expected: ['50 * (9 - 1) + (100 + 9) * 3']
   }, {
-    numbers: [25, 50, 75, 9, 7, 2], target: 995, expected: ['50 + 9 * (75 + 25 + 7 - 2)']
+    numbers: [25, 50, 75, 9, 7, 2], target: 995, expected: ['(75 + 25 + 7 - 2) * 9 + 50']
   }, {
     numbers: [25, 75, 100, 3, 9, 5], target: 601, expected: []
+  }, {
+    numbers: [25, 75, 100, 3, 9, 5], target: 598, expected: []
   }]
 
   testData.forEach(data =>
@@ -73,11 +84,14 @@ describe('numbers solver', () => {
       const results = solveNumbersGame(data.numbers, data.target)
 
       results.bestResults
-        .forEach(expr => eval(expr.formatted).should.equal(expr.getResult()))
+        .forEach(expr => eval(expr.formatted).should.equal(expr.getResult(), expr.formatted))
 
       const formattedResults = results.bestResults
         .filter(r => r.getResult() === data.target)
-        .map(r => r.formatted)
+        .map(r => {
+          console.log(r.formatted)
+          return r.formatted
+        })
       data.expected.forEach(expectation => {
         formattedResults.should.contain(expectation)
       })
@@ -90,16 +104,16 @@ describe('numbers solver', () => {
     results.bestResults
       .map(expression => `w: ${expression.getWeight()} - ${expression.formatted} = ${expression.getResult()}`)
       .should.deep.equal([
-      'w: 5 - 5 * (25 + 100 - 3) - 9 = 601',
-      'w: 5 - 5 * (100 + 25 - 3) - 9 = 601',
-      'w: 6 - 25 * (100 - 75) - 9 - 3 * 5 = 601',
-      'w: 6 - 25 * (100 - 75) - (9 + 3 * 5) = 601',
+      'w: 5 - (100 + 25 - 3) * 5 - 9 = 601',
+      'w: 5 - (100 - 3 + 25) * 5 - 9 = 601',
+      'w: 6 - (100 - 75) * 25 - 9 - 5 * 3 = 601',
+      'w: 6 - (100 - 75) * 25 - (5 * 3 + 9) = 601',
+      'w: 6 - (100 - 75) * 25 - 5 * 3 - 9 = 601',
       'w: 3 - 100 * (9 - 3) = 600',
-      'w: 3 - 75 * (3 + 5) = 600',
-      'w: 4 - (25 + 75) * (9 - 3) = 600',
-      'w: 4 - 25 + 75 + 100 * 5 = 600',
-      'w: 4 - 3 * (100 + 25 + 75) = 600',
-      'w: 4 - 100 + 5 * (25 + 75) = 600'
+      'w: 3 - 75 * (5 + 3) = 600',
+      'w: 4 - (75 + 25) * (9 - 3) = 600',
+      'w: 4 - 100 * 5 + 75 + 25 = 600',
+      'w: 4 - (75 + 25 + 100) * 3 = 600'
     ])
   })
 })
