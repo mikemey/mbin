@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const readline = require('readline')
+const { createExpression } = require('./expression')
 
 function main () {
   const rl = readline.createInterface({
@@ -107,32 +108,6 @@ const ResultRecorder = () => {
   return { updateBestResults, bestResults, getCounter }
 }
 
-const evaluateExpression = (expression) => {
-  if (expression.getResult()) {
-    return expression.getResult()
-  }
-  const { a, b, op } = expression
-
-  const left = typeof a === 'object' ? a.getResult() : a
-  const right = typeof b === 'object' ? b.getResult() : b
-
-  expression.setResult((() => {
-    switch (op) {
-      case  '+':
-        return left + right
-      case  '-':
-        return left - right
-      case  '*':
-        return left * right
-      case  '/':
-        return right !== 0 && left % right === 0 ? left / right : null
-      default:
-        return null
-    }
-  })())
-  return expression.getResult()
-}
-
 const generateExpressions = (a, b, target) => {
   const expressions = []
 
@@ -178,130 +153,8 @@ const generateExpressions = (a, b, target) => {
   return expressions
 }
 
-const evaluateResult = (left, right, op) => {
-  switch (op) {
-    case  '+':
-      return left + right
-    case  '-':
-      return left - right
-    case  '*':
-      return left * right
-    case  '/':
-      return left / right
-    default:
-      return null
-  }
-}
-
-const createExpression = (a, b, op, target) => {
-  const weightFrom = operand => typeof operand === 'object' ? operand.weight : 1
-  const resultFrom = operand => typeof operand === 'object' ? operand.getResult() : operand
-
-  const weight = weightFrom(a) + weightFrom(b)
-  const result = evaluateResult(resultFrom(a), resultFrom(b), op)
-  const difference = Math.abs(target - result)
-
-  // const setResult = res => {
-  //   if (res) {
-  //     difference = Math.abs(target - res)
-  //   }
-  //   result = res
-  // }
-
-  // const evaluateExpression = (expression) => {
-  //   if (expression.getResult()) {
-  //     return expression.getResult()
-  //   }
-  //   const { a, b, op } = expression
-  //
-  //   const left = typeof a === 'object' ? a.getResult() : a
-  //   const right = typeof b === 'object' ? b.getResult() : b
-  //
-  //   expression.setResult((() => {
-  //     switch (op) {
-  //       case  '+':
-  //         return left + right
-  //       case  '-':
-  //         return left - right
-  //       case  '*':
-  //         return left * right
-  //       case  '/':
-  //         return right !== 0 && left % right === 0 ? left / right : null
-  //       default:
-  //         return null
-  //     }
-  //   })())
-  //   return expression.getResult()
-  // }
-
-  const getResult = () => {
-    // if (result === null) {
-    //   const left = typeof a === 'object' ? a.getResult() : a
-    //   const right = typeof b === 'object' ? b.getResult() : b
-    //   result = (() => {
-    //     switch (op) {
-    //       case  '+':
-    //         return left + right
-    //       case  '-':
-    //         return left - right
-    //       case  '*':
-    //         return left * right
-    //       case  '/':
-    //         return right !== 0 && left % right === 0 ? left / right : null
-    //       default:
-    //         return null
-    //     }
-    //   })()
-    // }
-    return result
-  }
-  const getDifference = () => { return difference }
-
-  const compareTo = (otherExpression) => {
-    if (difference !== otherExpression.getDifference()) {
-      return difference - otherExpression.getDifference()
-    }
-    return weight - otherExpression.weight
-  }
-
-  const formatExpression = (addBraces = false) => {
-    const formatOperator = operator => {
-      if (typeof operator === 'number') {
-        return operator.toString()
-      }
-
-      const needsBraces = () => {
-        if (op === '+' || op === '-') {
-          return false
-        }
-        return operator.op === '+' || operator.op === '-'
-      }
-
-      return operator.formatExpression(needsBraces())
-    }
-
-    const expressionString = `${formatOperator(a)} ${op} ${formatOperator(b)}`
-    return addBraces
-      ? `(${expressionString})`
-      : expressionString
-  }
-
-  const formatted = formatExpression()
-
-  // const formatExpression = expr => {
-  //   if (typeof expr === 'number') {
-  //     return expr.toString()
-  //   }
-  //   return expr.formatted
-  // }
-  //
-  // const formatted = `(${formatExpression(a)} ${op} ${formatExpression(b)})`
-
-  return { a, b, op, formatted, weight, getResult, getDifference, compareTo, formatExpression }
-}
-
 if (require.main === module) {
   main()
 }
 
-module.exports = { createExpression, evaluateExpression, solveNumbersGame, printExpression }
+module.exports = { solveNumbersGame, printExpression }
