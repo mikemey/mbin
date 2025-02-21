@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 
-function convert_file() {
-  ffmpeg -i "$1" \
-         -loglevel 0 -stats \
-         -vf "scale=-2:720" -c:v libx264 -crf 20 -preset slower -pix_fmt yuv420p \
-         -c:a copy -c:s copy \
-         "$2" </dev/null
-}
-
-convert_file "$1" "$2"
+ffmpeg -i "$1" \
+       -loglevel 0 -stats \
+       -vf "scale=-2:720" -c:v libx264 -crf 20 -preset slower -pix_fmt yuv420p \
+       -c:a copy -c:s copy \
+       "$2" </dev/null

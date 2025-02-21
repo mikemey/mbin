@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
+set -e
+
 input_dir="$1"
 output_dir="$2"
 EXT="mkv"
-DRYRUN=true
+DRYRUN=false
 
 function process_all_files() {
   find "$input_dir" -type f -name "*.${EXT}" | while read input_file; do
@@ -22,10 +24,10 @@ function process_all_files() {
     timelog "convert: >${input_file}<"
     if $DRYRUN; then
       echo "mkdir -p ${output_dir}"
-      echo "convert_file ${input_file} ${output_file}"
+      echo "convert_video ${input_file} ${output_file}"
     else
       mkdir -p "${output_dir}"
-      convert_file "$input_file" "$output_file"
+      convert_video "$input_file" "$output_file"
       if [ "$?" -ne 0 ]; then
         exit 1
       fi
@@ -54,14 +56,6 @@ function get_file_name() {
 
   file_name="${name}.${seep}.${remainder}"
   echo $(escape_name "$file_name")
-}
-
-function convert_file() {
-  ffmpeg -i "$1" \
-         -loglevel 0 -stats \
-         -vf "scale=-2:720" -c:v libx264 -crf 20 -preset slower -pix_fmt yuv420p \
-         -c:a copy -c:s copy \
-         "$2" </dev/null
 }
 
 process_all_files
