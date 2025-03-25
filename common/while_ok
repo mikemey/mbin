@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+rc=0
+while [[ $rc -eq 0 ]]; do
+    eval "$@"
+    rc=$?
+done
