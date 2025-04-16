@@ -32,6 +32,7 @@ function safelink {
 safelink "$USER_HOME/media" "$PUBLIC/media"
 safelink "$USER_HOME/series" "$PUBLIC/media/series"
 safelink "$USER_HOME/movies" "$PUBLIC/media/movies"
+safelink "$USER_HOME/current" "$PUBLIC/media/current"
 safelink "$USER_HOME/bin" "$PUBLIC/bin"
 safelink "$USER_HOME/data" "$PUBLIC/data"
 safelink "$USER_HOME/logs" "$LOGDIR"
