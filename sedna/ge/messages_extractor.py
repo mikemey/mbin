@@ -90,7 +90,8 @@ def __find_text(li):
     full_text = ""
     for text_tag in text_tags:
         full_text += "\n" if full_text else ""
-        full_text += "\n".join(text_tag.stripped_strings)
+        cleaned_text = [s.replace("\n", "") for s in text_tag.stripped_strings]
+        full_text += "\n".join(cleaned_text)
     return full_text
 
 
@@ -121,3 +122,9 @@ def __extract_timestamp(li):
         yesterday_str = yesterday.strftime("%d.%m.%y")
         timestamp = timestamp.replace("Gestern", yesterday_str)
     return timestamp
+
+
+if __name__ == "__main__":
+    import sys
+
+    _print_messages(open(sys.argv[1], "r", encoding="utf-8").read())
