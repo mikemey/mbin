@@ -24,6 +24,16 @@ class MessageExtractor:
         return _extract_inbox_id(inboxes_html, user_id)
 
 
+def print_file_messages(file_path):
+    html_file = read_html_file(file_path)
+    _print_messages(html_file)
+
+
+def read_html_file(file_path):
+    with open(file_path, "r", encoding="utf-8") as file:
+        return file.read()
+
+
 def _extract_inbox_id(inboxes_html: str, user_id: str) -> str | None:
     soup = BeautifulSoup(inboxes_html, "html.parser")
 
@@ -48,8 +58,8 @@ def _extract_inbox_id_from_href(href: str) -> str | None:
     return parts[-1] if parts else None
 
 
-def _print_messages(inbox_html):
-    messages = _extract_messages(inbox_html)
+def _print_messages(html):
+    messages = _extract_messages(html)
     for user, text, timestamp in messages:
         print(f"[{timestamp}] {user}: {text}")
 
@@ -122,9 +132,3 @@ def __extract_timestamp(li):
         yesterday_str = yesterday.strftime("%d.%m.%y")
         timestamp = timestamp.replace("Gestern", yesterday_str)
     return timestamp
-
-
-if __name__ == "__main__":
-    import sys
-
-    _print_messages(open(sys.argv[1], "r", encoding="utf-8").read())
