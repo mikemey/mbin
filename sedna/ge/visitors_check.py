@@ -84,6 +84,7 @@ class VisitorCheck:
         for visitor in self.visitors:
             img_path = os.path.join(VISITORS_IMAGE_FOLDER, f"{visitor.user_id}.jpg")
             if not os.path.exists(img_path):
+                print(f"new profile image of user: {visitor.user_id}")
                 img_url = self.__find_image_url(visitor)
                 response = requests.get(img_url, stream=True)
                 if response.status_code == 200:
@@ -92,7 +93,6 @@ class VisitorCheck:
                             img_file.write(chunk)
 
     def __find_image_url(self, visitor):
-        print(f"new user-id: {visitor.user_id}")
         html = self.ge_session.fetch_profile(visitor.user_id)
         soup = BeautifulSoup(html, "html.parser")
 
