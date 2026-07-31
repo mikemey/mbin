@@ -25,13 +25,15 @@ done
 
 ret_val=0
 working_dir=$(pwd)
-params="${@:$OPTIND}"
+
+shift $((OPTIND - 1))
+command=("$@")
 
 function execute_parameters {
-  if [ -f "$working_dir/$params" ]; then
-    bash "$working_dir/$params"
+  if [[ -x "$working_dir/${command[0]}" ]]; then
+    "$working_dir/${command[@]}"
   else
-    eval "$params"
+    "${command[@]}"
   fi
   ret_val=$?
 }
@@ -39,9 +41,9 @@ function execute_parameters {
 for dir in *
   do if [ -d "$dir/.git" ]
     then
-      cd $dir
+      cd "$dir"
       current_branch=$(git rev-parse --abbrev-ref HEAD)
-      if [ -e $branch ] || [[ ${current_branch} =~ ${branch} ]]; then
+      if [[ -z "$branch" || "$current_branch" =~ "$branch" ]]; then
           printf "\n${FG_GREEN}==== ${FG_LIGHT_GREEN}${dir} ${FG_LIGHT_YELLOW}[${current_branch}]${FG_DEFAULT}\n"
           execute_parameters
       fi
