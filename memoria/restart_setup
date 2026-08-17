@@ -4,6 +4,8 @@
 #
 #  mount -t ext2 /dev/mtdblock5 /tmp/config
 #  vi /tmp/config/autorun.sh
+#  add line:
+# /share/MD0_DATA/Public/bin/mbin/memoria/restart_setup 2>&1 >> /share/MD0_DATA/Public/logs/restart_setup.log
 #  umount /tmp/config
 
 function check_env () {
