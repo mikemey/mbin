@@ -13,8 +13,8 @@ schedule_data_filename = '{}/tantalus/scheduler.ts'.format(os.environ['LOGDIR'])
 def check_metadata(current_metadata):
     with open(schedule_data_filename, 'r') as fin:
         previous_metadata = fin.readline()
-        if previous_metadata == current_metadata:
-            notify(current_metadata)
+    if previous_metadata == current_metadata:
+        notify(current_metadata)
 
 
 def update_metadata(current_metadata):
