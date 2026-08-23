@@ -13,8 +13,9 @@ version_fname = '{}/workout-records/is_online.ts'.format(os.environ['LOGDIR'])
 def check_server_time(current_version):
     with open(version_fname, 'r') as fin:
         previous_version = fin.readline()
-        if previous_version != current_version:
-            notify(current_version)
+    if previous_version != current_version:
+        notify(current_version)
+        update_server_time(current_version)
 
 
 def update_server_time(current_version):
@@ -37,7 +38,6 @@ try:
     resp.raise_for_status()
     serverTime = resp.text
     check_server_time(serverTime)
-    update_server_time(serverTime)
     print('done')
 except Exception as ex:
     print('error: {}'.format(ex))
