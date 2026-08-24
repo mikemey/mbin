@@ -1,5 +1,6 @@
 #!/usr/local/bin/python
 from os import environ, path, listdir
+import re
 import sys
 import traceback
 from datetime import datetime, timedelta
@@ -12,7 +13,7 @@ from tzlocal import get_localzone
 wr_murl = 'https://{}/workout-records/api/metadata'.format(environ['MSMSERVER'])
 tantalus_murl = 'https://{}/api/metadata/schedule'.format(environ['MSMSERVER'])
 log_dir = environ['LOGDIR']
-backup_dir = environ['BAKDIR']
+db_backup_dir = environ['BAKDIR']
 
 FILE_KEY = 'file'
 DIR_KEY = 'dir'
@@ -25,24 +26,26 @@ checks = [
     {FILE_KEY: log_dir + '/workout-records/is_online.log', NAME_KEY: 'Workout records'},
     {FILE_KEY: log_dir + '/restart_setup.log', NAME_KEY: 'Qnap'}
 ]
-backups = [
-    {DIR_KEY: backup_dir + '/tantalus', NAME_KEY: 'Tantalus'},
-    {DIR_KEY: backup_dir + '/workout-records', NAME_KEY: 'Workout records'}
+db_backup_checks = [
+    {DIR_KEY: db_backup_dir + '/tantalus', NAME_KEY: 'Tantalus'},
+    {DIR_KEY: db_backup_dir + '/workout-records', NAME_KEY: 'Workout records'}
 ]
+db_backup_size_threshold = 20000
 
 report_template_file = path.dirname(path.abspath(__file__)) + '/msm_report_template.html'
 date_line_template = '<span class="{}">{}: <small class="pull_right">{}</small></span><br />\n'
 today_class = ''
 not_today_class = 'not_today'
-backup_size_threshold=20000
+
+backup_sync_log = log_dir + '/backup_sync.log'
 
 
 def format_date(dt):
     return dt.strftime("%-I:%M %p  %Y-%m-%d")
 
 
-def format_date_line(title, dt):
-    date_indicator = today_class if within_a_day(dt) else not_today_class
+def format_date_line(title, dt, error=False):
+    date_indicator = today_class if within_a_day(dt) and not error else not_today_class
     return date_line_template.format(date_indicator, title, format_date(dt))
 
 
@@ -66,8 +69,8 @@ def get_check_logs():
 
 def get_backup_dates():
     result_log = ''
-    for backup in backups:
-        directory = backup[DIR_KEY]
+    for db_backup in db_backup_checks:
+        directory = db_backup[DIR_KEY]
         bak_files = [
             path.join(directory, f)
             for f in listdir(directory)
@@ -76,11 +79,28 @@ def get_backup_dates():
         bak_dates = [
             path.getmtime(bf)
             for bf in bak_files
-            if path.getsize(bf) > backup_size_threshold
+            if path.getsize(bf) > db_backup_size_threshold
         ]
         latest_date = datetime.fromtimestamp(max(bak_dates))
-        result_log += format_date_line(backup[NAME_KEY], latest_date)
+        result_log += format_date_line(db_backup[NAME_KEY], latest_date)
     return result_log
+
+
+def get_backup_sync():
+    mod_date = datetime.fromtimestamp(path.getmtime(backup_sync_log))
+    exit_code = get_latest_sync_status()
+
+    return format_date_line('QNAP backup sync', mod_date, error=exit_code != 0)
+
+
+def get_latest_sync_status():
+    with open(backup_sync_log, 'r', encoding='utf-8') as log_file:
+        for line in reversed(log_file.readlines()):
+            match = re.search(r'END sync \[(\d+)\]', line)
+            if match:
+                return int(match.group(1))
+
+    raise ValueError('No END sync entry found in {}'.format(backup_sync_log))
 
 
 try:
@@ -88,7 +108,8 @@ try:
     wr_metadata = get_metadata(wr_murl)
     tantalus_metadata = get_metadata(tantalus_murl)
     check_logs = get_check_logs()
-    backups = get_backup_dates()
+    db_backup_checks = get_backup_dates()
+    backup_sync = get_backup_sync()
 
     wr_req_size = wr_metadata['requestLogSize'] / 1024
     wr_congrats_count = wr_metadata['congratsMessages']
@@ -102,7 +123,8 @@ try:
 
         report = report_template.format(
             check_logs,
-            backups,
+            db_backup_checks,
+            backup_sync,
             schedule_line,
             tantalus_metadata['ticker']['count'], tantalus_metadata['graphs']['count'],
             wr_req_size, wr_congrats_count,
