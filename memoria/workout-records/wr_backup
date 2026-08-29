@@ -4,19 +4,28 @@ BACKUP_DIR="$BAKDIR/workout-records"
 TMP_DIR="tmp"
 BAK_FILE="wr_db_$(date +"%Y%m%d_%H%M").gz"
 
+function exit_with () {
+  exit_code="$1"
+  timelog "done [$exit_code]"
+  exit "$exit_code"
+}
+
 timelog "dumping remote db..."
-ssh $MSMSSH /usr/bin/env bash << EOF
-  cd "$TMP_DIR"
+ssh "$MSMSSH" /usr/bin/env bash << EOF
+  cd "$TMP_DIR" &&
   mongodump --quiet --db=workout-records --numParallelCollections=1 --gzip --archive="$BAK_FILE"
 EOF
+[ $? -ne 0 ] && exit_with 1
 
 timelog "transferring dump file..."
-rsync -q -P -r $MSMSSH:"~/$TMP_DIR/$BAK_FILE" "$BACKUP_DIR"
+rsync -q -P -r "$MSMSSH":"~/$TMP_DIR/$BAK_FILE" "$BACKUP_DIR"
+[ $? -ne 0 ] && exit_with 2
 
 timelog "cleanup..."
-ssh $MSMSSH /usr/bin/env bash << EOF
-  cd "$TMP_DIR"
+ssh "$MSMSSH" /usr/bin/env bash << EOF
+  cd "$TMP_DIR" &&
   rm "$BAK_FILE"
 EOF
+[ $? -ne 0 ] && exit_with 3
 
-timelog "done"
+exit_with 0
