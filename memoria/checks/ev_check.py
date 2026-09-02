@@ -30,7 +30,7 @@ def send_mail(title, body):
 class _Car:
     def __init__(self, data):
         def extract_number(selector, default=0):
-            num = re.sub('\D', '', data.select_one(selector).text)
+            num = re.sub('\\D', '', data.select_one(selector).text)
             return int(num) if num else default
 
         car_anchor = data.select_one('h2 a')
