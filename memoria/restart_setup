@@ -2,10 +2,11 @@
 
 #  HOW-TO: add script in autorun.sh:
 #
-#  mount -t ext2 /dev/mtdblock5 /tmp/config
+#  mount -t ext2 /dev/mmcblk0p5 /tmp/config
 #  vi /tmp/config/autorun.sh
-#  add line:
-# /share/MD0_DATA/Public/bin/mbin/memoria/restart_setup 2>&1 >> /share/MD0_DATA/Public/logs/restart_setup.log
+# add line:
+#  /share/MD0_DATA/Public/bin/mbin/memoria/restart_setup 2>&1 >> /share/MD0_DATA/Public/logs/restart_setup.log
+#  chmod +x /tmp/config/autorun.sh
 #  umount /tmp/config
 
 function check_env () {
