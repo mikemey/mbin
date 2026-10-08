@@ -10,12 +10,12 @@ function print_usage_exit () {
 }
 
 function short_beep () {
-  /sbin/pic_raw 80
+  /sbin/hal_app --se_buzzer enc_id=0,mode=0
   sleep 1
 }
 
 function long_beep () {
-  /sbin/pic_raw 81
+  /sbin/hal_app --se_buzzer enc_id=0,mode=1
   sleep 2
 }
 
