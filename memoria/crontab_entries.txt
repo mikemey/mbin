@@ -19,6 +19,7 @@
 30 8-20 * * * source /share/MD0_DATA/Public/bin/.custom_profile; [[ $RANDOM -lt 1000 ]] && python3 $MBIN/msm_report.py 2>&1 | timelog >> $LOGDIR/msm-report.log 2>&1
 17 8-20/2 * * * source /share/MD0_DATA/Public/bin/.custom_profile; $MBIN/checks/check_main.sh 2>&1 | timelog >> $LOGDIR/checks.log 2>&1
 1 0 * * * source /share/MD0_DATA/Public/bin/.custom_profile; $PUBLIC/sync_dirs_to_usb.sh 2>&1 >> $LOGDIR/backup_sync.log 2>&1
+18 20 * * * source /share/MD0_DATA/Public/bin/.custom_profile; python3 $MBIN/dead_man_switch.py 2>&1 | timelog >> $LOGDIR/dms.log 2>&1
 #------------------------------------------------------------------------------
 #====               qnap will reorder these jobs           ====================
 #------------------------------------------------------------------------------

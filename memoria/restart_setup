@@ -51,4 +51,5 @@ function appendLine {
 
 appendLine "##### restart setup appendices:"
 appendLine "source $CUSTOM_PROFILE"
+appendLine "dead_man_switch_break"
 appendLine "export PS1=\"\\n\\[\\033[1;34m\\]\\u@\\h\\[\\033[00m\\] \\[\\033[0;32m\\]\\w\\[\\033[00m\\]\\n\\$ \""
